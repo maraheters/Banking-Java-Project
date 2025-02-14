@@ -8,7 +8,9 @@ import lombok.NoArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Date;
 
 @Data
 @NoArgsConstructor
@@ -17,7 +19,7 @@ public class Deposit {
     private Long id;
     private BigDecimal balance;
     private DepositStatus status;
-    private LocalDateTime dateCreated;
+    private LocalDate dateCreated;
     private Long accountId;
     private double interestRate;
 
@@ -27,7 +29,7 @@ public class Deposit {
         deposit.interestRate = interestRate;
         deposit.status = DepositStatus.ACTIVE;
         deposit.balance = BigDecimal.ZERO;
-        deposit.dateCreated = LocalDateTime.now();
+        deposit.dateCreated = LocalDateTime.now().toLocalDate();
 
         return deposit;
     }

@@ -1,6 +1,5 @@
 package example.banking.deposit;
 
-import example.banking.account.entity.Account;
 import example.banking.deposit.entity.Deposit;
 import example.banking.deposit.repository.DepositRepository;
 import org.junit.jupiter.api.Assertions;
@@ -16,7 +15,7 @@ import java.math.BigDecimal;
 
 @DataJdbcTest
 @Testcontainers
-@ActiveProfiles("test")
+@ActiveProfiles("test-containers")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class DepositRepositoryTests {
 
@@ -34,32 +33,32 @@ public class DepositRepositoryTests {
     }
 
     @Test
-    public void saveDeposit_whenSaved_thenCorrect() {
-        var deposit = Deposit.create(24L, 2);
+    public void createDeposit_whenCreated_thenCorrect() {
+        var deposit = Deposit.create(null, 2);
 
-        var id = repository.save(deposit);
+        var id = repository.create(deposit);
         Assertions.assertNotNull(id);
     }
 
     @Test
-    public void saveDeposit_whenFindById_thenCorrect() {
-        var id1 = repository.save( Deposit.create(24L, 2) );
+    public void createDeposit_whenFindById_thenCorrect() {
+        var id1 = repository.create( Deposit.create(null, 2) );
 
         var id2 = repository.findById(id1).get().getId();
 
         Assertions.assertEquals(id1, id2);
     }
 
-//    @Test
-//    public void saveDeposit_whenSavedAndRetrieved_thenCorrect() {
-//        var deposit = Deposit.create(24L, 2);
-//        deposit.setBalance(BigDecimal.valueOf(24_000));
-//
-//        var id = repository.save(deposit);
-//
-//        var retrieved = repository.findById(id).get();
-//
-//        Assertions.assertEquals(deposit.getBalance(), retrieved.getBalance());
-//
-//    }
+    @Test
+    public void saveDeposit_whenSavedAndRetrieved_thenCorrect() {
+        var deposit = Deposit.create(null, 2);
+        deposit.setBalance(BigDecimal.valueOf(24_000));
+
+        var id = repository.create(deposit);
+
+        var retrieved = repository.findById(id).get();
+
+        Assertions.assertEquals(deposit.getBalance().compareTo(retrieved.getBalance()), 0);
+
+    }
 }

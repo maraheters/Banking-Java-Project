@@ -2,7 +2,6 @@ package example.banking.deposit.repository;
 
 import example.banking.deposit.entity.Deposit;
 import example.banking.deposit.mapper.DepositRowMapper;
-import example.banking.exception.ResourceNotFoundException;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -21,7 +20,7 @@ public class DepositRepository {
         this.template = template;
     }
 
-    public Long save(Deposit deposit) {
+    public Long create(Deposit deposit) {
         String sql = "INSERT INTO deposit(balance, status, date_created, interest_rate, account_id ) " +
                      "VALUES (:balance, :status, :dateCreated, :interestRate, :accountId) RETURNING id";
 
