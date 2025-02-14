@@ -12,6 +12,8 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import java.math.BigDecimal;
+
 @DataJdbcTest
 @Testcontainers
 @ActiveProfiles("test")
@@ -33,7 +35,7 @@ public class DepositRepositoryTests {
 
     @Test
     public void saveDeposit_whenSaved_thenCorrect() {
-        var deposit = Deposit.create(new Account(), 2);
+        var deposit = Deposit.create(24L, 2);
 
         var id = repository.save(deposit);
         Assertions.assertNotNull(id);
@@ -41,12 +43,23 @@ public class DepositRepositoryTests {
 
     @Test
     public void saveDeposit_whenFindById_thenCorrect() {
-        var id1 = repository.save( Deposit.create(new Account(), 2) );
+        var id1 = repository.save( Deposit.create(24L, 2) );
 
-        var id2 = repository.findById(id1).getId();
+        var id2 = repository.findById(id1).get().getId();
 
         Assertions.assertEquals(id1, id2);
     }
 
-
+//    @Test
+//    public void saveDeposit_whenSavedAndRetrieved_thenCorrect() {
+//        var deposit = Deposit.create(24L, 2);
+//        deposit.setBalance(BigDecimal.valueOf(24_000));
+//
+//        var id = repository.save(deposit);
+//
+//        var retrieved = repository.findById(id).get();
+//
+//        Assertions.assertEquals(deposit.getBalance(), retrieved.getBalance());
+//
+//    }
 }

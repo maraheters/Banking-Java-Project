@@ -18,12 +18,12 @@ public class Deposit {
     private BigDecimal balance;
     private DepositStatus status;
     private LocalDateTime dateCreated;
-    private Account account;
+    private Long accountId;
     private double interestRate;
 
-    public static Deposit create(Account account, double interestRate) {
+    public static Deposit create(Long accountId, double interestRate) {
         Deposit deposit = new Deposit();
-        deposit.account = account;
+        deposit.accountId = accountId;
         deposit.interestRate = interestRate;
         deposit.status = DepositStatus.ACTIVE;
         deposit.balance = BigDecimal.ZERO;

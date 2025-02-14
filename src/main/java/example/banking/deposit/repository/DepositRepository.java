@@ -10,6 +10,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class DepositRepository {
@@ -29,19 +30,21 @@ public class DepositRepository {
         map.addValue("status", deposit.getStatus().toString());
         map.addValue("dateCreated", deposit.getDateCreated());
         map.addValue("interestRate", deposit.getInterestRate());
-        map.addValue("accountId", null);
+        map.addValue("accountId", deposit.getAccountId());
 
         return template.queryForObject(sql, map, Long.class);
     }
 
-    public Deposit findById(long id) {
+    public Optional<Deposit> findById(long id) {
         String sql = "SELECT * FROM deposit WHERE deposit.id = :id";
         var parameterSource = new MapSqlParameterSource("id", id);
 
         try {
-            return template.queryForObject(sql, parameterSource, new DepositRowMapper());
+            return Optional.ofNullable(template.queryForObject(sql, parameterSource, new DepositRowMapper()));
+
         } catch (EmptyResultDataAccessException e) {
-            throw new ResourceNotFoundException("Deposit with id '" + id + "' not found");
+            return Optional.empty();
+
         } catch (DataAccessException e) {
             throw new RuntimeException("Error while trying to query for deposit with id '" + id +"': " + e);
         }
