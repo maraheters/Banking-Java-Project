@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: 'postgres:16.6'
+    environment:
+      - POSTGRES_DB=banking_db
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - PGDATA=/var/lib/postgresql/data/banking
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/banking
+
+volumes:
+  postgres_data:
