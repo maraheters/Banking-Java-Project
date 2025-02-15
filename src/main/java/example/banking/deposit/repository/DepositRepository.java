@@ -54,7 +54,7 @@ public class DepositRepository {
         try {
             return template.query(sql, new DepositRowMapper());
         } catch (DataAccessException e) {
-            throw new RuntimeException("Error while trying to query for deposits");
+            throw new RuntimeException("Error while trying to query for deposits", e);
         }
     }
 

@@ -27,7 +27,7 @@ public class Deposit {
         Deposit deposit = new Deposit();
         deposit.accountId = accountId;
         deposit.interestRate = interestRate;
-        deposit.status = DepositStatus.ACTIVE;
+        deposit.status = DepositStatus.FROZEN;
         deposit.balance = BigDecimal.ZERO;
         deposit.dateCreated = LocalDateTime.now().toLocalDate();
 

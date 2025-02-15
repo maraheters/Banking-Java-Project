@@ -1,7 +1,9 @@
-package example.banking.deposit;
+package example.banking.account;
 
+import example.banking.account.entity.Account;
+import example.banking.account.repository.AccountsRepository;
+import example.banking.account.types.AccountType;
 import example.banking.deposit.entity.Deposit;
-import example.banking.deposit.repository.DepositRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,20 +13,17 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import java.math.BigDecimal;
-
 @DataJdbcTest
 @Testcontainers
 @ActiveProfiles("test-containers")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-public class DepositRepositoryTests {
+public class AccountsRepositoryTests {
 
-
-    private final DepositRepository repository;
+    private final AccountsRepository repository;
 
     @Autowired
-    public DepositRepositoryTests(NamedParameterJdbcTemplate template) {
-        this.repository = new DepositRepository(template);
+    public AccountsRepositoryTests(NamedParameterJdbcTemplate template) {
+        repository = new AccountsRepository(template);
     }
 
     @Test
@@ -33,16 +32,16 @@ public class DepositRepositoryTests {
     }
 
     @Test
-    public void createDeposit_whenCreated_thenCorrect() {
-        var deposit = Deposit.create(null, 2);
+    public void createAccount_whenSaved_thenCorrect() {
+        var account = Account.create(null, AccountType.PERSONAL);
 
-        var id = repository.create(deposit);
+        var id = repository.create(account);
         Assertions.assertNotNull(id);
     }
 
     @Test
-    public void findById_whenCreatedAndFound_thenCorrect() {
-        var id1 = repository.create( Deposit.create(null, 2) );
+    public void findById_whenSavedAndRetrieved_thenCorrect() {
+        var id1 = repository.create(Account.create(null, AccountType.PERSONAL));
 
         var id2 = repository.findById(id1).get().getId();
 
@@ -50,22 +49,9 @@ public class DepositRepositoryTests {
     }
 
     @Test
-    public void saveDeposit_whenSavedAndRetrieved_thenValuesCorrect() {
-        var deposit = Deposit.create(null, 2);
-        deposit.setBalance(BigDecimal.valueOf(24_000));
-
-        var id = repository.create(deposit);
-
-        var retrieved = repository.findById(id).get();
-
-        Assertions.assertEquals(deposit.getBalance().compareTo(retrieved.getBalance()), 0);
-
-    }
-
-    @Test
     public void findAll_whenSavedAndRetrieved_thenCorrect() {
-        repository.create( Deposit.create(null, 2) );
-        repository.create( Deposit.create(null, 2) );
+        repository.create( Account.create(null, AccountType.PERSONAL) );
+        repository.create( Account.create(null, AccountType.PERSONAL) );
 
         var results = repository.findAll();
         Assertions.assertEquals(2, results.size());
