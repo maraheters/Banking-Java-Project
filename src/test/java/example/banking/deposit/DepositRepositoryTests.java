@@ -2,6 +2,7 @@ package example.banking.deposit;
 
 import example.banking.deposit.entity.Deposit;
 import example.banking.deposit.repository.DepositRepository;
+import example.banking.deposit.repository.DepositRepositoryImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,31 +14,32 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.math.BigDecimal;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 @DataJdbcTest
 @Testcontainers
 @ActiveProfiles("test-containers")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class DepositRepositoryTests {
 
-
     private final DepositRepository repository;
 
     @Autowired
     public DepositRepositoryTests(NamedParameterJdbcTemplate template) {
-        this.repository = new DepositRepository(template);
+        this.repository = new DepositRepositoryImpl(template);
     }
 
     @Test
     public void contextLoads() {
-        Assertions.assertNotNull(repository);
+        assertNotNull(repository);
     }
 
     @Test
-    public void createDeposit_whenCreated_thenCorrect() {
+    public void create_whenCreated_thenCorrect() {
         var deposit = Deposit.create(null, 2);
 
         var id = repository.create(deposit);
-        Assertions.assertNotNull(id);
+        assertNotNull(id);
     }
 
     @Test
@@ -46,11 +48,11 @@ public class DepositRepositoryTests {
 
         var id2 = repository.findById(id1).get().getId();
 
-        Assertions.assertEquals(id1, id2);
+        assertEquals(id1, id2);
     }
 
     @Test
-    public void saveDeposit_whenSavedAndRetrieved_thenValuesCorrect() {
+    public void create_whenSavedAndRetrieved_thenValuesCorrect() {
         var deposit = Deposit.create(null, 2);
         deposit.setBalance(BigDecimal.valueOf(24_000));
 
@@ -58,7 +60,7 @@ public class DepositRepositoryTests {
 
         var retrieved = repository.findById(id).get();
 
-        Assertions.assertEquals(deposit.getBalance().compareTo(retrieved.getBalance()), 0);
+        assertEquals(deposit.getBalance().compareTo(retrieved.getBalance()), 0);
 
     }
 
@@ -68,6 +70,6 @@ public class DepositRepositoryTests {
         repository.create( Deposit.create(null, 2) );
 
         var results = repository.findAll();
-        Assertions.assertEquals(2, results.size());
+        assertEquals(2, results.size());
     }
 }

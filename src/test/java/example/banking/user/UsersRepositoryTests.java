@@ -1,10 +1,8 @@
-package example.banking.account;
+package example.banking.user;
 
-import example.banking.account.entity.Account;
-import example.banking.account.repository.AccountsRepository;
-import example.banking.account.repository.AccountsRepositoryImpl;
-import example.banking.account.types.AccountType;
-import org.junit.jupiter.api.Assertions;
+import example.banking.user.entity.User;
+import example.banking.user.repository.UsersRepository;
+import example.banking.user.repository.UsersRepositoryImpl;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.jdbc.DataJdbcTest;
@@ -19,13 +17,19 @@ import static org.junit.jupiter.api.Assertions.*;
 @Testcontainers
 @ActiveProfiles("test-containers")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-public class AccountsRepositoryTests {
+public class UsersRepositoryTests {
 
-    private final AccountsRepository repository;
+    private final UsersRepository repository;
+    private final User user1;
+    private final User user2;
 
     @Autowired
-    public AccountsRepositoryTests(NamedParameterJdbcTemplate template) {
-        repository = new AccountsRepositoryImpl(template);
+    public UsersRepositoryTests(NamedParameterJdbcTemplate jdbcTemplate) {
+        repository = new UsersRepositoryImpl(jdbcTemplate);
+        user1 = User.create(
+                "Joe", "+375282828", "12345", "12345", "email@email.com");
+        user2 = User.create(
+                "Joe", "+3752828428", "123435", "124345", "emaile@email.com");
     }
 
     @Test
@@ -35,15 +39,13 @@ public class AccountsRepositoryTests {
 
     @Test
     public void create_whenSaved_thenCorrect() {
-        var account = Account.create(null, AccountType.PERSONAL);
-
-        var id = repository.create(account);
+        var id = repository.create(user1);
         assertNotNull(id);
     }
 
     @Test
     public void findById_whenSavedAndRetrieved_thenCorrect() {
-        var id1 = repository.create(Account.create(null, AccountType.PERSONAL));
+        var id1 = repository.create(user1);
 
         var id2 = repository.findById(id1).get().getId();
 
@@ -52,8 +54,8 @@ public class AccountsRepositoryTests {
 
     @Test
     public void findAll_whenSavedAndRetrieved_thenCorrect() {
-        repository.create( Account.create(null, AccountType.PERSONAL) );
-        repository.create( Account.create(null, AccountType.PERSONAL) );
+        repository.create(user1);
+        repository.create(user2);
 
         var results = repository.findAll();
         assertEquals(2, results.size());
