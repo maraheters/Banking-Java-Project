@@ -1,10 +1,11 @@
 package example.banking.deposit.entity;
 
+import example.banking.deposit.dto.DepositDto;
 import example.banking.deposit.types.DepositStatus;
 import jakarta.validation.constraints.Positive;
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,10 +14,9 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.Period;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Slf4j
+@ToString
 public class Deposit {
     private Long id;
     private BigDecimal minimum;
@@ -28,6 +28,19 @@ public class Deposit {
     private Integer lengthInMonths;
     private Long accountId;
     private Double interestRate;
+
+    private Deposit(DepositDto dto) {
+        id                  = dto.getId();
+        minimum             = dto.getMinimum();
+        bonus               = dto.getBonus();
+        status              = dto.getStatus();
+        dateCreated         = dto.getDateCreated();
+        lastBonusDate       = dto.getLastBonusDate();
+        numberOfBonusesYet  = dto.getNumberOfBonusesYet();
+        lengthInMonths      = dto.getLengthInMonths();
+        accountId           = dto.getAccountId();
+        interestRate        = dto.getInterestRate();
+    }
 
     public static Deposit create(
             Long accountId, double interestRate, int lengthInMonths, BigDecimal initialBalance) {
@@ -44,6 +57,22 @@ public class Deposit {
         deposit.lastBonusDate = LocalDate.now();
 
         return deposit;
+    }
+
+    public static Deposit fromDto(DepositDto dto) {
+        return new Deposit(dto);
+    }
+
+    public DepositDto toDto() {
+        return new DepositDto(
+            id, minimum, bonus, status, dateCreated, lastBonusDate, numberOfBonusesYet, lengthInMonths, accountId, interestRate);
+    }
+
+    public void setStatus(DepositStatus status) {
+        checkStatusNot(DepositStatus.COMPLETE);
+        checkStatusNot(DepositStatus.CLOSED);
+
+        this.status = status;
     }
 
     @Transactional
@@ -105,12 +134,12 @@ public class Deposit {
 
     private void checkStatus(DepositStatus status) {
         if (!this.status.equals(status))
-            throw new IllegalStateException("Deposit is " + status);
+            throw new IllegalStateException("Deposit status must be " + status + ", actual status is: " + status);
     }
 
     private void checkStatusNot(DepositStatus status) {
         if (this.status.equals(status))
-            throw new IllegalStateException("Deposit is " + status);
+            throw new IllegalStateException("Deposit status must not be: " + status);
     }
 
     private BigDecimal calculateBonus() {

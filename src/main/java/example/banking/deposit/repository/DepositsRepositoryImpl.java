@@ -1,7 +1,7 @@
 package example.banking.deposit.repository;
 
 import example.banking.deposit.entity.Deposit;
-import example.banking.deposit.mapper.DepositRowMapper;
+import example.banking.deposit.rowMapper.DepositRowMapper;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -65,9 +65,8 @@ public class DepositsRepositoryImpl implements DepositsRepository {
     public void update(Deposit deposit) {
         String sql = getUpdateSql();
 
-
         var map = getMapSqlParameterSource(deposit);
-        map.addValue("id", deposit.getId());
+        map.addValue("id", deposit.toDto().getId());
 
         template.update(sql, map);
     }
@@ -79,7 +78,7 @@ public class DepositsRepositoryImpl implements DepositsRepository {
         List<MapSqlParameterSource> batchValues = new ArrayList<>();
         for (Deposit deposit : deposits) {
             var map = getMapSqlParameterSource(deposit);
-            map.addValue("id", deposit.getId());
+            map.addValue("id", deposit.toDto().getId());
             batchValues.add(map);
         }
 
@@ -101,16 +100,18 @@ public class DepositsRepositoryImpl implements DepositsRepository {
     }
 
     private MapSqlParameterSource getMapSqlParameterSource(Deposit deposit) {
+        var depositDto = deposit.toDto();
         var map = new MapSqlParameterSource();
-        map.addValue("minimum", deposit.getMinimum());
-        map.addValue("bonus", deposit.getBonus());
-        map.addValue("status", deposit.getStatus().toString());
-        map.addValue("dateCreated", deposit.getDateCreated());
-        map.addValue("lengthInMonths", deposit.getLengthInMonths());
-        map.addValue("interestRate", deposit.getInterestRate());
-        map.addValue("accountId", deposit.getAccountId());
-        map.addValue("numberOfBonuses", deposit.getNumberOfBonusesYet());
-        map.addValue("lastBonusDate", deposit.getLastBonusDate());
+
+        map.addValue("minimum",         depositDto.getMinimum());
+        map.addValue("bonus",           depositDto.getBonus());
+        map.addValue("status",          depositDto.getStatus().toString());
+        map.addValue("dateCreated",     depositDto.getDateCreated());
+        map.addValue("lengthInMonths",  depositDto.getLengthInMonths());
+        map.addValue("interestRate",    depositDto.getInterestRate());
+        map.addValue("accountId",       depositDto.getAccountId());
+        map.addValue("numberOfBonuses", depositDto.getNumberOfBonusesYet());
+        map.addValue("lastBonusDate",   depositDto.getLastBonusDate());
 
         return map;
     }

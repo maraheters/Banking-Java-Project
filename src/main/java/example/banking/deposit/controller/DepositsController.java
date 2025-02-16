@@ -1,8 +1,10 @@
 package example.banking.deposit.controller;
 
 import example.banking.deposit.dto.DepositRequestDto;
-import example.banking.deposit.entity.Deposit;
+import example.banking.deposit.dto.DepositResponseDto;
+import example.banking.deposit.mapper.DepositMapper;
 import example.banking.deposit.service.DepositsService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,7 +16,9 @@ public class DepositsController {
 
     private final DepositsService service;
 
-    public DepositsController(DepositsService service) {
+    @Autowired
+    public DepositsController(
+            DepositsService service) {
         this.service = service;
     }
 
@@ -27,8 +31,11 @@ public class DepositsController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Deposit>> getAll() {
-        return ResponseEntity.ok(
-            service.getAll());
+    public ResponseEntity<List<DepositResponseDto>> getAll() {
+        var dtos = service.getAll().stream()
+                .map(DepositMapper::toResponseDto)
+                .toList();
+
+        return ResponseEntity.ok(dtos);
     }
 }
