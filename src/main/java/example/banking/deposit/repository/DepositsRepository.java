@@ -8,10 +8,16 @@ import java.util.Optional;
 
 public interface DepositsRepository {
 
-    @Transactional
-    Long create(Deposit deposit);
+    List<Deposit> findAll();
 
     Optional<Deposit> findById(long id);
 
-    List<Deposit> findAll();
+    @Transactional
+    Long create(Deposit deposit);
+
+    @Transactional
+    void update(Deposit deposit);
+
+    @Transactional
+    void batchUpdate(List<Deposit> deposits);
 }

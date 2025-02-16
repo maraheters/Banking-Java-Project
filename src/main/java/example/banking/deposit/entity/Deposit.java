@@ -1,19 +1,22 @@
 package example.banking.deposit.entity;
 
 import example.banking.deposit.types.DepositStatus;
+import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.Period;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Slf4j
 public class Deposit {
     private Long id;
     private BigDecimal minimum;
@@ -33,44 +36,44 @@ public class Deposit {
         deposit.accountId = accountId;
         deposit.interestRate = interestRate;
         deposit.status = DepositStatus.ACTIVE;
-        deposit.lastBonusDate = null;
         deposit.numberOfBonusesYet = 0;
         deposit.lengthInMonths = lengthInMonths;
         deposit.minimum = initialBalance;
+        deposit.bonus = BigDecimal.ZERO;
         deposit.dateCreated = LocalDate.now();
+        deposit.lastBonusDate = LocalDate.now();
 
         return deposit;
     }
 
     @Transactional
-    public void transfer(BigDecimal amount, Deposit other) {
-        this.withdraw(amount);
-        other.topUp(amount);
-    }
-
-    @Transactional
-    public void topUp(BigDecimal amount) {
-        checkStatus();
-        checkAmount(amount);
-
-        if (amount.compareTo(BigDecimal.ZERO) < 0) {
-            throw new RuntimeException("Amount must be greater than zero");
-        }
-
+    public void topUp(@Positive BigDecimal amount) {
+        checkStatus(DepositStatus.ACTIVE);
         minimum = minimum.add(amount);
     }
 
     @Transactional
-    public void addBonus() {
+    public boolean addBonusIfRequired() {
+        if (!isBonusDue()) {
+            log.info(this.toString());
+            return false;
+        }
+
         bonus = bonus.add(calculateBonus());
         numberOfBonusesYet++;
         lastBonusDate = LocalDate.now();
+
+        if (numberOfBonusesYet.compareTo(lengthInMonths) >= 0) {
+            this.status = DepositStatus.COMPLETE;
+        }
+
+        log.info("Bonus added: {}", this);
+        return true;
     }
 
     @Transactional
-    public void withdraw(BigDecimal amount) {
-        checkStatus();
-        checkAmount(amount);
+    public void withdraw(@Positive BigDecimal amount) {
+        checkStatus(DepositStatus.ACTIVE);
 
         if (bonus.compareTo(amount) < 0 ) {
             throw new IllegalArgumentException("Balance insufficient");
@@ -79,16 +82,35 @@ public class Deposit {
         bonus = bonus.subtract(amount);
     }
 
-    private void checkAmount(BigDecimal amount) {
-        if (amount.compareTo(BigDecimal.ZERO) < 0)
-            throw new IllegalArgumentException("Amount must be greater than zero");
+    public BigDecimal retrieveMoney() {
+        checkStatus(DepositStatus.COMPLETE);
+
+        var total = minimum.add(bonus);
+
+        minimum = BigDecimal.ZERO;
+        bonus = BigDecimal.ZERO;
+
+        status = DepositStatus.CLOSED;
+
+        return total;
     }
 
-    private void checkStatus() {
-        if (status.equals(DepositStatus.FROZEN))
-            throw new IllegalStateException("Deposit is Frozen");
-        if (status.equals(DepositStatus.BLOCKED))
-            throw new IllegalStateException("Deposit is Blocked");
+    private boolean isBonusDue() {
+        if (!status.equals(DepositStatus.ACTIVE))
+            return false;
+
+        var period = Period.between(lastBonusDate, LocalDate.now());
+        return period.toTotalMonths() >= 1;
+    }
+
+    private void checkStatus(DepositStatus status) {
+        if (!this.status.equals(status))
+            throw new IllegalStateException("Deposit is " + status);
+    }
+
+    private void checkStatusNot(DepositStatus status) {
+        if (this.status.equals(status))
+            throw new IllegalStateException("Deposit is " + status);
     }
 
     private BigDecimal calculateBonus() {
@@ -96,5 +118,4 @@ public class Deposit {
                 .multiply(BigDecimal.valueOf(interestRate))
                 .divide(BigDecimal.valueOf(12), RoundingMode.HALF_UP);
     }
-
 }

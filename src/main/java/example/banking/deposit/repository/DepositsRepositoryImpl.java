@@ -8,6 +8,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,24 +23,13 @@ public class DepositsRepositoryImpl implements DepositsRepository {
     }
 
     @Override
-    public Long create(Deposit deposit) {
-        String sql =
-                "INSERT INTO " +
-                "deposit(balance, status, date_created, length_in_months, interest_rate, account_id, number_of_bonuses, last_bonus ) " +
-                "VALUES (:balance, :status, :dateCreated, :lengthInMonths, :interestRate, :accountId, :numberOfBonuses, :lastBonus) " +
-                "RETURNING id";
-
-        var map = new MapSqlParameterSource();
-        map.addValue("balance", deposit.getMinimum());
-        map.addValue("status", deposit.getStatus().toString());
-        map.addValue("dateCreated", deposit.getDateCreated());
-        map.addValue("lengthInMonths", deposit.getLengthInMonths());
-        map.addValue("interestRate", deposit.getInterestRate());
-        map.addValue("accountId", deposit.getAccountId());
-        map.addValue("numberOfBonuses", deposit.getNumberOfBonusesYet());
-        map.addValue("lastBonus", deposit.getLastBonusDate());
-
-        return template.queryForObject(sql, map, Long.class);
+    public List<Deposit> findAll() {
+        String sql = "SELECT * FROM deposit";
+        try {
+            return template.query(sql, mapper);
+        } catch (DataAccessException e) {
+            throw new RuntimeException("Error while trying to query for deposits", e);
+        }
     }
 
     @Override
@@ -59,13 +49,70 @@ public class DepositsRepositoryImpl implements DepositsRepository {
     }
 
     @Override
-    public List<Deposit> findAll() {
-        String sql = "SELECT * FROM deposit";
-        try {
-            return template.query(sql, mapper);
-        } catch (DataAccessException e) {
-            throw new RuntimeException("Error while trying to query for deposits", e);
+    public Long create(Deposit deposit) {
+        String sql =
+                "INSERT INTO " +
+                "deposit(minimum, bonus, status, date_created, length_in_months, interest_rate, account_id, number_of_bonuses, last_bonus_date ) " +
+                "VALUES (:minimum, :bonus, :status, :dateCreated, :lengthInMonths, :interestRate, :accountId, :numberOfBonuses, :lastBonusDate) " +
+                "RETURNING id";
+
+        var map = getMapSqlParameterSource(deposit);
+
+        return template.queryForObject(sql, map, Long.class);
+    }
+
+    @Override
+    public void update(Deposit deposit) {
+        String sql = getUpdateSql();
+
+
+        var map = getMapSqlParameterSource(deposit);
+        map.addValue("id", deposit.getId());
+
+        template.update(sql, map);
+    }
+
+    @Override
+    public void batchUpdate(List<Deposit> deposits) {
+        String sql = getUpdateSql();
+
+        List<MapSqlParameterSource> batchValues = new ArrayList<>();
+        for (Deposit deposit : deposits) {
+            var map = getMapSqlParameterSource(deposit);
+            map.addValue("id", deposit.getId());
+            batchValues.add(map);
         }
+
+        template.batchUpdate(sql, batchValues.toArray(new MapSqlParameterSource[0]));
+    }
+
+    private String getUpdateSql() {
+        return "UPDATE deposit SET " +
+                "minimum = :minimum, " +
+                "bonus = :bonus, " +
+                "status = :status, " +
+                "date_created = :dateCreated, " +
+                "length_in_months = :lengthInMonths, " +
+                "interest_rate = :interestRate, " +
+                "account_id = :accountId, " +
+                "number_of_bonuses = :numberOfBonuses, " +
+                "last_bonus_date = :lastBonusDate " +
+                "WHERE id = :id";
+    }
+
+    private MapSqlParameterSource getMapSqlParameterSource(Deposit deposit) {
+        var map = new MapSqlParameterSource();
+        map.addValue("minimum", deposit.getMinimum());
+        map.addValue("bonus", deposit.getBonus());
+        map.addValue("status", deposit.getStatus().toString());
+        map.addValue("dateCreated", deposit.getDateCreated());
+        map.addValue("lengthInMonths", deposit.getLengthInMonths());
+        map.addValue("interestRate", deposit.getInterestRate());
+        map.addValue("accountId", deposit.getAccountId());
+        map.addValue("numberOfBonuses", deposit.getNumberOfBonusesYet());
+        map.addValue("lastBonusDate", deposit.getLastBonusDate());
+
+        return map;
     }
 
 }

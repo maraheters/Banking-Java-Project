@@ -16,12 +16,13 @@ public class DepositRowMapper implements RowMapper<Deposit> {
         deposit.setId(rs.getLong("id"));
         deposit.setInterestRate(rs.getDouble("interest_rate"));
         deposit.setAccountId(rs.getLong("account_id"));
-        deposit.setMinimum(rs.getBigDecimal("balance"));
-        deposit.setAccountId(rs.getLong("account_id"));
+        deposit.setLengthInMonths(rs.getInt("length_in_months"));
         deposit.setStatus(DepositStatus.valueOf(rs.getString("status")));
         deposit.setNumberOfBonusesYet(rs.getInt("number_of_bonuses"));
+        deposit.setBonus(rs.getBigDecimal("bonus"));
+        deposit.setMinimum(rs.getBigDecimal("minimum"));
 
-        var lastBonusDate = rs.getDate("last_bonus");
+        var lastBonusDate = rs.getDate("last_bonus_date");
         if (lastBonusDate != null) {
             deposit.setLastBonusDate(lastBonusDate.toLocalDate());
         }
