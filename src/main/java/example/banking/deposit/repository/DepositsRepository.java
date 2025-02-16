@@ -6,7 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
-public interface DepositRepository {
+public interface DepositsRepository {
 
     @Transactional
     Long create(Deposit deposit);

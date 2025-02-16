@@ -1,6 +1,5 @@
 package example.banking.deposit.entity;
 
-import example.banking.account.entity.Account;
 import example.banking.deposit.types.DepositStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -8,28 +7,37 @@ import lombok.NoArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class Deposit {
     private Long id;
-    private BigDecimal balance;
+    private BigDecimal minimum;
+    private BigDecimal bonus;
     private DepositStatus status;
     private LocalDate dateCreated;
+    private LocalDate lastBonusDate;
+    private Integer numberOfBonusesYet;  // Used to track how many bonuses have been applied
+    private Integer lengthInMonths;
     private Long accountId;
-    private double interestRate;
+    private Double interestRate;
 
-    public static Deposit create(Long accountId, double interestRate) {
+    public static Deposit create(
+            Long accountId, double interestRate, int lengthInMonths, BigDecimal initialBalance) {
+
         Deposit deposit = new Deposit();
         deposit.accountId = accountId;
         deposit.interestRate = interestRate;
-        deposit.status = DepositStatus.FROZEN;
-        deposit.balance = BigDecimal.ZERO;
-        deposit.dateCreated = LocalDateTime.now().toLocalDate();
+        deposit.status = DepositStatus.ACTIVE;
+        deposit.lastBonusDate = null;
+        deposit.numberOfBonusesYet = 0;
+        deposit.lengthInMonths = lengthInMonths;
+        deposit.minimum = initialBalance;
+        deposit.dateCreated = LocalDate.now();
 
         return deposit;
     }
@@ -49,7 +57,14 @@ public class Deposit {
             throw new RuntimeException("Amount must be greater than zero");
         }
 
-        balance = balance.add(amount);
+        minimum = minimum.add(amount);
+    }
+
+    @Transactional
+    public void addBonus() {
+        bonus = bonus.add(calculateBonus());
+        numberOfBonusesYet++;
+        lastBonusDate = LocalDate.now();
     }
 
     @Transactional
@@ -57,11 +72,11 @@ public class Deposit {
         checkStatus();
         checkAmount(amount);
 
-        if (balance.compareTo(amount) < 0 ) {
+        if (bonus.compareTo(amount) < 0 ) {
             throw new IllegalArgumentException("Balance insufficient");
         }
 
-        balance = balance.subtract(amount);
+        bonus = bonus.subtract(amount);
     }
 
     private void checkAmount(BigDecimal amount) {
@@ -74,6 +89,12 @@ public class Deposit {
             throw new IllegalStateException("Deposit is Frozen");
         if (status.equals(DepositStatus.BLOCKED))
             throw new IllegalStateException("Deposit is Blocked");
+    }
+
+    private BigDecimal calculateBonus() {
+        return minimum
+                .multiply(BigDecimal.valueOf(interestRate))
+                .divide(BigDecimal.valueOf(12), RoundingMode.HALF_UP);
     }
 
 }

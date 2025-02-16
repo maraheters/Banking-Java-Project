@@ -12,26 +12,32 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public class DepositRepositoryImpl implements DepositRepository {
+public class DepositsRepositoryImpl implements DepositsRepository {
 
     private final NamedParameterJdbcTemplate template;
     private final DepositRowMapper mapper = new DepositRowMapper();
 
-    public DepositRepositoryImpl(NamedParameterJdbcTemplate template) {
+    public DepositsRepositoryImpl(NamedParameterJdbcTemplate template) {
         this.template = template;
     }
 
     @Override
     public Long create(Deposit deposit) {
-        String sql = "INSERT INTO deposit(balance, status, date_created, interest_rate, account_id ) " +
-                     "VALUES (:balance, :status, :dateCreated, :interestRate, :accountId) RETURNING id";
+        String sql =
+                "INSERT INTO " +
+                "deposit(balance, status, date_created, length_in_months, interest_rate, account_id, number_of_bonuses, last_bonus ) " +
+                "VALUES (:balance, :status, :dateCreated, :lengthInMonths, :interestRate, :accountId, :numberOfBonuses, :lastBonus) " +
+                "RETURNING id";
 
         var map = new MapSqlParameterSource();
-        map.addValue("balance", deposit.getBalance());
+        map.addValue("balance", deposit.getMinimum());
         map.addValue("status", deposit.getStatus().toString());
         map.addValue("dateCreated", deposit.getDateCreated());
+        map.addValue("lengthInMonths", deposit.getLengthInMonths());
         map.addValue("interestRate", deposit.getInterestRate());
         map.addValue("accountId", deposit.getAccountId());
+        map.addValue("numberOfBonuses", deposit.getNumberOfBonusesYet());
+        map.addValue("lastBonus", deposit.getLastBonusDate());
 
         return template.queryForObject(sql, map, Long.class);
     }
