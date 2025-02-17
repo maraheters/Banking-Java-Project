@@ -4,6 +4,7 @@ import example.banking.account.entity.Account;
 import example.banking.account.repository.AccountsRepository;
 import example.banking.account.repository.AccountsRepositoryImpl;
 import example.banking.account.types.AccountType;
+import example.banking.deposit.dto.DepositDto;
 import example.banking.deposit.entity.Deposit;
 import example.banking.deposit.repository.DepositsRepository;
 import example.banking.deposit.repository.DepositsRepositoryImpl;
@@ -34,8 +35,8 @@ public class DepositsRepositoryTests {
     private final DepositsRepository repository;
     private final UsersRepository usersRepository;
     private final AccountsRepository accountsRepository;
-    private Deposit deposit1;
-    private Deposit deposit2;
+    private DepositDto deposit1;
+    private DepositDto deposit2;
 
     @Autowired
     public DepositsRepositoryTests(NamedParameterJdbcTemplate template) {
@@ -52,8 +53,8 @@ public class DepositsRepositoryTests {
         var account = Account.create(userId, AccountType.PERSONAL);
         Long accountId = accountsRepository.create(account);
 
-        deposit1 = Deposit.create(accountId, 1.5, 6, BigDecimal.valueOf(2000));
-        deposit2 = Deposit.create(accountId, 3, 12, BigDecimal.valueOf(5000));
+        deposit1 = Deposit.create(accountId, 1.5, 6, BigDecimal.valueOf(2000)).toDto();
+        deposit2 = Deposit.create(accountId, 3, 12, BigDecimal.valueOf(5000)).toDto();
     }
 
 
@@ -126,7 +127,7 @@ public class DepositsRepositoryTests {
         deposit2.setStatus(DepositStatus.BLOCKED);
         deposit2.setInterestRate(5d);
 
-        List<Deposit> depositsToUpdate = List.of(deposit1, deposit2);
+        List<DepositDto> depositsToUpdate = List.of(deposit1, deposit2);
 
         // Step 3: Perform batch update
         repository.batchUpdate(depositsToUpdate);

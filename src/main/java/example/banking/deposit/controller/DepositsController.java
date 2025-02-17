@@ -38,4 +38,10 @@ public class DepositsController {
 
         return ResponseEntity.ok(dtos);
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<DepositResponseDto> getById(@PathVariable("id") Long id) {
+        return ResponseEntity.ok(
+                DepositMapper.toResponseDto(service.getById(id)));
+    }
 }

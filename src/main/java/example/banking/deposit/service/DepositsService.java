@@ -1,5 +1,6 @@
 package example.banking.deposit.service;
 
+import example.banking.deposit.dto.DepositDto;
 import example.banking.deposit.dto.DepositRequestDto;
 import example.banking.deposit.entity.Deposit;
 import example.banking.deposit.repository.DepositsRepository;
@@ -22,7 +23,16 @@ public class DepositsService {
     }
 
     public List<Deposit> getAll() {
-        return repository.findAll();
+        return repository.findAll().stream()
+                .map(Deposit::fromDto)
+                .toList();
+    }
+
+    public Deposit getById(Long id) {
+        var depositDto = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Deposit with id '" + id + "' not found."));
+
+        return Deposit.fromDto(depositDto);
     }
 
     public Long createDeposit(DepositRequestDto requestDto) {
@@ -33,40 +43,43 @@ public class DepositsService {
                 requestDto.getLengthInMonths(),
                 requestDto.getInitialBalance());
 
-        return repository.create(deposit);
+        return repository.create(deposit.toDto());
     }
 
-    public void BlockDeposit(Long id) {
+    public void blockDeposit(Long id) {
         setStatus(id, DepositStatus.BLOCKED);
     }
 
-    public void FreezeDeposit(Long id) {
+    public void freezeDeposit(Long id) {
         setStatus(id, DepositStatus.FROZEN);
     }
 
-    public void ActivateDeposit(Long id) {
+    public void activateDeposit(Long id) {
         setStatus(id, DepositStatus.ACTIVE);
     }
 
     @Scheduled(fixedDelay = 3000)
     private void addDueBonusesToDeposits() {
-        var deposits = repository.findAll();
+        var deposits = repository.findAll().stream().map(Deposit::fromDto).toList();
 
         // Add bonus to deposits that require it,
         // Then return them as a list for batch update
-        List<Deposit> depositsToUpdate = deposits.stream()
+        List<DepositDto> depositsToUpdate = deposits.stream()
                 .filter(Deposit::addBonusIfRequired)
+                .map(Deposit::toDto)
                 .toList();
 
         repository.batchUpdate(depositsToUpdate);
     }
 
     private void setStatus(Long id, DepositStatus status) {
-        var deposit = repository.findById(id)
+        var depositDto = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Deposit with id '" + id + "' not found."));
 
-        deposit.setStatus(status);
-        repository.update(deposit);
+        var depositEntity = Deposit.fromDto(depositDto);
+        depositEntity.setStatus(status);
+
+        repository.update(depositEntity.toDto());
     }
 
 }

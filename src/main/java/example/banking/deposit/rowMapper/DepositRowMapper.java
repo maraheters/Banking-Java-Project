@@ -1,17 +1,16 @@
 package example.banking.deposit.rowMapper;
 
 import example.banking.deposit.dto.DepositDto;
-import example.banking.deposit.entity.Deposit;
 import example.banking.deposit.types.DepositStatus;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class DepositRowMapper implements RowMapper<Deposit> {
+public class DepositRowMapper implements RowMapper<DepositDto> {
 
     @Override
-    public Deposit mapRow(ResultSet rs, int rowNum) throws SQLException {
+    public DepositDto mapRow(ResultSet rs, int rowNum) throws SQLException {
 
         var rsBonusDate = rs.getDate("last_bonus_date");
         var rsDateCreated = rs.getDate("date_created");
@@ -24,7 +23,7 @@ public class DepositRowMapper implements RowMapper<Deposit> {
                 ? rsDateCreated.toLocalDate()
                 : null;
 
-        var depositDto = new DepositDto(
+        return new DepositDto(
                 rs.getLong("id"),
                 rs.getBigDecimal("minimum"),
                 rs.getBigDecimal("bonus"),
@@ -35,7 +34,5 @@ public class DepositRowMapper implements RowMapper<Deposit> {
                 rs.getInt("length_in_months"),
                 rs.getLong("account_id"),
                 rs.getDouble("interest_rate"));
-
-        return Deposit.fromDto(depositDto);
     }
 }

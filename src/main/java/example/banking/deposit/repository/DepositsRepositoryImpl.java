@@ -1,6 +1,6 @@
 package example.banking.deposit.repository;
 
-import example.banking.deposit.entity.Deposit;
+import example.banking.deposit.dto.DepositDto;
 import example.banking.deposit.rowMapper.DepositRowMapper;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -23,7 +23,7 @@ public class DepositsRepositoryImpl implements DepositsRepository {
     }
 
     @Override
-    public List<Deposit> findAll() {
+    public List<DepositDto> findAll() {
         String sql = "SELECT * FROM deposit";
         try {
             return template.query(sql, mapper);
@@ -33,7 +33,7 @@ public class DepositsRepositoryImpl implements DepositsRepository {
     }
 
     @Override
-    public Optional<Deposit> findById(long id) {
+    public Optional<DepositDto> findById(long id) {
         String sql = "SELECT * FROM deposit WHERE deposit.id = :id";
         var parameterSource = new MapSqlParameterSource("id", id);
 
@@ -49,7 +49,7 @@ public class DepositsRepositoryImpl implements DepositsRepository {
     }
 
     @Override
-    public Long create(Deposit deposit) {
+    public Long create(DepositDto deposit) {
         String sql =
                 "INSERT INTO " +
                 "deposit(minimum, bonus, status, date_created, length_in_months, interest_rate, account_id, number_of_bonuses, last_bonus_date ) " +
@@ -62,23 +62,23 @@ public class DepositsRepositoryImpl implements DepositsRepository {
     }
 
     @Override
-    public void update(Deposit deposit) {
+    public void update(DepositDto deposit) {
         String sql = getUpdateSql();
 
         var map = getMapSqlParameterSource(deposit);
-        map.addValue("id", deposit.toDto().getId());
+        map.addValue("id", deposit.getId());
 
         template.update(sql, map);
     }
 
     @Override
-    public void batchUpdate(List<Deposit> deposits) {
+    public void batchUpdate(List<DepositDto> deposits) {
         String sql = getUpdateSql();
 
         List<MapSqlParameterSource> batchValues = new ArrayList<>();
-        for (Deposit deposit : deposits) {
+        for (DepositDto deposit : deposits) {
             var map = getMapSqlParameterSource(deposit);
-            map.addValue("id", deposit.toDto().getId());
+            map.addValue("id", deposit.getId());
             batchValues.add(map);
         }
 
@@ -99,19 +99,18 @@ public class DepositsRepositoryImpl implements DepositsRepository {
                 "WHERE id = :id";
     }
 
-    private MapSqlParameterSource getMapSqlParameterSource(Deposit deposit) {
-        var depositDto = deposit.toDto();
+    private MapSqlParameterSource getMapSqlParameterSource(DepositDto deposit) {
         var map = new MapSqlParameterSource();
 
-        map.addValue("minimum",         depositDto.getMinimum());
-        map.addValue("bonus",           depositDto.getBonus());
-        map.addValue("status",          depositDto.getStatus().toString());
-        map.addValue("dateCreated",     depositDto.getDateCreated());
-        map.addValue("lengthInMonths",  depositDto.getLengthInMonths());
-        map.addValue("interestRate",    depositDto.getInterestRate());
-        map.addValue("accountId",       depositDto.getAccountId());
-        map.addValue("numberOfBonuses", depositDto.getNumberOfBonusesYet());
-        map.addValue("lastBonusDate",   depositDto.getLastBonusDate());
+        map.addValue("minimum",         deposit.getMinimum());
+        map.addValue("bonus",           deposit.getBonus());
+        map.addValue("status",          deposit.getStatus().toString());
+        map.addValue("dateCreated",     deposit.getDateCreated());
+        map.addValue("lengthInMonths",  deposit.getLengthInMonths());
+        map.addValue("interestRate",    deposit.getInterestRate());
+        map.addValue("accountId",       deposit.getAccountId());
+        map.addValue("numberOfBonuses", deposit.getNumberOfBonusesYet());
+        map.addValue("lastBonusDate",   deposit.getLastBonusDate());
 
         return map;
     }

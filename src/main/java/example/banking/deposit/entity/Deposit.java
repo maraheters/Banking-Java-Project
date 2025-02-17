@@ -4,6 +4,7 @@ import example.banking.deposit.dto.DepositDto;
 import example.banking.deposit.types.DepositStatus;
 import jakarta.validation.constraints.Positive;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +19,7 @@ import java.time.Period;
 @Slf4j
 @ToString
 public class Deposit {
+    @Getter
     private Long id;
     private BigDecimal minimum;
     private BigDecimal bonus;
