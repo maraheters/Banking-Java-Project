@@ -1,7 +1,6 @@
 package example.banking.deposit.repository;
 
 import example.banking.deposit.dto.DepositDto;
-import example.banking.deposit.entity.Deposit;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;

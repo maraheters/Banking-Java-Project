@@ -1,6 +1,6 @@
 package example.banking.account.repository;
 
-import example.banking.account.entity.Account;
+import example.banking.account.dto.AccountDto;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -9,11 +9,14 @@ import java.util.Optional;
 public interface AccountsRepository {
 
     @Transactional
-    Long create(Account account);
+    Long create(AccountDto account);
 
-    Optional<Account> findById(Long id);
+    @Transactional
+    void update(AccountDto account);
 
-    List<Account> findAll();
+    Optional<AccountDto> findById(Long id);
 
-    List<Account> findByHolderId(Long holderId);
+    List<AccountDto> findAll();
+
+    List<AccountDto> findByHolderId(Long holderId);
 }

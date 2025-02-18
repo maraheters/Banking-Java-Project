@@ -51,7 +51,7 @@ public class DepositsRepositoryTests {
                 "Joe", "+375282828", "12345", "12345", "email@email.com");
         Long userId = usersRepository.create(user);
         var account = Account.create(userId, AccountType.PERSONAL);
-        Long accountId = accountsRepository.create(account);
+        Long accountId = accountsRepository.create(account.toDto());
 
         deposit1 = Deposit.create(accountId, 1.5, 6, BigDecimal.valueOf(2000)).toDto();
         deposit2 = Deposit.create(accountId, 3, 12, BigDecimal.valueOf(5000)).toDto();

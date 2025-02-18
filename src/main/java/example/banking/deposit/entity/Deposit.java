@@ -136,7 +136,7 @@ public class Deposit {
 
     private void checkStatus(DepositStatus status) {
         if (!this.status.equals(status))
-            throw new IllegalStateException("Deposit status must be " + status + ", actual status is: " + status);
+            throw new IllegalStateException("Deposit status must be " + status + ", actual status is: " + this.status);
     }
 
     private void checkStatusNot(DepositStatus status) {
