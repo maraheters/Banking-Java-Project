@@ -67,7 +67,7 @@ public class Account {
     }
 
     @Transactional
-    public BigDecimal withdraw(@Positive BigDecimal amount) {
+    public void withdraw(@Positive BigDecimal amount) {
         checkStatus(AccountStatus.ACTIVE);
 
         if (balance.compareTo(amount) < 0) {
@@ -75,7 +75,6 @@ public class Account {
         }
 
         balance = balance.subtract(amount);
-        return amount;
     }
 
     public void setStatus(AccountStatus status) {

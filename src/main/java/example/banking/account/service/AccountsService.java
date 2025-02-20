@@ -45,10 +45,10 @@ public class AccountsService {
                 .orElseThrow(() -> new ResourceNotFoundException("Account with id '" + accountId + "' not found"));
 
         var account = Account.fromDto(dto);
-        BigDecimal sum = account.withdraw(amount);
+        account.withdraw(amount);
         repository.update(account.toDto());
 
-        return sum;
+        return amount;
     }
 
     public void topUp(Long accountId, BigDecimal amount) {
