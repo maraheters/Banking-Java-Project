@@ -1,18 +1,17 @@
 package example.banking.loan.rowMapper;
 
 import example.banking.loan.dto.LoanDto;
-import example.banking.loan.entity.Loan;
 import example.banking.loan.types.LoanStatus;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class LoanRowMapper implements RowMapper<Loan> {
+public class LoanRowMapper implements RowMapper<LoanDto> {
 
     @Override
-    public Loan mapRow(ResultSet rs, int rowNum) throws SQLException {
-        LoanDto l = new LoanDto(
+    public LoanDto mapRow(ResultSet rs, int rowNum) throws SQLException {
+        return new LoanDto(
                 rs.getLong("id"),
                 rs.getLong("account_id"),
                 rs.getBigDecimal("initial_amount"),
@@ -22,7 +21,5 @@ public class LoanRowMapper implements RowMapper<Loan> {
                 LoanStatus.valueOf(rs.getString("status")),
                 rs.getDate("created_at").toLocalDate(),
                 rs.getDate("last_payment").toLocalDate());
-
-        return Loan.fromDto(l);
     }
 }

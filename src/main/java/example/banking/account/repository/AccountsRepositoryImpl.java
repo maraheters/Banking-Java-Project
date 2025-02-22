@@ -1,7 +1,9 @@
 package example.banking.account.repository;
 
 import example.banking.account.dto.AccountDto;
+import example.banking.account.entity.Account;
 import example.banking.account.rowMapper.AccountRowMapper;
+import example.banking.contracts.AbstractRepository;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -13,58 +15,21 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public class AccountsRepositoryImpl implements AccountsRepository {
-
-    private final NamedParameterJdbcTemplate template;
-    private final AccountRowMapper mapper = new AccountRowMapper();
+public class AccountsRepositoryImpl extends AbstractRepository<Account, AccountDto> implements AccountsRepository {
 
     public AccountsRepositoryImpl(NamedParameterJdbcTemplate template) {
         this.template = template;
+        this.mapper = new AccountRowMapper();
     }
 
     @Override
-    public Long create(AccountDto account) {
-        String sql = "INSERT INTO account (iban, status, type, balance, date_created, holder_id) " +
-                     "VALUES (:iban, :status, :type, :balance, :date_created, :holder_id) " +
-                     "RETURNING id";
-
-        var map = getMapSqlParameterSource(account);
-
-        return template.queryForObject(sql, map, Long.class);
-    }
-
-    @Override
-    public void update(AccountDto account) {
-        String sql = """
-            UPDATE account SET
-            iban = :iban,
-            status = :status,
-            type = :type,
-            balance = :balance,
-            date_created = :date_created,
-            holder_id = :holder_id
-            WHERE id = :id
-        """;
-
-        var map = getMapSqlParameterSource(account);
-        map.addValue("id", account.getId());
-
-        template.update(sql, map);
-    }
-
-    @Override
-    public Optional<AccountDto> findById(Long id) {
-        String sql = """
-            SELECT a.*, d.id AS deposit_id
-            FROM account a
-            LEFT JOIN deposit d ON a.id = d.account_id
-            WHERE a.id = :id
-        """;
+    public Optional<Account> findById(Long id) {
+        String sql = getFindByIdSql();
 
         var parameterSource = new MapSqlParameterSource("id", id);
 
         try {
-            List<AccountDto> accounts = template.query(sql, parameterSource, (rs, rowNum) -> {
+            List<Account> accounts = template.query(sql, parameterSource, (rs, rowNum) -> {
                 AccountDto account = mapper.mapRow(rs, rowNum);
                 // Collect deposit IDs
                 List<Long> depositIds = new ArrayList<>();
@@ -75,7 +40,7 @@ public class AccountsRepositoryImpl implements AccountsRepository {
                     }
                 } while (rs.next());
                 account.setDepositIds(depositIds);
-                return account;
+                return Account.fromDto(account);
             });
 
             return accounts.isEmpty() ? Optional.empty() : Optional.of(accounts.getFirst());
@@ -89,32 +54,80 @@ public class AccountsRepositoryImpl implements AccountsRepository {
     }
 
     @Override
-    public List<AccountDto> findByHolderId(Long holderId) {
+    public List<Account> findByHolderId(Long holderId) {
         String sql = "SELECT * FROM account WHERE holder_id = :holder_id";
         var parameterSource = new MapSqlParameterSource("holder_id", holderId);
 
-        return template.query(sql, parameterSource, mapper);
+        return template.query(sql, parameterSource, mapper).stream()
+                .map(Account::fromDto)
+                .toList();
     }
 
     @Override
-    public List<AccountDto> findAll() {
-        String sql = "SELECT * FROM account a";
-        try {
-            return template.query(sql, mapper);
-        } catch (DataAccessException e) {
-            throw new RuntimeException("Error while trying to query for accounts", e);
-        }
+    protected String getCreateSql() {
+        return "INSERT INTO account (iban, status, type, balance, date_created, holder_id) " +
+                "VALUES (:iban, :status, :type, :balance, :date_created, :holder_id) " +
+                "RETURNING id";
     }
 
-    private MapSqlParameterSource getMapSqlParameterSource(AccountDto account) {
-        var map = new MapSqlParameterSource();
-        map.addValue("iban", account.getIBAN());
-        map.addValue("status", account.getStatus().toString());
-        map.addValue("type", account.getType().toString());
-        map.addValue("balance", account.getBalance());
-        map.addValue("date_created", account.getDateCreated());
-        map.addValue("holder_id", account.getHolderId());
+    @Override
+    protected String getUpdateSql() {
+        return """
+                    UPDATE account SET
+                    iban = :iban,
+                    status = :status,
+                    type = :type,
+                    balance = :balance,
+                    date_created = :date_created,
+                    holder_id = :holder_id
+                    WHERE id = :id
+                """;
+    }
 
+    @Override
+    protected String getFindAllSql() {
+        return "SELECT * FROM account a";
+    }
+
+    @Override
+    protected String getFindByIdSql() {
+        return """
+                    SELECT a.*, d.id AS deposit_id
+                    FROM account a
+                    LEFT JOIN deposit d ON a.id = d.account_id
+                    WHERE a.id = :id
+                """;
+    }
+
+    @Override
+    protected String getRemoveSql() {
+        return null;
+    }
+
+    @Override
+    protected Account fromDto(AccountDto dto) {
+        return Account.fromDto(dto);
+    }
+
+
+    @Override
+    protected MapSqlParameterSource getMapSqlParameterSource(Account account) {
+        var accountDto = account.toDto();
+        var map = new MapSqlParameterSource();
+        map.addValue("iban", accountDto.getIBAN());
+        map.addValue("status", accountDto.getStatus().toString());
+        map.addValue("type", accountDto.getType().toString());
+        map.addValue("balance", accountDto.getBalance());
+        map.addValue("date_created", accountDto.getDateCreated());
+        map.addValue("holder_id", accountDto.getHolderId());
+
+        return map;
+    }
+
+    @Override
+    protected MapSqlParameterSource getMapSqlParameterSourceWithId(Account account) {
+        var map = getMapSqlParameterSource(account);
+        map.addValue("id", account.getId());
         return map;
     }
 }

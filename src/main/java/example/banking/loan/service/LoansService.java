@@ -1,7 +1,6 @@
 package example.banking.loan.service;
 
 import example.banking.exception.ResourceNotFoundException;
-import example.banking.strategies.ThinAirPaymentStrategy;
 import example.banking.loan.entity.Loan;
 import example.banking.loan.repository.LoansRepository;
 import example.banking.loan.types.LoanTerm;
@@ -38,25 +37,5 @@ public class LoansService {
     public Loan getById(Long id) {
         return repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Loan with id '" + id + "' not found."));
-    }
-
-//    public Long createWithCustomRate(
-//            Long accountId, BigDecimal amount, BigDecimal interestRate, Integer length) {
-//
-//        Loan loan = Loan.create(accountId, amount, interestRate, length);
-//    }
-//
-//    public void PayFromAccount(BigDecimal amount, Long loanId, Long accountId) {
-//        Account account = abobabaoboa;
-//        Loan loan = repository.findById(loanId);
-//
-//        loan.makePayment(amount, new AccountLoanPaymentStrategy(account));
-//    }
-//
-    public void PayFromThinAir(BigDecimal amount, Long loanId) {
-        Loan loan = repository.findById(loanId)
-                .orElseThrow(() -> new ResourceNotFoundException("Loan with id '" + loanId + "' not found."));
-
-        loan.makePayment(amount, new ThinAirPaymentStrategy());
     }
 }

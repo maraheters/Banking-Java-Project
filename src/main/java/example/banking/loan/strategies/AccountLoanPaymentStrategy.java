@@ -1,4 +1,4 @@
-package example.banking.strategies;
+package example.banking.loan.strategies;
 
 import example.banking.account.entity.Account;
 

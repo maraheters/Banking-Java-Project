@@ -1,6 +1,6 @@
 package example.banking.loan.entity;
 
-import example.banking.strategies.LoanPaymentStrategy;
+import example.banking.loan.strategies.LoanPaymentStrategy;
 import example.banking.loan.dto.LoanDto;
 import example.banking.loan.types.LoanStatus;
 import lombok.AccessLevel;

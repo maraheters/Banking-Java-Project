@@ -1,6 +1,6 @@
 package example.banking.deposit.repository;
 
-import example.banking.deposit.dto.DepositDto;
+import example.banking.deposit.entity.Deposit;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -8,16 +8,16 @@ import java.util.Optional;
 
 public interface DepositsRepository {
 
-    List<DepositDto> findAll();
+    List<Deposit> findAll();
 
-    Optional<DepositDto> findById(long id);
-
-    @Transactional
-    Long create(DepositDto deposit);
+    Optional<Deposit> findById(Long id);
 
     @Transactional
-    void update(DepositDto deposit);
+    Long create(Deposit deposit);
 
     @Transactional
-    void batchUpdate(List<DepositDto> deposits);
+    void update(Deposit deposit);
+
+    @Transactional
+    void batchUpdate(List<Deposit> deposits);
 }

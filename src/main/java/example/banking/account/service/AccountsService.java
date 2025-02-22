@@ -24,40 +24,34 @@ public class AccountsService {
     public Long createAccount(Long holderId) {
         var account = Account.create(holderId, AccountType.PERSONAL);
 
-        return repository.create(account.toDto());
+        return repository.create(account);
     }
 
     public Account getById(Long id) {
-        var accountDto = repository.findById(id)
+        return repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Account with id '" + id + "' not found."));
-
-        return Account.fromDto(accountDto);
     }
 
     public List<Account> getAll() {
-        return repository.findAll().stream()
-                .map(Account::fromDto)
-                .toList();
+        return repository.findAll();
     }
 
     public BigDecimal withdraw(Long accountId, BigDecimal amount) {
-        var dto = repository.findById(accountId)
+        var account = repository.findById(accountId)
                 .orElseThrow(() -> new ResourceNotFoundException("Account with id '" + accountId + "' not found"));
 
-        var account = Account.fromDto(dto);
         account.withdraw(amount);
-        repository.update(account.toDto());
+        repository.update(account);
 
         return amount;
     }
 
     public void topUp(Long accountId, BigDecimal amount) {
-        var dto = repository.findById(accountId)
+        var account = repository.findById(accountId)
                 .orElseThrow(() -> new ResourceNotFoundException("Account with id '" + accountId + "' not found"));
 
-        var account = Account.fromDto(dto);
         account.topUp(amount);
-        repository.update(account.toDto());
+        repository.update(account);
     }
 
     public void activateAccount(Long id) {
@@ -69,12 +63,11 @@ public class AccountsService {
     }
 
     private void setStatus(Long id, AccountStatus status) {
-        var dto = repository.findById(id)
+        var account = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Account with id '" + id + "' not found"));
 
-        var account =  Account.fromDto(dto);
         account.setStatus(status);
 
-        repository.update(account.toDto());
+        repository.update(account);
     }
 }

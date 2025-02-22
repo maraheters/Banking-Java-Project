@@ -35,8 +35,8 @@ public class DepositsRepositoryTests {
     private final DepositsRepository repository;
     private final UsersRepository usersRepository;
     private final AccountsRepository accountsRepository;
-    private DepositDto deposit1;
-    private DepositDto deposit2;
+    private Deposit deposit1;
+    private Deposit deposit2;
 
     @Autowired
     public DepositsRepositoryTests(NamedParameterJdbcTemplate template) {
@@ -51,10 +51,10 @@ public class DepositsRepositoryTests {
                 "Joe", "+375282828", "12345", "12345", "email@email.com");
         Long userId = usersRepository.create(user);
         var account = Account.create(userId, AccountType.PERSONAL);
-        Long accountId = accountsRepository.create(account.toDto());
+        Long accountId = accountsRepository.create(account);
 
-        deposit1 = Deposit.create(accountId, 1.5, 6, BigDecimal.valueOf(2000)).toDto();
-        deposit2 = Deposit.create(accountId, 3, 12, BigDecimal.valueOf(5000)).toDto();
+        deposit1 = Deposit.create(accountId, 1.5, 6, BigDecimal.valueOf(2000));
+        deposit2 = Deposit.create(accountId, 3, 12, BigDecimal.valueOf(5000));
     }
 
 
@@ -83,7 +83,7 @@ public class DepositsRepositoryTests {
         var id = repository.create(deposit1);
         var retrieved = repository.findById(id).get();
 
-        assertEquals(deposit1.getMinimum().compareTo(retrieved.getMinimum()), 0);
+        assertEquals(deposit1.toDto().getMinimum().compareTo(retrieved.toDto().getMinimum()), 0);
     }
 
     @Test
@@ -103,14 +103,15 @@ public class DepositsRepositoryTests {
         var statusBefore = DepositStatus.COMPLETE;
         double interestRateBefore = 7d;
 
-        deposit.setStatus(statusBefore);
-        deposit.setInterestRate(interestRateBefore);
-        repository.update(deposit);
+        var depositDto = deposit.toDto();
+        depositDto.setStatus(statusBefore);
+        depositDto.setInterestRate(interestRateBefore);
+        repository.update(Deposit.fromDto(depositDto));
 
         var depositAfterUpdate = repository.findById(id).get();
 
-        assertEquals(statusBefore, depositAfterUpdate.getStatus());
-        assertEquals(interestRateBefore, depositAfterUpdate.getInterestRate());
+        assertEquals(statusBefore, depositAfterUpdate.toDto().getStatus());
+        assertEquals(interestRateBefore, depositAfterUpdate.toDto().getInterestRate());
     }
 
     @Test
@@ -118,23 +119,23 @@ public class DepositsRepositoryTests {
         var id1 = repository.create(deposit1);
         var id2 = repository.create(deposit2);
 
-        deposit1 = repository.findById(id1).get();
-        deposit2 = repository.findById(id2).get();
+        var depositDto1 = repository.findById(id1).get().toDto();
+        var depositDto2 = repository.findById(id2).get().toDto();
 
         // Step 2: Prepare deposits for batch update
-        deposit1.setStatus(DepositStatus.COMPLETE);
-        deposit1.setInterestRate(8d);
-        deposit2.setStatus(DepositStatus.BLOCKED);
-        deposit2.setInterestRate(5d);
+        depositDto1.setStatus(DepositStatus.COMPLETE);
+        depositDto1.setInterestRate(8d);
+        depositDto2.setStatus(DepositStatus.BLOCKED);
+        depositDto2.setInterestRate(5d);
 
-        List<DepositDto> depositsToUpdate = List.of(deposit1, deposit2);
+        List<Deposit> depositsToUpdate = List.of(Deposit.fromDto(depositDto1), Deposit.fromDto(depositDto2));
 
         // Step 3: Perform batch update
         repository.batchUpdate(depositsToUpdate);
 
         // Step 4: Fetch updated deposits
-        var updatedDeposit1 = repository.findById(id1).get();
-        var updatedDeposit2 = repository.findById(id2).get();
+        var updatedDeposit1 = repository.findById(id1).get().toDto();
+        var updatedDeposit2 = repository.findById(id2).get().toDto();
 
         // Step 5: Assert the updates
         assertEquals(DepositStatus.COMPLETE, updatedDeposit1.getStatus());
