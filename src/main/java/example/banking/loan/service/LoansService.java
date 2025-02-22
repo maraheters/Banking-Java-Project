@@ -13,7 +13,7 @@ import java.util.List;
 @Service
 public class LoansService {
 
-    private LoansRepository repository;
+    private final LoansRepository repository;
 
     @Autowired
     public LoansService(LoansRepository repository) {
@@ -35,6 +35,10 @@ public class LoansService {
     }
 
     public Loan getById(Long id) {
+        return this.findById(id);
+    }
+
+    private Loan findById(Long id) {
         return repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Loan with id '" + id + "' not found."));
     }

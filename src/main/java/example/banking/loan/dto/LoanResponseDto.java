@@ -12,7 +12,7 @@ import java.time.LocalDate;
 public class LoanResponseDto {
     private Long id;
     private Long accountId;
-    private BigDecimal initialAmount;
+    private BigDecimal principalAmount;
     private BigDecimal paidAmount;
     private BigDecimal interestRate;
     private Integer lengthInMonths;

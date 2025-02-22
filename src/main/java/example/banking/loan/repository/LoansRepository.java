@@ -14,6 +14,9 @@ public interface LoansRepository {
     @Transactional
     void update(Loan loan);
 
+    @Transactional
+    void batchUpdate(List<Loan> loans);
+
     Optional<Loan> findById(Long id);
 
     List<Loan> findAll();

@@ -8,28 +8,12 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Repository
 public class DepositsRepositoryImpl extends AbstractRepository<Deposit, DepositDto> implements DepositsRepository {
 
     public DepositsRepositoryImpl(NamedParameterJdbcTemplate template) {
         this.template = template;
         this.mapper = new DepositRowMapper();
-    }
-
-    @Override
-    public void batchUpdate(List<Deposit> deposits) {
-        String sql = getUpdateSql();
-
-        List<MapSqlParameterSource> batchValues = new ArrayList<>();
-        for (Deposit deposit : deposits) {
-            var map = getMapSqlParameterSourceWithId(deposit);
-            batchValues.add(map);
-        }
-
-        template.batchUpdate(sql, batchValues.toArray(new MapSqlParameterSource[0]));
     }
 
     @Override

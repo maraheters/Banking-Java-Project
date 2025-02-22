@@ -9,7 +9,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -17,9 +19,9 @@ public class Loan {
     @Getter
     private Long id;
     private Long accountId;
-    private BigDecimal initialAmount;
+    private BigDecimal principalAmount;
     private BigDecimal paidAmount;
-    private BigDecimal interestRate;
+    private BigDecimal interestRate; //in decimal form, eg 0.08 = 8%
     private Integer lengthInMonths;
     private LoanStatus status;
     private LocalDate createdAt;
@@ -30,7 +32,7 @@ public class Loan {
         var loan = new Loan();
 
         loan.accountId = accountId;
-        loan.initialAmount = amount;
+        loan.principalAmount = amount;
         loan.paidAmount = BigDecimal.ZERO;
         loan.interestRate = interestRate;
         loan.lengthInMonths = length;
@@ -45,7 +47,7 @@ public class Loan {
         return new Loan(
             l.getId(),
             l.getAccountId(),
-            l.getInitialAmount(),
+            l.getPrincipalAmount(),
             l.getPaidAmount(),
             l.getInterestRate(),
             l.getLengthInMonths(),
@@ -56,11 +58,11 @@ public class Loan {
 
     public LoanDto toDto() {
         return new LoanDto(
-            id, accountId, initialAmount, paidAmount, interestRate, lengthInMonths, status, createdAt, lastPayment);
+            id, accountId, principalAmount, paidAmount, interestRate, lengthInMonths, status, createdAt, lastPayment);
     }
 
     public void makePayment(BigDecimal amount, LoanPaymentStrategy strategy) {
-        var remainingAmountToPay = initialAmount.subtract(paidAmount);
+        var remainingAmountToPay = principalAmount.subtract(paidAmount);
 
         if (remainingAmountToPay.compareTo(amount) < 0) {
             throw new IllegalArgumentException("Payment amount is greater than remaining amount left to pay.");
@@ -69,9 +71,26 @@ public class Loan {
         strategy.pay(amount);
 
         paidAmount = paidAmount.add(amount);
-        if (paidAmount.compareTo(initialAmount) >= 0) {
+        if (paidAmount.compareTo(principalAmount) >= 0) {
             status = LoanStatus.PAID_OFF;
         }
+    }
+
+    public boolean applyOverdueIfNecessary() {
+        long monthsPassed = ChronoUnit.MONTHS.between(createdAt, LocalDate.now().plusDays(1));
+
+        BigDecimal monthlyPay = principalAmount
+                .divide(BigDecimal.valueOf(lengthInMonths), RoundingMode.HALF_UP)
+                .multiply(interestRate.add(BigDecimal.ONE));
+
+        BigDecimal expectedAmount = monthlyPay.multiply(BigDecimal.valueOf(monthsPassed));
+
+        if (expectedAmount.compareTo(paidAmount) < 0) {
+            status = LoanStatus.OVERDUE;
+            return true;
+        }
+
+        return false;
     }
 
 

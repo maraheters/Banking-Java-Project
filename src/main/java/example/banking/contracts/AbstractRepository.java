@@ -6,6 +6,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,6 +27,21 @@ public abstract class AbstractRepository<E, D> {
         var map = getMapSqlParameterSourceWithId(entity);
 
         template.update(sql, map);
+    }
+
+    public void batchUpdate(List<E> entities) {
+        if (entities.isEmpty())
+            return;
+
+        String sql = getUpdateSql();
+
+        List<MapSqlParameterSource> batchValues = new ArrayList<>();
+        for (E entity : entities) {
+            var map = getMapSqlParameterSourceWithId(entity);
+            batchValues.add(map);
+        }
+
+        template.batchUpdate(sql, batchValues.toArray(new MapSqlParameterSource[0]));
     }
 
     public List<E> findAll() {

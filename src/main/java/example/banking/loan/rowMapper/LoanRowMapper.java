@@ -14,7 +14,7 @@ public class LoanRowMapper implements RowMapper<LoanDto> {
         return new LoanDto(
                 rs.getLong("id"),
                 rs.getLong("account_id"),
-                rs.getBigDecimal("initial_amount"),
+                rs.getBigDecimal("principal_amount"),
                 rs.getBigDecimal("paid_amount"),
                 rs.getBigDecimal("interest_rate"),
                 rs.getInt("length_in_months"),

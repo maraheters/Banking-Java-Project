@@ -8,15 +8,18 @@ import example.banking.loan.repository.LoansRepository;
 import example.banking.loan.strategies.AccountLoanPaymentStrategy;
 import example.banking.loan.strategies.ThinAirPaymentStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class LoansPaymentService {
 
     private final LoansRepository loansRepository;
-    private AccountsRepository accountsRepository;
+    private final AccountsRepository accountsRepository;
 
     @Autowired
     public LoansPaymentService(
@@ -40,5 +43,20 @@ public class LoansPaymentService {
                 .orElseThrow(() -> new ResourceNotFoundException(""));
 
         loan.makePayment(amount, new AccountLoanPaymentStrategy(account));
+    }
+
+    @Scheduled(fixedDelay = 10000)
+    private void checkOverdueLoans() {
+        List<Loan> loans = loansRepository.findAll();
+        List<Loan> overdueLoans = new ArrayList<>();
+
+        for (var loan : loans) {
+            boolean isOverdue = loan.applyOverdueIfNecessary();
+            if (isOverdue) {
+                overdueLoans.add(loan);
+            }
+        }
+
+        loansRepository.batchUpdate(overdueLoans);
     }
 }

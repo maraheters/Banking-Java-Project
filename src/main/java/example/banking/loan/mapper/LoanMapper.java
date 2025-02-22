@@ -9,7 +9,7 @@ public class LoanMapper {
         var d = l.toDto();
 
         return new LoanResponseDto(
-            d.getId(), d.getAccountId(), d.getInitialAmount(), d.getPaidAmount(), d.getInterestRate(),
+            d.getId(), d.getAccountId(), d.getPrincipalAmount(), d.getPaidAmount(), d.getInterestRate(),
             d.getLengthInMonths(), d.getStatus(), d.getCreatedAt(), d.getLastPayment());
     }
 }

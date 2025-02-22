@@ -32,8 +32,8 @@ public class LoansRepositoryImpl extends AbstractRepository<Loan, LoanDto> imple
     @Override
     protected String getCreateSql() {
         return """
-            INSERT INTO loan(account_id, initial_amount, paid_amount, interest_rate, length_in_months, status, created_at, last_payment)
-            VALUES (:account_id, :initial_amount, :paid_amount, :interest_rate, :length_in_months, :status, :created_at, :last_payment)
+            INSERT INTO loan(account_id, principal_amount, paid_amount, interest_rate, length_in_months, status, created_at, last_payment)
+            VALUES (:account_id, :principal_amount, :paid_amount, :interest_rate, :length_in_months, :status, :created_at, :last_payment)
             RETURNING id;
         """;
     }
@@ -43,7 +43,7 @@ public class LoansRepositoryImpl extends AbstractRepository<Loan, LoanDto> imple
         return """
             UPDATE loan SET
             account_id = :account_id,
-            initial_amount = :initial_amount,
+            principal_amount = :principal_amount,
             paid_amount = :paid_amount,
             interest_rate = :interest_rate,
             length_in_months = :length_in_months,
@@ -64,7 +64,7 @@ public class LoansRepositoryImpl extends AbstractRepository<Loan, LoanDto> imple
         var map = new MapSqlParameterSource();
         var l = loan.toDto();
         map.addValue("account_id", l.getAccountId());
-        map.addValue("initial_amount", l.getInitialAmount());
+        map.addValue("principal_amount", l.getPrincipalAmount());
         map.addValue("paid_amount", l.getPaidAmount());
         map.addValue("interest_rate", l.getInterestRate());
         map.addValue("length_in_months", l.getLengthInMonths());
