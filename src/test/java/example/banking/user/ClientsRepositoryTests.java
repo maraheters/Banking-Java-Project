@@ -1,8 +1,8 @@
 package example.banking.user;
 
-import example.banking.user.entity.User;
-import example.banking.user.repository.UsersRepository;
-import example.banking.user.repository.UsersRepositoryImpl;
+import example.banking.user.entity.Client;
+import example.banking.user.repository.ClientsRepository;
+import example.banking.user.repository.ClientsRepositoryImpl;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.jdbc.DataJdbcTest;
@@ -17,19 +17,19 @@ import static org.junit.jupiter.api.Assertions.*;
 @Testcontainers
 @ActiveProfiles("test-containers")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-public class UsersRepositoryTests {
+public class ClientsRepositoryTests {
 
-    private final UsersRepository repository;
-    private final User user1;
-    private final User user2;
+    private final ClientsRepository repository;
+    private final Client client1;
+    private final Client client2;
 
     @Autowired
-    public UsersRepositoryTests(NamedParameterJdbcTemplate jdbcTemplate) {
-        repository = new UsersRepositoryImpl(jdbcTemplate);
-        user1 = User.create(
-                "Joe", "+375282828", "12345", "12345", "email@email.com");
-        user2 = User.create(
-                "Joe", "+3752828428", "123435", "124345", "emaile@email.com");
+    public ClientsRepositoryTests(NamedParameterJdbcTemplate jdbcTemplate) {
+        repository = new ClientsRepositoryImpl(jdbcTemplate);
+        client1 = Client.register(
+                "Joe", "+375282828", "12345", "12345", "email@email.com", "password");
+        client2 = Client.register(
+                "Joe", "+3752828428", "123435", "124345", "emaile@email.com", "password");
     }
 
     @Test
@@ -38,14 +38,14 @@ public class UsersRepositoryTests {
     }
 
     @Test
-    public void create_whenSaved_thenCorrect() {
-        var id = repository.create(user1);
+    public void register_whenSaved_thenCorrect() {
+        var id = repository.create(client1);
         assertNotNull(id);
     }
 
     @Test
     public void findById_whenSavedAndRetrieved_thenCorrect() {
-        var id1 = repository.create(user1);
+        var id1 = repository.create(client1);
 
         var id2 = repository.findById(id1).get().getId();
 
@@ -54,8 +54,8 @@ public class UsersRepositoryTests {
 
     @Test
     public void findAll_whenSavedAndRetrieved_thenCorrect() {
-        repository.create(user1);
-        repository.create(user2);
+        repository.create(client1);
+        repository.create(client2);
 
         var results = repository.findAll();
         assertEquals(2, results.size());

@@ -4,14 +4,13 @@ import example.banking.account.entity.Account;
 import example.banking.account.repository.AccountsRepository;
 import example.banking.account.repository.AccountsRepositoryImpl;
 import example.banking.account.types.AccountType;
-import example.banking.deposit.dto.DepositDto;
 import example.banking.deposit.entity.Deposit;
 import example.banking.deposit.repository.DepositsRepository;
 import example.banking.deposit.repository.DepositsRepositoryImpl;
 import example.banking.deposit.types.DepositStatus;
-import example.banking.user.entity.User;
-import example.banking.user.repository.UsersRepository;
-import example.banking.user.repository.UsersRepositoryImpl;
+import example.banking.user.entity.Client;
+import example.banking.user.repository.ClientsRepository;
+import example.banking.user.repository.ClientsRepositoryImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class DepositsRepositoryTests {
 
     private final DepositsRepository repository;
-    private final UsersRepository usersRepository;
+    private final ClientsRepository clientsRepository;
     private final AccountsRepository accountsRepository;
     private Deposit deposit1;
     private Deposit deposit2;
@@ -41,15 +40,15 @@ public class DepositsRepositoryTests {
     @Autowired
     public DepositsRepositoryTests(NamedParameterJdbcTemplate template) {
         this.repository = new DepositsRepositoryImpl(template);
-        this.usersRepository = new UsersRepositoryImpl(template);
+        this.clientsRepository = new ClientsRepositoryImpl(template);
         this.accountsRepository = new AccountsRepositoryImpl(template);
     }
 
     @BeforeEach
     public void setup() {
-        var user = User.create(
-                "Joe", "+375282828", "12345", "12345", "email@email.com");
-        Long userId = usersRepository.create(user);
+        var user = Client.register(
+                "Joe", "+375282828", "12345", "12345", "email@email.com", "password");
+        Long userId = clientsRepository.create(user);
         var account = Account.create(userId, AccountType.PERSONAL);
         Long accountId = accountsRepository.create(account);
 
