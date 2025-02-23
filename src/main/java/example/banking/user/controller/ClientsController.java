@@ -2,7 +2,6 @@ package example.banking.user.controller;
 
 import example.banking.user.dto.client.ClientResponseDto;
 import example.banking.user.dto.client.RegisterClientRequestDto;
-import example.banking.user.entity.Client;
 import example.banking.user.mapper.ClientMapper;
 import example.banking.user.service.ClientsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/clients")
+@RequestMapping("/users/clients")
 public class ClientsController {
 
     private final ClientsService service;

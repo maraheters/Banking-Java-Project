@@ -7,6 +7,7 @@ CREATE TABLE public.client (
 
     CONSTRAINT fk_user
         FOREIGN KEY (user_id) REFERENCES public.user(id)
+           ON DELETE CASCADE
 );
 
 CREATE TABLE public.client_role (
@@ -20,7 +21,7 @@ CREATE TABLE public.client_role_client (
 
     PRIMARY KEY (role_id,  client_id),
     FOREIGN KEY (role_id)           REFERENCES public.client_role(id),
-    FOREIGN KEY (client_id)         REFERENCES public.client(id)
+    FOREIGN KEY (client_id)         REFERENCES public.client(id)        ON DELETE CASCADE
 );
 
 ALTER TABLE public.account

@@ -5,6 +5,7 @@ CREATE TABLE public.supervisor (
 
     CONSTRAINT fk_user
         FOREIGN KEY (user_id) REFERENCES public.user(id)
+            ON DELETE CASCADE
 );
 
 CREATE TABLE public.supervisor_role (
@@ -18,5 +19,5 @@ CREATE TABLE public.supervisor_role_supervisor (
 
     PRIMARY KEY (role_id, supervisor_id),
     FOREIGN KEY (role_id)           REFERENCES public.supervisor_role(id),
-    FOREIGN KEY (supervisor_id)     REFERENCES public.supervisor(id)
+    FOREIGN KEY (supervisor_id)     REFERENCES public.supervisor(id)        ON DELETE CASCADE
 );
