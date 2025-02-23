@@ -1,17 +1,17 @@
 package example.banking.user.repository;
 
-import example.banking.user.entity.User;
+import example.banking.user.entity.Client;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface UsersRepository {
+public interface ClientsRepository {
 
     @Transactional
-    Long create(User user);
+    Long create(Client client);
 
-    Optional<User> findById(long id);
+    Optional<Client> findById(Long id);
 
-    List<User> findAll();
+    List<Client> findAll();
 }

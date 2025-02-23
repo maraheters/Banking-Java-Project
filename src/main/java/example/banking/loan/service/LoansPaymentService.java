@@ -12,7 +12,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -48,14 +47,10 @@ public class LoansPaymentService {
     @Scheduled(fixedDelay = 10000)
     private void checkOverdueLoans() {
         List<Loan> loans = loansRepository.findAll();
-        List<Loan> overdueLoans = new ArrayList<>();
 
-        for (var loan : loans) {
-            boolean isOverdue = loan.applyOverdueIfNecessary();
-            if (isOverdue) {
-                overdueLoans.add(loan);
-            }
-        }
+        List<Loan> overdueLoans = loans.stream()
+                .filter(Loan::applyOverdueIfNecessary)
+                .toList();
 
         loansRepository.batchUpdate(overdueLoans);
     }

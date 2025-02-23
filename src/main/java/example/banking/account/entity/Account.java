@@ -42,7 +42,7 @@ public class Account {
         var account = new Account();
         account.IBAN = IbanGenerator.Generate("BY");
         account.balance = BigDecimal.ZERO;
-        account.status = AccountStatus.FROZEN;
+        account.status = AccountStatus.ACTIVE;
         account.type = type;
         account.holderId = holderId;
         account.dateCreated = LocalDateTime.now();

@@ -1,9 +1,9 @@
-package example.banking.user.entity;
+package example.banking.user.dto.user;
 
-import lombok.Getter;
+import lombok.Data;
 
-public abstract class User {
-    @Getter
+@Data
+public class UserDto {
     protected Long id;
     protected String name;
     protected String email;
