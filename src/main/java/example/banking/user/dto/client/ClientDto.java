@@ -20,4 +20,5 @@ public class ClientDto {
     private String passportNumber;
     private String identificationNumber;
     private List<ClientRole> roles;
+    private Boolean isVerified;
 }

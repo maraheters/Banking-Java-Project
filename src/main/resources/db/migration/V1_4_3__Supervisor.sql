@@ -21,3 +21,7 @@ CREATE TABLE public.supervisor_role_supervisor (
     FOREIGN KEY (role_id)           REFERENCES public.supervisor_role(id),
     FOREIGN KEY (supervisor_id)     REFERENCES public.supervisor(id)        ON DELETE CASCADE
 );
+
+
+INSERT INTO public.supervisor_role(name)
+VALUES ('OPERATOR'), ('MANAGER'), ('COMPANY_SPECIALIST'), ('ADMINISTRATOR')

@@ -4,6 +4,7 @@ CREATE TABLE public.client (
     phone_number            VARCHAR(255)    NOT NULL UNIQUE,
     passport_number         VARCHAR(255)    NOT NULL UNIQUE,
     identification_number   VARCHAR(255)    NOT NULL UNIQUE,
+    is_verified             BOOLEAN         NOT NULL,
 
     CONSTRAINT fk_user
         FOREIGN KEY (user_id) REFERENCES public.user(id)
@@ -27,3 +28,7 @@ CREATE TABLE public.client_role_client (
 ALTER TABLE public.account
     ADD CONSTRAINT fk_client
         FOREIGN KEY (holder_id) REFERENCES public.client(id);
+
+
+INSERT INTO public.client_role(name)
+VALUES ('BASIC');

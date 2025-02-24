@@ -18,5 +18,6 @@ public class ClientResponseDto {
     private String phoneNumber;
     private String passportNumber;
     private String identificationNumber;
+    private Boolean isVerified;
     private List<String> roles;
 }

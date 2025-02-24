@@ -20,6 +20,7 @@ public class ClientMapper {
                 d.getPhoneNumber(),
                 d.getPassportNumber(),
                 d.getIdentificationNumber(),
+                d.getIsVerified(),
                 d.getRoles().stream().map(Enum::toString).toList());
     }
 }

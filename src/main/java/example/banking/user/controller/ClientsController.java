@@ -1,7 +1,6 @@
 package example.banking.user.controller;
 
 import example.banking.user.dto.client.ClientResponseDto;
-import example.banking.user.dto.client.RegisterClientRequestDto;
 import example.banking.user.mapper.ClientMapper;
 import example.banking.user.service.ClientsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,13 +18,6 @@ public class ClientsController {
     @Autowired
     public ClientsController(ClientsService service) {
         this.service = service;
-    }
-
-    @PostMapping("/register")
-    public ResponseEntity<Long> registerUser(
-            @RequestBody RegisterClientRequestDto requestDto) {
-        return ResponseEntity.ok(
-                service.register(requestDto));
     }
 
     @GetMapping

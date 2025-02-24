@@ -11,6 +11,9 @@ public interface ClientsRepository {
     @Transactional
     Long create(Client client);
 
+    @Transactional
+    void update(Client client);
+
     Optional<Client> findById(Long id);
 
     List<Client> findAll();

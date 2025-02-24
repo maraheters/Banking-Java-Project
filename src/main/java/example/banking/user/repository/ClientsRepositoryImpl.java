@@ -32,8 +32,8 @@ public class ClientsRepositoryImpl
                         RETURNING id
                     ),
                     inserted_client AS (
-                        INSERT INTO public.client (user_id, phone_number, passport_number, identification_number)
-                        VALUES ((SELECT id FROM inserted_user), :phone_number, :passport_number, :identification_number)
+                        INSERT INTO public.client (user_id, phone_number, passport_number, identification_number, is_verified)
+                        VALUES ((SELECT id FROM inserted_user), :phone_number, :passport_number, :identification_number, :is_verified)
                         RETURNING id
                     ),
                     role_ids AS (
@@ -53,7 +53,45 @@ public class ClientsRepositoryImpl
 
     @Override
     protected String getUpdateSql() {
-        return "";
+        return """
+                WITH
+                updated_user AS (
+                    UPDATE public.user
+                    SET name = :name,
+                        email = :email,
+                        password_hash = :password_hash
+                    WHERE id = (
+                        SELECT user_id FROM public.client WHERE id = :id
+                    )
+                    RETURNING id
+                ),
+                updated_client AS (
+                    UPDATE public.client
+                    SET phone_number = :phone_number,
+                        passport_number = :passport_number,
+                        is_verified = :is_verified,
+                        identification_number = :identification_number
+                    WHERE id = :id
+                    RETURNING id
+                ),
+                role_ids AS (
+                    SELECT id
+                    FROM public.client_role
+                    WHERE name IN (:role_names)
+                ),
+                delete_unused AS (
+                    -- Remove role associations that are no longer desired.
+                    DELETE FROM public.client_role_client
+                    WHERE client_id = :id
+                      AND role_id NOT IN (SELECT id FROM role_ids)
+                    RETURNING client_id
+                )
+                -- Insert new role associations if they don't already exist.
+                INSERT INTO public.client_role_client (client_id, role_id)
+                SELECT :id, id
+                FROM role_ids
+                ON CONFLICT (client_id, role_id) DO NOTHING;
+        """;
     }
 
     @Override
@@ -70,6 +108,7 @@ public class ClientsRepositoryImpl
                     c.identification_number,
                     c.phone_number,
                     c.passport_number,
+                    c.is_verified,
                     u.id AS user_id,
                     u.name,
                     u.email,
@@ -92,6 +131,7 @@ public class ClientsRepositoryImpl
                     c.identification_number,
                     c.phone_number,
                     c.passport_number,
+                    c.is_verified,
                     u.id AS user_id,
                     u.name,
                     u.email,
@@ -116,6 +156,7 @@ public class ClientsRepositoryImpl
                 .addValue("phone_number", d.getPhoneNumber())
                 .addValue("passport_number", d.getPassportNumber())
                 .addValue("identification_number", d.getIdentificationNumber())
+                .addValue("is_verified", d.getIsVerified())
                 .addValue("role_names", d.getRoles().stream().map(Enum::toString).toList());
 
         return map;
