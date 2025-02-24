@@ -2,7 +2,7 @@ package example.banking.user.entity;
 
 import lombok.Getter;
 
-public class User {
+public abstract class User {
     @Getter
     protected Long id;
     protected String name;

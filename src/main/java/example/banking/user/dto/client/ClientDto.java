@@ -1,8 +1,11 @@
 package example.banking.user.dto.client;
 
+import example.banking.user.roles.ClientRole;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -16,4 +19,5 @@ public class ClientDto {
     private String phoneNumber;
     private String passportNumber;
     private String identificationNumber;
+    private List<ClientRole> roles;
 }

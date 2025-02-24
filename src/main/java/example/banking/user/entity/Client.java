@@ -1,8 +1,11 @@
 package example.banking.user.entity;
 
 import example.banking.user.dto.client.ClientDto;
+import example.banking.user.roles.ClientRole;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Client extends User {
@@ -10,6 +13,7 @@ public class Client extends User {
     private String phoneNumber;
     private String passportNumber;
     private String identificationNumber;
+    private List<ClientRole> roles;
 
     public static Client register(
             String name,
@@ -17,7 +21,8 @@ public class Client extends User {
             String passportNumber,
             String identificationNumber,
             String email,
-            String passwordHash) {
+            String passwordHash,
+            List<ClientRole> roles) {
 
         Client client = new Client();
         client.name = name;
@@ -26,6 +31,7 @@ public class Client extends User {
         client.identificationNumber = identificationNumber;
         client.email = email;
         client.passwordHash = passwordHash;
+        client.roles = roles;
 
         return client;
     }
@@ -40,12 +46,13 @@ public class Client extends User {
         client.phoneNumber = dto.getPhoneNumber();
         client.passportNumber = dto.getPassportNumber();
         client.identificationNumber = dto.getIdentificationNumber();
+        client.roles = dto.getRoles();
         return client;
     }
 
     public ClientDto toDto() {
         return new ClientDto(
-            id, userId, name, email, passwordHash, phoneNumber, passportNumber, identificationNumber);
+            id, userId, name, email, passwordHash, phoneNumber, passportNumber, identificationNumber, roles);
     }
 
 }

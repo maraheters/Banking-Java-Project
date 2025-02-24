@@ -11,6 +11,7 @@ import example.banking.deposit.types.DepositStatus;
 import example.banking.user.entity.Client;
 import example.banking.user.repository.ClientsRepository;
 import example.banking.user.repository.ClientsRepositoryImpl;
+import example.banking.user.roles.ClientRole;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,7 @@ import org.springframework.boot.test.autoconfigure.data.jdbc.DataJdbcTest;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.jdbc.Sql;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.math.BigDecimal;
@@ -29,6 +31,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @Testcontainers
 @ActiveProfiles("test-containers")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@Sql(scripts = "classpath:/userRoles.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 public class DepositsRepositoryTests {
 
     private final DepositsRepository repository;
@@ -47,7 +50,14 @@ public class DepositsRepositoryTests {
     @BeforeEach
     public void setup() {
         var user = Client.register(
-                "Joe", "+375282828", "12345", "12345", "email@email.com", "password");
+                "Joe",
+                "+375282828",
+                "12345",
+                "12345",
+                "email@email.com",
+                "password",
+                List.of(ClientRole.BASIC));
+
         Long userId = clientsRepository.create(user);
         var account = Account.create(userId, AccountType.PERSONAL);
         Long accountId = accountsRepository.create(account);

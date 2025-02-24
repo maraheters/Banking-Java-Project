@@ -1,10 +1,12 @@
 package example.banking.user.rowMapper;
 
 import example.banking.user.dto.client.ClientDto;
+import example.banking.user.roles.ClientRole;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Arrays;
 
 public class ClientRowMapper implements RowMapper<ClientDto> {
 
@@ -21,6 +23,11 @@ public class ClientRowMapper implements RowMapper<ClientDto> {
         client.setPhoneNumber(rs.getString("phone_number"));
         client.setPassportNumber(rs.getString("passport_number"));
         client.setIdentificationNumber(rs.getString("identification_number"));
+        client.setRoles(
+                Arrays.stream(rs.getString("roles").split(","))
+                        .map(ClientRole::valueOf)
+                        .toList()
+        );
 
         return client;
     }

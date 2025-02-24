@@ -12,7 +12,14 @@ public class ClientMapper {
 
     public static ClientResponseDto toResponseDto(ClientDto d) {
         return new ClientResponseDto(
-                d.getId(), d.getUserId(), d.getName(), d.getEmail(), d.getPasswordHash(),
-                d.getPhoneNumber(), d.getPassportNumber(), d.getIdentificationNumber());
+                d.getId(),
+                d.getUserId(),
+                d.getName(),
+                d.getEmail(),
+                d.getPasswordHash(),
+                d.getPhoneNumber(),
+                d.getPassportNumber(),
+                d.getIdentificationNumber(),
+                d.getRoles().stream().map(Enum::toString).toList());
     }
 }

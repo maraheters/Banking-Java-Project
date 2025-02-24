@@ -9,7 +9,9 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class ClientsRepositoryImpl extends AbstractRepository<Client, ClientDto> implements ClientsRepository {
+public class ClientsRepositoryImpl
+        extends AbstractRepository<Client, ClientDto>
+        implements ClientsRepository {
 
     public ClientsRepositoryImpl(NamedParameterJdbcTemplate template) {
         this.template = template;
@@ -18,15 +20,34 @@ public class ClientsRepositoryImpl extends AbstractRepository<Client, ClientDto>
 
     @Override
     protected String getCreateSql() {
+        // 1. Insert information into user table, common for both clients and supervisor
+        // 2. Insert information into client table
+        // 3. Find role ids corresponding to client's roles, represented as an array of strings
+        // 4. Insert those ids and client's id into join table
+        // 5. Return client's generated id
         return """
                     WITH inserted_user AS (
                         INSERT INTO public.user(name, email, password_hash)
                         VALUES (:name, :email, :password_hash)
                         RETURNING id
+                    ),
+                    inserted_client AS (
+                        INSERT INTO public.client (user_id, phone_number, passport_number, identification_number)
+                        VALUES ((SELECT id FROM inserted_user), :phone_number, :passport_number, :identification_number)
+                        RETURNING id
+                    ),
+                    role_ids AS (
+                        SELECT id
+                        FROM public.client_role
+                        WHERE name IN (:role_names)
+                    ),
+                    id AS (
+                        INSERT INTO public.client_role_client(role_id, client_id)
+                        SELECT id, (SELECT id FROM inserted_client)
+                        FROM role_ids
+                        RETURNING client_id
                     )
-                    INSERT INTO public.client(user_id, phone_number, passport_number, identification_number)
-                    VALUES ((SELECT id FROM inserted_user), :phone_number, :passport_number, :identification_number)
-                    RETURNING id;
+                    SELECT * FROM id LIMIT 1;
                 """;
     }
 
@@ -43,49 +64,59 @@ public class ClientsRepositoryImpl extends AbstractRepository<Client, ClientDto>
     @Override
     protected String getFindByIdSql() {
         return """
-                    SELECT
-                        c.id AS client_id,
-                        c.user_id,
-                        c.phone_number,
-                        c.passport_number,
-                        c.identification_number,
-                        u.id AS user_id,
-                        u.name,
-                        u.email,
-                        u.password_hash
-                    FROM client c
-                    JOIN public.user u ON u.id = c.user_id
-                    WHERE c.id = :id
-                """;
+                SELECT
+                    c.id AS client_id,
+                    c.user_id,
+                    c.identification_number,
+                    c.phone_number,
+                    c.passport_number,
+                    u.id AS user_id,
+                    u.name,
+                    u.email,
+                    u.password_hash,
+                    STRING_AGG(cr.name, ',') AS roles
+                FROM client c
+                         JOIN public.user u ON u.id = c.user_id
+                         LEFT JOIN public.client_role_client crc ON c.id = crc.client_id
+                         LEFT JOIN public.client_role cr ON cr.id = crc.role_id
+                WHERE c.id = :id
+                GROUP BY c.id, u.id
+        """;
     }
     @Override
     protected String getFindAllSql() {
         return """
-                    SELECT
-                        c.id AS client_id,
-                        c.user_id,
-                        c.phone_number,
-                        c.passport_number,
-                        c.identification_number,
-                        u.id AS user_id,
-                        u.name,
-                        u.email,
-                        u.password_hash
-                    FROM client c
-                    JOIN public.user u ON u.id = c.user_id
-                """;
+                SELECT
+                    c.id AS client_id,
+                    c.user_id,
+                    c.identification_number,
+                    c.phone_number,
+                    c.passport_number,
+                    u.id AS user_id,
+                    u.name,
+                    u.email,
+                    u.password_hash,
+                    STRING_AGG(cr.name, ',') AS roles
+                FROM client c
+                         JOIN public.user u ON u.id = c.user_id
+                         LEFT JOIN public.client_role_client crc ON c.id = crc.client_id
+                         LEFT JOIN public.client_role cr ON cr.id = crc.role_id
+                GROUP BY c.id, u.id
+        """;
     }
 
     @Override
     protected MapSqlParameterSource getMapSqlParameterSource(Client client) {
         var map = new MapSqlParameterSource();
         var d = client.toDto();
-        map.addValue("name", d.getName());
-        map.addValue("email", d.getEmail());
-        map.addValue("password_hash", d.getPasswordHash());
-        map.addValue("phone_number", d.getPhoneNumber());
-        map.addValue("passport_number", d.getPassportNumber());
-        map.addValue("identification_number", d.getIdentificationNumber());
+        map
+                .addValue("name", d.getName())
+                .addValue("email", d.getEmail())
+                .addValue("password_hash", d.getPasswordHash())
+                .addValue("phone_number", d.getPhoneNumber())
+                .addValue("passport_number", d.getPassportNumber())
+                .addValue("identification_number", d.getIdentificationNumber())
+                .addValue("role_names", d.getRoles().stream().map(Enum::toString).toList());
 
         return map;
     }

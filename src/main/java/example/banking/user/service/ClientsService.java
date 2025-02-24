@@ -4,6 +4,7 @@ import example.banking.exception.ResourceNotFoundException;
 import example.banking.user.dto.client.RegisterClientRequestDto;
 import example.banking.user.entity.Client;
 import example.banking.user.repository.ClientsRepository;
+import example.banking.user.roles.ClientRole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,7 +28,8 @@ public class ClientsService {
                 requestDto.getPassportNumber(),
                 requestDto.getIdentificationNumber(),
                 requestDto.getEmail(),
-                requestDto.getPasswordHash());
+                requestDto.getPasswordHash(),
+                requestDto.getRoles().stream().map(ClientRole::valueOf).toList());
 
         return repository.create(client);
     }
