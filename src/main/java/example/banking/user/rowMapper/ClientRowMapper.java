@@ -19,7 +19,6 @@ public class ClientRowMapper implements RowMapper<ClientDto> {
         client.setUserId(rs.getLong("user_id"));
         client.setName(rs.getString("name"));
         client.setEmail(rs.getString("email"));
-        client.setIsVerified(rs.getBoolean("is_verified"));
         client.setPasswordHash(rs.getString("password_hash"));
         client.setPhoneNumber(rs.getString("phone_number"));
         client.setPassportNumber(rs.getString("passport_number"));

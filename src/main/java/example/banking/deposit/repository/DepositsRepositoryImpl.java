@@ -50,7 +50,7 @@ public class DepositsRepositoryImpl extends AbstractRepository<Deposit, DepositD
     }
 
     @Override
-    protected String getRemoveSql() {
+    protected String getDeleteSql() {
         return null;
     }
 

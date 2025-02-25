@@ -100,7 +100,7 @@ public class SupervisorsRepositoryImpl
     }
 
     @Override
-    protected String getRemoveSql() {
+    protected String getDeleteSql() {
         return "";
     }
 

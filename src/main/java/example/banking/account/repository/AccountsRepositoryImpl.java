@@ -100,7 +100,7 @@ public class AccountsRepositoryImpl extends AbstractRepository<Account, AccountD
     }
 
     @Override
-    protected String getRemoveSql() {
+    protected String getDeleteSql() {
         return null;
     }
 

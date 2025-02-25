@@ -14,10 +14,8 @@ public class ClientResponseDto {
     private Long userId;
     private String name;
     private String email;
-    private String passwordHash;
     private String phoneNumber;
     private String passportNumber;
     private String identificationNumber;
-    private Boolean isVerified;
     private List<String> roles;
 }

@@ -32,8 +32,8 @@ public class ClientsRepositoryImpl
                         RETURNING id
                     ),
                     inserted_client AS (
-                        INSERT INTO public.client (user_id, phone_number, passport_number, identification_number, is_verified)
-                        VALUES ((SELECT id FROM inserted_user), :phone_number, :passport_number, :identification_number, :is_verified)
+                        INSERT INTO public.client (user_id, phone_number, passport_number, identification_number)
+                        VALUES ((SELECT id FROM inserted_user), :phone_number, :passport_number, :identification_number)
                         RETURNING id
                     ),
                     role_ids AS (
@@ -69,7 +69,6 @@ public class ClientsRepositoryImpl
                     UPDATE public.client
                     SET phone_number = :phone_number,
                         passport_number = :passport_number,
-                        is_verified = :is_verified,
                         identification_number = :identification_number
                     WHERE id = :id
                     RETURNING id
@@ -95,7 +94,7 @@ public class ClientsRepositoryImpl
     }
 
     @Override
-    protected String getRemoveSql() {
+    protected String getDeleteSql() {
         return "";
     }
 
@@ -108,7 +107,6 @@ public class ClientsRepositoryImpl
                     c.identification_number,
                     c.phone_number,
                     c.passport_number,
-                    c.is_verified,
                     u.id AS user_id,
                     u.name,
                     u.email,
@@ -131,7 +129,6 @@ public class ClientsRepositoryImpl
                     c.identification_number,
                     c.phone_number,
                     c.passport_number,
-                    c.is_verified,
                     u.id AS user_id,
                     u.name,
                     u.email,
@@ -156,7 +153,6 @@ public class ClientsRepositoryImpl
                 .addValue("phone_number", d.getPhoneNumber())
                 .addValue("passport_number", d.getPassportNumber())
                 .addValue("identification_number", d.getIdentificationNumber())
-                .addValue("is_verified", d.getIsVerified())
                 .addValue("role_names", d.getRoles().stream().map(Enum::toString).toList());
 
         return map;

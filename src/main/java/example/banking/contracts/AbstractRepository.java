@@ -71,11 +71,18 @@ public abstract class AbstractRepository<E, D> {
         }
     }
 
+    public void delete(Long id) {
+        String sql = getDeleteSql();
+        var map = new MapSqlParameterSource("id", id);
+
+        template.update(sql, map);
+    }
+
     protected abstract String getFindAllSql();
     protected abstract String getFindByIdSql();
     protected abstract String getCreateSql();
     protected abstract String getUpdateSql();
-    protected abstract String getRemoveSql();
+    protected abstract String getDeleteSql();
 
     protected abstract MapSqlParameterSource getMapSqlParameterSource(E entity);
     protected abstract MapSqlParameterSource getMapSqlParameterSourceWithId(E entity);

@@ -55,7 +55,7 @@ public class LoansRepositoryImpl extends AbstractRepository<Loan, LoanDto> imple
     }
 
     @Override
-    protected String getRemoveSql() {
+    protected String getDeleteSql() {
         return null;
     }
 

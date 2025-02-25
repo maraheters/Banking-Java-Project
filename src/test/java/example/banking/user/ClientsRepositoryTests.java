@@ -87,18 +87,4 @@ public class ClientsRepositoryTests {
         assertEquals(List.of(ClientRole.BASIC), client.toDto().getRoles());
     }
 
-    @Test
-    public void update_whenUpdatedVerified_thenCorrect() {
-        var id = repository.create(client2); //unverified by default
-
-        var client = repository.findById(id).get();
-        client.setVerified();
-
-        repository.update(client);
-
-        var clientAfterUpdate = repository.findById(id).get();
-
-        assertTrue(clientAfterUpdate.isVerified());
-    }
-
 }

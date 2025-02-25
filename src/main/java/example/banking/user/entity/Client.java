@@ -14,7 +14,6 @@ public class Client extends User {
     private String passportNumber;
     private String identificationNumber;
     private List<ClientRole> roles;
-    private Boolean isVerified;
 
     public static Client register(
             String name,
@@ -33,7 +32,6 @@ public class Client extends User {
         client.email = email;
         client.passwordHash = passwordHash;
         client.roles = roles;
-        client.isVerified = false;
 
         return client;
     }
@@ -49,21 +47,23 @@ public class Client extends User {
         client.passportNumber = dto.getPassportNumber();
         client.identificationNumber = dto.getIdentificationNumber();
         client.roles = dto.getRoles();
-        client.isVerified = dto.getIsVerified();
         return client;
     }
 
     public ClientDto toDto() {
         return new ClientDto(
-            id, userId, name, email, passwordHash, phoneNumber, passportNumber, identificationNumber, roles, isVerified);
+            id, userId, name, email, passwordHash, phoneNumber, passportNumber, identificationNumber, roles);
     }
 
-    public boolean isVerified() {
-        return isVerified;
+    public void addRoles(List<ClientRole> newRoles) {
+        if (roles == null)
+            roles = newRoles;
+        else
+            roles.addAll(newRoles);
     }
 
-    public void setVerified() {
-        isVerified = true;
+    public void removeRoles(List<ClientRole> rolesToRemove) {
+        roles.removeIf(rolesToRemove::contains);
     }
 
 }
