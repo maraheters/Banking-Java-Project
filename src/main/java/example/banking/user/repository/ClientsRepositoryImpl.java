@@ -4,8 +4,6 @@ import example.banking.contracts.AbstractRepository;
 import example.banking.user.dto.client.ClientDto;
 import example.banking.user.entity.Client;
 import example.banking.user.rowMapper.ClientRowMapper;
-import org.springframework.dao.DataAccessException;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;

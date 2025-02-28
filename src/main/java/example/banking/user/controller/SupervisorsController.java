@@ -1,6 +1,5 @@
 package example.banking.user.controller;
 
-import example.banking.user.dto.supervisor.SupervisorRegisterRequestDto;
 import example.banking.user.dto.supervisor.SupervisorResponseDto;
 import example.banking.user.mapper.SupervisorMapper;
 import example.banking.user.service.SupervisorsService;

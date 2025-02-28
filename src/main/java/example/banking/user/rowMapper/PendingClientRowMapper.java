@@ -1,12 +1,10 @@
 package example.banking.user.rowMapper;
 
 import example.banking.user.dto.client.ClientDto;
-import example.banking.user.roles.ClientRole;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Arrays;
 
 public class PendingClientRowMapper implements RowMapper<ClientDto> {
 
