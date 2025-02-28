@@ -60,15 +60,7 @@ public abstract class AbstractRepository<E, D> {
         String sql = getFindByIdSql();
         var map = new MapSqlParameterSource("id", id);
 
-        try {
-            return Optional.of(
-                    fromDto(template.queryForObject(sql, map, mapper)));
-
-        } catch(EmptyResultDataAccessException e) {
-            return Optional.empty();
-        } catch (DataAccessException e) {
-            throw new RuntimeException("Error while trying to query: ", e);
-        }
+        return findByCriteria(sql, map);
     }
 
     public void delete(Long id) {
@@ -76,6 +68,19 @@ public abstract class AbstractRepository<E, D> {
         var map = new MapSqlParameterSource("id", id);
 
         template.update(sql, map);
+    }
+
+    protected Optional<E> findByCriteria(String sql, MapSqlParameterSource map) {
+        try {
+            return Optional.of(
+                    fromDto(template.queryForObject(sql, map, mapper))
+            );
+
+        } catch(EmptyResultDataAccessException e) {
+            return Optional.empty();
+        } catch (DataAccessException e) {
+            throw new RuntimeException("Error while trying to query: ", e);
+        }
     }
 
     protected abstract String getFindAllSql();

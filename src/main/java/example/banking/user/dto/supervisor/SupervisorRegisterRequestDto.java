@@ -6,9 +6,9 @@ import java.util.List;
 
 @Data
 public class SupervisorRegisterRequestDto {
-    protected String name;
-    protected String email;
-    protected String passwordHash;
+    private String name;
+    private String email;
+    private String password;
     private Long companyId;
     private List<String> roles;
 }

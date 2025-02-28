@@ -4,9 +4,13 @@ import example.banking.contracts.AbstractRepository;
 import example.banking.user.dto.client.ClientDto;
 import example.banking.user.entity.Client;
 import example.banking.user.rowMapper.ClientRowMapper;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
+
+import java.util.Optional;
 
 @Repository
 public class ClientsRepositoryImpl
@@ -16,6 +20,33 @@ public class ClientsRepositoryImpl
     public ClientsRepositoryImpl(NamedParameterJdbcTemplate template) {
         this.template = template;
         this.mapper = new ClientRowMapper();
+    }
+
+    @Override
+    public Optional<Client> findByEmail(String email) {
+        String sql = """
+                SELECT
+                    c.id AS client_id,
+                    c.user_id,
+                    c.identification_number,
+                    c.phone_number,
+                    c.passport_number,
+                    u.id AS user_id,
+                    u.name,
+                    u.email,
+                    u.password_hash,
+                    STRING_AGG(cr.name, ',') AS roles
+                FROM client c
+                         JOIN public.user u ON u.id = c.user_id
+                         LEFT JOIN public.client_role_client crc ON c.id = crc.client_id
+                         LEFT JOIN public.client_role cr ON cr.id = crc.role_id
+                WHERE u.email = :email
+                GROUP BY c.id, u.id
+        """;
+
+        var map = new MapSqlParameterSource("email", email);
+
+        return findByCriteria(sql, map);
     }
 
     @Override

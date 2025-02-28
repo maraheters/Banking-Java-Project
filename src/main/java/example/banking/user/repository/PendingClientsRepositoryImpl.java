@@ -5,8 +5,6 @@ import example.banking.user.dto.client.ClientDto;
 import example.banking.user.entity.Client;
 import example.banking.user.rowMapper.PendingClientRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -30,15 +28,7 @@ public class PendingClientsRepositoryImpl
 
         var map = new MapSqlParameterSource("email", email);
 
-        try {
-            return Optional.of(
-                    fromDto(template.queryForObject(sql, map, mapper)));
-
-        } catch(EmptyResultDataAccessException e) {
-            return Optional.empty();
-        } catch (DataAccessException e) {
-            throw new RuntimeException("Error while trying to query: ", e);
-        }
+        return findByCriteria(sql, map);
     }
 
     @Override

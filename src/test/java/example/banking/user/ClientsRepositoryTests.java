@@ -68,6 +68,16 @@ public class ClientsRepositoryTests {
 
         assertEquals(id1, id2);
     }
+    @Test
+    public void findByEmail_whenSavedAndRetrieved_thenCorrect() {
+        var email = client1.toDto().getEmail();
+        var id = repository.create(client1);
+
+        var user = repository.findByEmail(email).get();
+
+        assertEquals(id, user.getId());
+        assertEquals(email, user.toDto().getEmail());
+    }
 
     @Test
     public void findAll_whenSavedAndRetrieved_thenCorrect() {

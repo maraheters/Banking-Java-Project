@@ -19,13 +19,6 @@ public class SupervisorsController {
         this.service = service;
     }
 
-    @PostMapping("/register")
-    public ResponseEntity<Long> register(@RequestBody SupervisorRegisterRequestDto requestDto) {
-        return ResponseEntity.ok(
-                service.register(requestDto)
-        );
-    }
-
     @GetMapping
     public ResponseEntity<List<SupervisorResponseDto>> getAll() {
 
