@@ -21,6 +21,8 @@ import java.time.Period;
 public class Deposit {
     @Getter
     private Long id;
+    @Getter
+    private Long accountId;
     private BigDecimal minimum;
     private BigDecimal bonus;
     private DepositStatus status;
@@ -28,7 +30,6 @@ public class Deposit {
     private LocalDate lastBonusDate;
     private Integer numberOfBonusesYet;  // Used to track how many bonuses have been applied
     private Integer lengthInMonths;
-    private Long accountId;
     private Double interestRate;
 
     private Deposit(DepositDto dto) {

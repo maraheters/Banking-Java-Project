@@ -3,6 +3,7 @@ package example.banking.account.entity;
 import example.banking.account.dto.AccountDto;
 import example.banking.account.types.AccountStatus;
 import example.banking.account.types.AccountType;
+import example.banking.exception.BadRequestException;
 import example.banking.utils.IbanGenerator;
 import jakarta.validation.constraints.Positive;
 import lombok.AccessLevel;
@@ -71,7 +72,7 @@ public class Account {
         checkStatus(AccountStatus.ACTIVE);
 
         if (balance.compareTo(amount) < 0) {
-            throw new IllegalStateException("Balance insufficient");
+            throw new BadRequestException("Balance insufficient");
         }
 
         balance = balance.subtract(amount);
@@ -84,11 +85,11 @@ public class Account {
 
     private void checkStatus(AccountStatus status) {
         if (!this.status.equals(status))
-            throw new IllegalStateException("Account status must be " + status + ", actual status is: " + this.status);
+            throw new BadRequestException("Account status must be " + status + ", actual status is: " + this.status);
     }
 
     private void checkStatusNot(AccountStatus status) {
         if (this.status.equals(status))
-            throw new IllegalStateException("Account status must not be: " + status);
+            throw new BadRequestException("Account status must not be: " + status);
     }
 }

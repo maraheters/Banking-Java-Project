@@ -48,4 +48,12 @@ public class DepositsController {
         return ResponseEntity.ok(
                 DepositMapper.toResponseDto(service.getById(id)));
     }
+
+    @PostMapping("/{id}/retrieve")
+    @PreAuthorize("hasAuthority('BASIC')")
+    public ResponseEntity<Void> retrieve(@PathVariable("id") Long id) {
+        service.retrieveMoney(id);
+
+        return ResponseEntity.ok().build();
+    }
 }

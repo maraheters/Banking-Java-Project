@@ -18,6 +18,7 @@ import java.time.temporal.ChronoUnit;
 public class Loan {
     @Getter
     private Long id;
+    @Getter
     private Long accountId;
     private BigDecimal principalAmount;
     private BigDecimal paidAmount;

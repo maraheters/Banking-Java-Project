@@ -39,10 +39,18 @@ public class PendingClientsController {
         );
     }
 
-    @PostMapping("/verify")
-    @PreAuthorize("hasAnyAuthority('MANAGER')")
-    public ResponseEntity<Long> verify(@RequestParam("id") Long id) {
+    @PostMapping("/approve")
+    @PreAuthorize("hasAuthority('MANAGER')")
+    public ResponseEntity<Long> approve(@RequestParam("id") Long id) {
 
-        return ResponseEntity.ok(service.verify(id));
+        return ResponseEntity.ok(service.approve(id));
+    }
+
+    @PostMapping("/reject")
+    @PreAuthorize("hasAuthority('MANAGER')")
+    public ResponseEntity<Void> reject(@RequestParam("id") Long id) {
+
+        service.reject(id);
+        return ResponseEntity.ok().build();
     }
 }

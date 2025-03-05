@@ -1,4 +1,4 @@
-package example.banking.security.config;
+package example.banking.config;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;

@@ -35,10 +35,14 @@ public class LoansPaymentService {
         loan.makePayment(amount, new ThinAirPaymentStrategy());
     }
 
-    public void payFromAccount(BigDecimal amount, Long loanId, Long accountId) {
-        Account account = accountsRepository.findById(accountId)
-                .orElseThrow(() -> new ResourceNotFoundException(""));
+    public void payFromAccount(BigDecimal amount, Long loanId) {
+
         Loan loan = loansRepository.findById(loanId)
+                .orElseThrow(() -> new ResourceNotFoundException(""));
+
+        var accountId = loan.getAccountId();
+
+        Account account = accountsRepository.findById(accountId)
                 .orElseThrow(() -> new ResourceNotFoundException(""));
 
         loan.makePayment(amount, new AccountLoanPaymentStrategy(account));

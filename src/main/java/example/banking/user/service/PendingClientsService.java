@@ -35,7 +35,7 @@ public class PendingClientsService {
     }
 
     @Transactional
-    public Long verify(Long id) {
+    public Long approve(Long id) {
 
         var client = pendingClientsRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Pending client with id '" + id + "' not found."));
@@ -47,5 +47,13 @@ public class PendingClientsService {
         pendingClientsRepository.delete(id);
 
         return newId;
+    }
+
+    @Transactional
+    public void reject(Long id) {
+        pendingClientsRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Pending client with id '" + id + "' not found."));
+
+        pendingClientsRepository.delete(id);
     }
 }
