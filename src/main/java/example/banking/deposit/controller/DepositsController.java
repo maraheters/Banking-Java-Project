@@ -6,6 +6,7 @@ import example.banking.deposit.mapper.DepositMapper;
 import example.banking.deposit.service.DepositsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,6 +24,7 @@ public class DepositsController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAuthority('BASIC')")
     public ResponseEntity<Long> createDeposit(
             @RequestBody DepositRequestDto requestDto) {
 
@@ -31,6 +33,7 @@ public class DepositsController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyAuthority('ADMINISTRATOR', 'MANAGER')")
     public ResponseEntity<List<DepositResponseDto>> getAll() {
         var dtos = service.getAll().stream()
                 .map(DepositMapper::toResponseDto)
@@ -40,6 +43,7 @@ public class DepositsController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('ADMINISTRATOR', 'MANAGER')")
     public ResponseEntity<DepositResponseDto> getById(@PathVariable("id") Long id) {
         return ResponseEntity.ok(
                 DepositMapper.toResponseDto(service.getById(id)));

@@ -5,6 +5,7 @@ import example.banking.user.mapper.ClientMapper;
 import example.banking.user.service.PendingClientsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,6 +22,7 @@ public class PendingClientsController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'ADMINISTRATOR')")
     public ResponseEntity<List<PendingClientResponseDto>> getAll() {
         return ResponseEntity.ok(
                 service.findAll().stream()
@@ -30,6 +32,7 @@ public class PendingClientsController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'ADMINISTRATOR')")
     public ResponseEntity<PendingClientResponseDto> getById(@PathVariable("id") Long id) {
         return ResponseEntity.ok(
                 ClientMapper.toPendingClientResponseDto(service.findById(id))
@@ -37,6 +40,7 @@ public class PendingClientsController {
     }
 
     @PostMapping("/verify")
+    @PreAuthorize("hasAnyAuthority('MANAGER')")
     public ResponseEntity<Long> verify(@RequestParam("id") Long id) {
 
         return ResponseEntity.ok(service.verify(id));

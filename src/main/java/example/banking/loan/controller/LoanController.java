@@ -5,6 +5,7 @@ import example.banking.loan.mapper.LoanMapper;
 import example.banking.loan.service.LoansService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -22,6 +23,7 @@ public class LoanController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAuthority('MANAGER')")
     public ResponseEntity<Long> createLoan(
             @RequestParam Long accountId,
             @RequestParam BigDecimal amount,
@@ -32,6 +34,7 @@ public class LoanController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'ADMINISTRATOR')")
     public ResponseEntity<List<LoanResponseDto>> getAll() {
 
         var loans = service.getAll().stream()
@@ -42,6 +45,7 @@ public class LoanController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'ADMINISTRATOR')")
     public ResponseEntity<LoanResponseDto> getById(@PathVariable("id") Long id) {
 
         var loan = LoanMapper.toResponseDto(service.getById(id));
