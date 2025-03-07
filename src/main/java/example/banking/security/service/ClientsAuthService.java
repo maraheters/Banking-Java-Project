@@ -8,8 +8,8 @@ import example.banking.user.dto.client.ClientRegisterRequestDto;
 import example.banking.user.entity.Client;
 import example.banking.user.repository.PendingClientsRepository;
 import example.banking.user.roles.ClientRole;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,18 +21,19 @@ public class ClientsAuthService {
     private final PendingClientsRepository pendingClientsRepository;
     private final UserDetailsRepository userDetailsRepository;
     private final JwtService jwtService;
+    private final PasswordEncoder passwordEncoder;
 
-    @Value("${password.encoder.strength}")
-    private int encoderStrength;
-
+    @Autowired
     public ClientsAuthService(
             PendingClientsRepository pendingClientsRepository,
             UserDetailsRepository userDetailsRepository,
-            JwtService jwtService) {
+            JwtService jwtService,
+            PasswordEncoder passwordEncoder) {
 
         this.pendingClientsRepository = pendingClientsRepository;
         this.userDetailsRepository = userDetailsRepository;
         this.jwtService = jwtService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public UserAuthResponseDto requestRegister(ClientRegisterRequestDto requestDto) {
@@ -40,7 +41,7 @@ public class ClientsAuthService {
 
         checkIfUserInTheSystem(email);
 
-        var passwordHash = new BCryptPasswordEncoder(encoderStrength).encode(requestDto.getPassword());
+        var passwordHash = passwordEncoder.encode(requestDto.getPassword());
 
         var client = Client.register(
                 requestDto.getName(),

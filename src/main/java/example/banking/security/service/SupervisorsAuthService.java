@@ -8,8 +8,7 @@ import example.banking.user.entity.Supervisor;
 import example.banking.user.repository.SupervisorsRepository;
 import example.banking.user.roles.SupervisorRole;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -18,18 +17,18 @@ public class SupervisorsAuthService {
     private final SupervisorsRepository supervisorsRepository;
     private final UserDetailsRepository userDetailsRepository;
     private final JwtService jwtService;
-
-    @Value("${password.encoder.strength}")
-    private int encoderStrength;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
     public SupervisorsAuthService(
             SupervisorsRepository supervisorsRepository,
             UserDetailsRepository userDetailsRepository,
+            PasswordEncoder passwordEncoder,
             JwtService jwtService
     ) {
         this.supervisorsRepository = supervisorsRepository;
         this.userDetailsRepository = userDetailsRepository;
+        this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
     }
 
@@ -38,7 +37,7 @@ public class SupervisorsAuthService {
 
         checkIfUserInTheSystem(email);
 
-        var passwordHash = new BCryptPasswordEncoder(encoderStrength).encode(requestDto.getPassword());
+        var passwordHash = passwordEncoder.encode(requestDto.getPassword());
 
         var supervisor = Supervisor.register(
                 requestDto.getName(),

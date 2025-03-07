@@ -1,6 +1,7 @@
 package example.banking.security.config;
 
 import example.banking.security.filter.JwtFilter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,7 +16,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -32,22 +32,23 @@ public class SecurityConfiguration {
 
     private final JwtFilter jwtFilter;
     private final UserDetailsService userDetailsService;
+    private final PasswordEncoder passwordEncoder;
 
-    @Value("${password.encoder.strength}")
-    private int ENCODER_STRENGTH;
-
+    @Autowired
     public SecurityConfiguration(
             JwtFilter jwtFilter,
-            UserDetailsService userDetailsService) {
+            UserDetailsService userDetailsService,
+            PasswordEncoder passwordEncoder) {
         this.jwtFilter = jwtFilter;
         this.userDetailsService = userDetailsService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setUserDetailsService(userDetailsService);
-        provider.setPasswordEncoder(new BCryptPasswordEncoder(ENCODER_STRENGTH));
+        provider.setPasswordEncoder(passwordEncoder);
         return provider;
     }
 
@@ -87,10 +88,5 @@ public class SecurityConfiguration {
         source.registerCorsConfiguration("/**", configuration);
 
         return source;
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
     }
 }
