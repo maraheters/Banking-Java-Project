@@ -3,13 +3,15 @@ package example.banking.user.entity;
 import example.banking.user.dto.client.ClientDto;
 import example.banking.user.roles.ClientRole;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Client extends User {
-    private Long userId;
+    @Getter
+    private Long userId; // This is an id of public.user.id
     private String phoneNumber;
     private String passportNumber;
     private String identificationNumber;

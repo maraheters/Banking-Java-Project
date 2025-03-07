@@ -9,6 +9,8 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 
 @Repository
 public class LoansRepositoryImpl extends AbstractRepository<Loan, LoanDto> implements LoansRepository {
@@ -17,6 +19,21 @@ public class LoansRepositoryImpl extends AbstractRepository<Loan, LoanDto> imple
     public LoansRepositoryImpl(NamedParameterJdbcTemplate template) {
         this.template = template;
         this.mapper = new LoanRowMapper();
+    }
+
+    @Override
+    public List<Loan> findAllByUserId(Long userId) {
+        String sql = """
+            SELECT l.*
+            FROM public.loan l
+            LEFT JOIN public.account a ON a.id = l.account_id
+            LEFT JOIN public.client c ON c.id = a.holder_id
+            WHERE c.user_id = :user_id
+        """;
+
+        var map = new MapSqlParameterSource("user_id", userId);
+
+        return findAllByCriteria(sql, map);
     }
 
     @Override

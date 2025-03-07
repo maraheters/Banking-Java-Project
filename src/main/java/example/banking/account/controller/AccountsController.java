@@ -3,9 +3,11 @@ package example.banking.account.controller;
 import example.banking.account.dto.AccountResponseDto;
 import example.banking.account.mapper.AccountMapper;
 import example.banking.account.service.AccountsService;
+import example.banking.security.BankingUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -41,6 +43,19 @@ public class AccountsController {
     public ResponseEntity<AccountResponseDto> getById(@PathVariable("id") Long id) {
         return ResponseEntity.ok(
                 AccountMapper.toResponseDto(service.getById(id)));
+    }
+
+    @GetMapping("/user")
+    @PreAuthorize("hasAuthority('BASIC')")
+    public ResponseEntity<List<AccountResponseDto>> getAccountsByUser (
+            @AuthenticationPrincipal BankingUserDetails userDetails) {
+        var accounts = service.getAllByUser(userDetails);
+
+        return ResponseEntity.ok(
+                accounts.stream()
+                        .map(AccountMapper::toResponseDto)
+                        .toList()
+        );
     }
 
     @PostMapping("/{id}/activate")

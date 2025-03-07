@@ -4,8 +4,11 @@ import example.banking.account.entity.Account;
 import example.banking.account.repository.AccountsRepository;
 import example.banking.account.types.AccountStatus;
 import example.banking.account.types.AccountType;
+import example.banking.exception.BadRequestException;
 import example.banking.exception.ResourceNotFoundException;
+import example.banking.security.BankingUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -69,5 +72,13 @@ public class AccountsService {
         account.setStatus(status);
 
         repository.update(account);
+    }
+
+    public List<Account> getAllByUser(BankingUserDetails userDetails) {
+        if (!userDetails.getAuthorities().contains(new SimpleGrantedAuthority("BASIC"))) {
+            throw new BadRequestException("User is not a client");
+        }
+
+        return repository.findByUserId(userDetails.getId());
     }
 }

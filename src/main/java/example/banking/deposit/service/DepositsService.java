@@ -78,7 +78,7 @@ public class DepositsService {
     }
 
     @Scheduled(fixedDelay = 3000)
-    private void addDueBonusesToDeposits() {
+    protected void addDueBonusesToDeposits() {
         var deposits = depositsRepository.findAll();
 
         // Add bonus to deposits that require it,

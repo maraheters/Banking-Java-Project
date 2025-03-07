@@ -19,4 +19,6 @@ public interface AccountsRepository {
     List<Account> findAll();
 
     List<Account> findByHolderId(Long holderId);
+    
+    List<Account> findByUserId(Long holderId);
 }

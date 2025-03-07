@@ -33,6 +33,7 @@ public class AccountsRepositoryTests {
     private Account account1;
     private Account account2;
     private Long clientId;
+    private Long userId;
 
     @Autowired
     public AccountsRepositoryTests(NamedParameterJdbcTemplate template) {
@@ -46,6 +47,7 @@ public class AccountsRepositoryTests {
                 "identification", "email", "password", List.of(ClientRole.BASIC));
 
         clientId = clientsRepository.create(client);
+        userId = clientsRepository.findById(clientId).get().getUserId();
 
         account1 = Account.create(clientId, AccountType.PERSONAL);
         account2 = Account.create(clientId, AccountType.PERSONAL);
@@ -100,6 +102,15 @@ public class AccountsRepositoryTests {
         repository.create( account1 );
 
         var result = repository.findByHolderId(clientId);
+
+        assertFalse(result.isEmpty());
+    }
+
+    @Test
+    public void findByUserId_whenFound_thenCorrect() {
+        repository.create( account1 );
+
+        var result = repository.findByUserId(userId);
 
         assertFalse(result.isEmpty());
     }

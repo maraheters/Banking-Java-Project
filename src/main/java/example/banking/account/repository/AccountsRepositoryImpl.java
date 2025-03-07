@@ -4,15 +4,11 @@ import example.banking.account.dto.AccountDto;
 import example.banking.account.entity.Account;
 import example.banking.account.rowMapper.AccountRowMapper;
 import example.banking.contracts.AbstractRepository;
-import org.springframework.dao.DataAccessException;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public class AccountsRepositoryImpl extends AbstractRepository<Account, AccountDto> implements AccountsRepository {
@@ -23,65 +19,48 @@ public class AccountsRepositoryImpl extends AbstractRepository<Account, AccountD
     }
 
     @Override
-    public Optional<Account> findById(Long id) {
-        String sql = getFindByIdSql();
+    public List<Account> findByHolderId(Long holderId) {
+        String sql = "SELECT * FROM account WHERE holder_id = :holder_id";
+        var map = new MapSqlParameterSource("holder_id", holderId);
 
-        var parameterSource = new MapSqlParameterSource("id", id);
-
-        try {
-            List<Account> accounts = template.query(sql, parameterSource, (rs, rowNum) -> {
-                AccountDto account = mapper.mapRow(rs, rowNum);
-                // Collect deposit IDs
-                List<Long> depositIds = new ArrayList<>();
-                do {
-                    long depositId = rs.getLong("deposit_id");
-                    if (depositId != 0) {
-                        depositIds.add(depositId);
-                    }
-                } while (rs.next());
-                account.setDepositIds(depositIds);
-                return Account.fromDto(account);
-            });
-
-            return accounts.isEmpty() ? Optional.empty() : Optional.of(accounts.getFirst());
-
-        } catch (EmptyResultDataAccessException e) {
-            return Optional.empty();
-
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e);
-        }
+        return findAllByCriteria(sql, map);
     }
 
     @Override
-    public List<Account> findByHolderId(Long holderId) {
-        String sql = "SELECT * FROM account WHERE holder_id = :holder_id";
-        var parameterSource = new MapSqlParameterSource("holder_id", holderId);
+    public List<Account> findByUserId(Long userId) {
+        String sql = """
+            SELECT a.* 
+            FROM account a
+            LEFT JOIN client c ON a.holder_id = c.id
+            WHERE c.user_id = :user_id
+        """;
 
-        return template.query(sql, parameterSource, mapper).stream()
-                .map(Account::fromDto)
-                .toList();
+        var map = new MapSqlParameterSource("user_id", userId);
+
+        return findAllByCriteria(sql, map);
     }
 
     @Override
     protected String getCreateSql() {
-        return "INSERT INTO account (iban, status, type, balance, date_created, holder_id) " +
-                "VALUES (:iban, :status, :type, :balance, :date_created, :holder_id) " +
-                "RETURNING id";
+        return """
+            INSERT INTO account (iban, status, type, balance, date_created, holder_id)
+            VALUES (:iban, :status, :type, :balance, :date_created, :holder_id)
+            RETURNING id
+        """;
     }
 
     @Override
     protected String getUpdateSql() {
         return """
-                    UPDATE account SET
-                    iban = :iban,
-                    status = :status,
-                    type = :type,
-                    balance = :balance,
-                    date_created = :date_created,
-                    holder_id = :holder_id
-                    WHERE id = :id
-                """;
+            UPDATE account SET
+            iban = :iban,
+            status = :status,
+            type = :type,
+            balance = :balance,
+            date_created = :date_created,
+            holder_id = :holder_id
+            WHERE id = :id
+        """;
     }
 
     @Override
@@ -92,11 +71,10 @@ public class AccountsRepositoryImpl extends AbstractRepository<Account, AccountD
     @Override
     protected String getFindByIdSql() {
         return """
-                    SELECT a.*, d.id AS deposit_id
-                    FROM account a
-                    LEFT JOIN deposit d ON a.id = d.account_id
-                    WHERE a.id = :id
-                """;
+                SELECT *
+                FROM account
+                WHERE account.id = :id
+        """;
     }
 
     @Override

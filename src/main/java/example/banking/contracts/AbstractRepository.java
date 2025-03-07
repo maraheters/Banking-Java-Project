@@ -70,6 +70,16 @@ public abstract class AbstractRepository<E, D> {
         template.update(sql, map);
     }
 
+    protected List<E> findAllByCriteria(String sql, MapSqlParameterSource map) {
+        try {
+            return template.query(sql, map, this.mapper).stream()
+                    .map(this::fromDto)
+                    .toList();
+        } catch (DataAccessException e) {
+            throw new RuntimeException("Error while trying to query: ", e);
+        }
+    }
+
     protected Optional<E> findByCriteria(String sql, MapSqlParameterSource map) {
         try {
             return Optional.of(

@@ -1,5 +1,7 @@
 package example.banking.user;
 
+import example.banking.deposit.entity.Deposit;
+import example.banking.deposit.types.DepositStatus;
 import example.banking.user.entity.Client;
 import example.banking.user.repository.ClientsRepository;
 import example.banking.user.repository.ClientsRepositoryImpl;
@@ -68,6 +70,7 @@ public class ClientsRepositoryTests {
 
         assertEquals(id1, id2);
     }
+
     @Test
     public void findByEmail_whenSavedAndRetrieved_thenCorrect() {
         var email = client1.toDto().getEmail();

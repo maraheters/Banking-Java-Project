@@ -26,7 +26,6 @@ public class Account {
     private AccountType type;
     private Long holderId;
     private LocalDateTime dateCreated;
-    private List<Long> depositIds;
 
     private Account(AccountDto dto) {
         id          = dto.getId();
@@ -36,18 +35,16 @@ public class Account {
         type        = dto.getType();
         holderId    = dto.getHolderId();
         dateCreated = dto.getDateCreated();
-        depositIds  = dto.getDepositIds();
     }
 
-    public static Account create(Long holderId, AccountType type) {
+    public static Account create(Long clientId, AccountType type) {
         var account = new Account();
         account.IBAN = IbanGenerator.Generate("BY");
         account.balance = BigDecimal.ZERO;
         account.status = AccountStatus.ACTIVE;
         account.type = type;
-        account.holderId = holderId;
+        account.holderId = clientId;
         account.dateCreated = LocalDateTime.now();
-        account.depositIds = new ArrayList<>();
 
         return account;
     }
@@ -58,7 +55,7 @@ public class Account {
 
     public AccountDto toDto() {
         return new AccountDto(
-                id, IBAN, balance, status, type, holderId, dateCreated, depositIds);
+                id, IBAN, balance, status, type, holderId, dateCreated);
     }
 
     @Transactional
