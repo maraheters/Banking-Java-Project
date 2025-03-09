@@ -12,9 +12,10 @@ public class BankingUserDetailsRowMapper implements RowMapper<BankingUserDetails
     public BankingUserDetails mapRow(ResultSet rs, int rowNum) throws SQLException {
         var id = rs.getLong("user_id");
         var email = rs.getString("email");
-        var password_hash = rs.getString("password_hash");
+        var passwordHash = rs.getString("password_hash");
+        var clientId = rs.getLong("client_id");
         var roles = Arrays.stream(rs.getString("roles").split(",")).toList();
 
-        return new BankingUserDetails(id, email, password_hash, roles);
+        return new BankingUserDetails(id, email, passwordHash, roles, clientId);
     }
 }

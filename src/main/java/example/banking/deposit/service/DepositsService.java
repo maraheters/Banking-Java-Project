@@ -6,6 +6,10 @@ import example.banking.deposit.entity.Deposit;
 import example.banking.deposit.repository.DepositsRepository;
 import example.banking.deposit.types.DepositStatus;
 import example.banking.exception.ResourceNotFoundException;
+import example.banking.security.BankingUserDetails;
+import example.banking.transaction.entity.Transaction;
+import example.banking.transaction.repository.TransactionsRepository;
+import example.banking.transaction.types.TransactionType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -18,13 +22,16 @@ public class DepositsService {
 
     private final DepositsRepository depositsRepository;
     private final AccountsRepository accountsRepository;
+    private final TransactionsRepository transactionsRepository;
 
     @Autowired
     public DepositsService(
             DepositsRepository depositsRepository,
-            AccountsRepository accountsRepository) {
+            AccountsRepository accountsRepository,
+            TransactionsRepository transactionsRepository) {
         this.depositsRepository = depositsRepository;
         this.accountsRepository = accountsRepository;
+        this.transactionsRepository = transactionsRepository;
     }
 
     public List<Deposit> getAll() {
@@ -37,15 +44,31 @@ public class DepositsService {
                 .orElseThrow(() -> new ResourceNotFoundException("Deposit with id '" + id + "' not found."));
     }
 
-    public Long createDeposit(DepositRequestDto requestDto) {
+    @Transactional
+    public Long create(DepositRequestDto requestDto) {
+        var amount = requestDto.getInitialBalance();
+        var accountId = requestDto.getAccountId();
+        var account = accountsRepository.findById(accountId)
+                .orElseThrow(() -> new ResourceNotFoundException("Account with id '" + accountId + "' not found."));
 
         var deposit = Deposit.create(
-                requestDto.getAccountId(),
+                accountId,
                 requestDto.getInterestRate(),
                 requestDto.getLengthInMonths(),
-                requestDto.getInitialBalance());
+                amount
+        );
 
-        return depositsRepository.create(deposit);
+        var depositId = depositsRepository.create(deposit);
+
+        var transaction = Transaction.create(
+                accountId, TransactionType.ACCOUNT, depositId, TransactionType.DEPOSIT, amount
+        );
+
+        account.withdraw(amount);
+        accountsRepository.update(account);
+        transactionsRepository.create(transaction);
+
+        return depositId;
     }
 
     @Transactional
@@ -99,4 +122,14 @@ public class DepositsService {
         depositsRepository.update(deposit);
     }
 
+    public boolean validateOwner(Long depositId, BankingUserDetails userDetails) {
+        var deposit = depositsRepository.findById(depositId)
+                .orElseThrow(() -> new ResourceNotFoundException("Deposit with id '" + depositId + "' not found."));
+        var accountId = deposit.getAccountId();
+        var account = accountsRepository.findById(accountId)
+                .orElseThrow(() -> new ResourceNotFoundException("Account with id '" + accountId + "' not found."));
+
+        var clientId = userDetails.getClientId();
+        return account.isOwner(clientId);
+    }
 }

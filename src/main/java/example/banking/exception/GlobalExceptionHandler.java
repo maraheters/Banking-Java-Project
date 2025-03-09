@@ -12,4 +12,14 @@ public class GlobalExceptionHandler {
     public ProblemDetail handleResourceNotFoundException(RuntimeException e) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, e.getMessage());
     }
+
+    @ExceptionHandler({BadRequestException.class})
+    public ProblemDetail handleBadRequestException(RuntimeException e) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, e.getMessage());
+    }
+
+    @ExceptionHandler({UnauthorizedException.class})
+    public ProblemDetail handleUnauthorizedException(RuntimeException e) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, e.getMessage());
+    }
 }

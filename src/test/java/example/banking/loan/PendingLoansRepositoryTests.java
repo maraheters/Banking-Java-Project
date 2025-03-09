@@ -1,5 +1,6 @@
 package example.banking.loan;
 
+import example.banking.RepositoryTest;
 import example.banking.account.entity.Account;
 import example.banking.account.repository.AccountsRepository;
 import example.banking.account.repository.AccountsRepositoryImpl;
@@ -15,11 +16,7 @@ import example.banking.user.roles.ClientRole;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.data.jdbc.DataJdbcTest;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.test.context.ActiveProfiles;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -27,10 +24,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@DataJdbcTest
-@Testcontainers
-@ActiveProfiles("test-containers")
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@RepositoryTest
 public class PendingLoansRepositoryTests {
 
     final ClientsRepository clientsRepository;

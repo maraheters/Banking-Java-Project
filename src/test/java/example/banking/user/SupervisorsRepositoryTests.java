@@ -1,16 +1,13 @@
 package example.banking.user;
 
+import example.banking.RepositoryTest;
 import example.banking.user.entity.Supervisor;
 import example.banking.user.repository.SupervisorsRepository;
 import example.banking.user.repository.SupervisorsRepositoryImpl;
 import example.banking.user.roles.SupervisorRole;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.data.jdbc.DataJdbcTest;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.test.context.ActiveProfiles;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.util.HashSet;
 import java.util.List;
@@ -18,10 +15,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@DataJdbcTest
-@Testcontainers
-@ActiveProfiles("test-containers")
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@RepositoryTest
 public class SupervisorsRepositoryTests {
 
     private final SupervisorsRepository repository;

@@ -29,7 +29,7 @@ public class DepositsController {
             @RequestBody DepositRequestDto requestDto) {
 
         return ResponseEntity.ok(
-            service.createDeposit(requestDto));
+            service.create(requestDto));
     }
 
     @GetMapping

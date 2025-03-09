@@ -1,5 +1,6 @@
 package example.banking.loan.service;
 
+import example.banking.account.repository.AccountsRepository;
 import example.banking.exception.BadRequestException;
 import example.banking.exception.ResourceNotFoundException;
 import example.banking.loan.dto.PendingLoanResponseDto;
@@ -9,6 +10,9 @@ import example.banking.loan.repository.LoansRepository;
 import example.banking.loan.repository.PendingLoansRepository;
 import example.banking.loan.types.LoanTerm;
 import example.banking.security.BankingUserDetails;
+import example.banking.transaction.entity.Transaction;
+import example.banking.transaction.repository.TransactionsRepository;
+import example.banking.transaction.types.TransactionType;
 import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -24,13 +28,19 @@ public class LoansService {
 
     private final LoansRepository loansRepository;
     private final PendingLoansRepository pendingLoansRepository;
+    private final AccountsRepository accountsRepository;
+    private final TransactionsRepository transactionsRepository;
 
     @Autowired
     public LoansService(
             LoansRepository loansRepository,
-            PendingLoansRepository pendingLoansRepository) {
+            PendingLoansRepository pendingLoansRepository,
+            AccountsRepository accountsRepository,
+            TransactionsRepository transactionsRepository) {
         this.loansRepository = loansRepository;
         this.pendingLoansRepository = pendingLoansRepository;
+        this.accountsRepository = accountsRepository;
+        this.transactionsRepository = transactionsRepository;
     }
 
     public List<Loan> getAll() {
@@ -68,12 +78,26 @@ public class LoansService {
 
         var dto = pendingLoan.toDto();
 
+        var accountId = dto.getAccountId();
+        var principalAmount = dto.getPrincipalAmount();
+        var account = accountsRepository.findById(accountId)
+                        .orElseThrow( () -> new RuntimeException("Account with id '" + accountId + "' not found."));
+
+        var newLoan = Loan.create(accountId, principalAmount, dto.getInterestRate(), dto.getLengthInMonths());
+        var loanId = loansRepository.create(newLoan);
+
+        account.topUp(principalAmount);
+
+        var transaction = Transaction.create(
+                loanId, TransactionType.LOAN, accountId, TransactionType.ACCOUNT, principalAmount
+        );
+
         pendingLoan.setApproved();
         pendingLoansRepository.update(pendingLoan);
+        accountsRepository.update(account);
+        transactionsRepository.create(transaction);
 
-        var newLoan = Loan.create(dto.getAccountId(), dto.getPrincipalAmount(), dto.getInterestRate(), dto.getLengthInMonths());
-
-        return loansRepository.create(newLoan);
+        return loanId;
     }
 
     @Transactional
@@ -101,5 +125,14 @@ public class LoansService {
         return pendingLoansRepository.findAllByUserId(userDetails.getId());
     }
 
+    public boolean isOwner(Long loanId, BankingUserDetails userDetails) {
+        var loan = loansRepository.findById(loanId)
+                .orElseThrow(() -> new ResourceNotFoundException("Loan with id '" + loanId + "' not found."));
+        var accountId = loan.getAccountId();
+        var account = accountsRepository.findById(accountId)
+                .orElseThrow(() -> new ResourceNotFoundException("Account with id '" + accountId + "' not found."));
 
+        var clientId = userDetails.getClientId();
+        return account.isOwner(clientId);
+    }
 }

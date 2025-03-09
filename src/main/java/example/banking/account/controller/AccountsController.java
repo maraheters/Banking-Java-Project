@@ -66,19 +66,50 @@ public class AccountsController {
     }
 
     @PostMapping("/{id}/freeze")
-    @PreAuthorize("hasAnyAuthority('BASIC', 'MANAGER', 'ADMINISTRATOR')")
+    @PreAuthorize("""
+            hasAnyAuthority('BASIC', 'MANAGER', 'ADMINISTRATOR') &&
+            @accountsService.validateOwner(#id, authentication.principal)""")
     public ResponseEntity<Void> freezeAccount(@PathVariable("id") Long id) {
         service.freezeAccount(id);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/top-up")
-    @PreAuthorize("hasAuthority('BASIC')")
+    @PreAuthorize("""
+            hasAuthority('BASIC') &&
+            @accountsService.validateOwner(#id, authentication.principal)""")
     public ResponseEntity<Void> topUp(
             @RequestParam("account-id") Long id,
-            @RequestParam("amount") BigDecimal amount
-    ) {
+            @RequestParam("amount") BigDecimal amount) {
+
         service.topUp(id, amount);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/withdraw")
+    @PreAuthorize("""
+            hasAuthority('BASIC') &&
+            @accountsService.validateOwner(#id, authentication.principal)""")
+    public ResponseEntity<BigDecimal> withdraw(
+            @RequestParam("account-id") Long id,
+            @RequestParam("amount") BigDecimal amount) {
+
+        return ResponseEntity.ok(
+                service.withdraw(id, amount)
+        );
+    }
+
+    @PostMapping("/transfer")
+    @PreAuthorize("""
+            hasAuthority('BASIC') &&
+            @accountsService.validateOwner(#fromAccountId, authentication.principal)""")
+    public ResponseEntity<Void> transfer(
+            @RequestParam("from-account-id") Long fromAccountId,
+            @RequestParam("to-account-id") Long toAccountId,
+            @RequestParam("amount") BigDecimal amount) {
+
+        service.transfer(fromAccountId, toAccountId, amount);
+
         return ResponseEntity.ok().build();
     }
 }

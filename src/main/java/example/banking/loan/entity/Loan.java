@@ -86,7 +86,7 @@ public class Loan {
 
         BigDecimal expectedAmount = monthlyPay.multiply(BigDecimal.valueOf(monthsPassed));
 
-        if (expectedAmount.compareTo(paidAmount) < 0) {
+        if (paidAmount.compareTo(expectedAmount) < 0) {
             status = LoanStatus.OVERDUE;
             return true;
         }

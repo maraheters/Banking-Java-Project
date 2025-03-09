@@ -16,8 +16,8 @@ public class R__Insert_sample_data extends BaseJavaMigration {
 
     @Override
     public void migrate(Context context) throws Exception {
-        var managerIds = insertSupervisors(context, 3, null, new String[]{"MANAGER"});
         var clientIds = insertClients(context, 100);
+        var managerIds = insertSupervisors(context, 3, null, new String[]{"MANAGER"});
         var accountIds = insertAccounts(context, clientIds);
     }
 

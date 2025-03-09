@@ -4,6 +4,7 @@ import example.banking.account.dto.AccountDto;
 import example.banking.account.types.AccountStatus;
 import example.banking.account.types.AccountType;
 import example.banking.exception.BadRequestException;
+import example.banking.exception.UnauthorizedException;
 import example.banking.utils.IbanGenerator;
 import jakarta.validation.constraints.Positive;
 import lombok.AccessLevel;
@@ -13,8 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Account {
@@ -73,6 +72,10 @@ public class Account {
         }
 
         balance = balance.subtract(amount);
+    }
+
+    public boolean isOwner(Long id) {
+        return holderId.equals(id);
     }
 
     public void setStatus(AccountStatus status) {

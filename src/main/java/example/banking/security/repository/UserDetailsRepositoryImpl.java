@@ -52,9 +52,15 @@ public class UserDetailsRepositoryImpl implements UserDetailsRepository {
                           JOIN target_user tu ON s.user_id = tu.id
                           LEFT JOIN public.supervisor_role_supervisor srs ON s.id = srs.supervisor_id
                           LEFT JOIN public.supervisor_role sr ON sr.id = srs.role_id
-            )
+            ),
+             client_id AS (
+                 SELECT c.id
+                 FROM public.client c
+                          JOIN target_user tu ON c.user_id = tu.id
+             )
             SELECT
                 tu.id AS user_id,
+                (SELECT id FROM client_id) AS client_id,
                 tu.email,
                 tu.password_hash,
                 STRING_AGG(ur.role_name, ',') AS roles

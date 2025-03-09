@@ -20,7 +20,9 @@ public class LoanPaymentsController {
     }
 
     @PostMapping("/{id}/from-account")
-    @PreAuthorize("hasAuthority('BASIC')")
+    @PreAuthorize("""
+        hasAuthority('BASIC') &&
+        @loansService.isOwner(#loanId, authentication.principal)""")
     public ResponseEntity<Void> payFromAccount(
             @PathVariable("id") Long loanId,
             @RequestParam("amount") BigDecimal amount) {
@@ -32,7 +34,9 @@ public class LoanPaymentsController {
 
     // Mimics some payment from other source
     @PostMapping("/{id}/from-other")
-    @PreAuthorize("hasAuthority('BASIC')")
+    @PreAuthorize("""
+        hasAuthority('BASIC') &&
+        @loansService.isOwner(#loanId, authentication.principal)""")
     public ResponseEntity<Void> payFromOther(
             @PathVariable("id") Long loanId,
             @RequestParam("amount") BigDecimal amount) {

@@ -1,25 +1,19 @@
 package example.banking.user;
 
+import example.banking.RepositoryTest;
 import example.banking.user.entity.Client;
 import example.banking.user.repository.PendingClientsRepository;
 import example.banking.user.repository.PendingClientsRepositoryImpl;
 import example.banking.user.roles.ClientRole;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.data.jdbc.DataJdbcTest;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.test.context.ActiveProfiles;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@DataJdbcTest
-@Testcontainers
-@ActiveProfiles("test-containers")
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@RepositoryTest
 public class PendingClientRepositoryTests {
 
     private final PendingClientsRepository repository;
