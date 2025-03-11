@@ -26,8 +26,13 @@ public class AccountsController {
 
     @PostMapping
     @PreAuthorize("hasAnyAuthority('BASIC', 'MANAGER', 'ADMINISTRATOR')")
-    public Long createAccount(@RequestParam("holder-id") Long holderId) {
-        return service.createAccount(holderId);
+    public ResponseEntity<Long> createAccount(
+            @RequestParam("holder-id") Long holderId,
+            @RequestParam("bank-id") Long bankId) {
+
+        return ResponseEntity.ok(
+                service.create(holderId, bankId)
+        );
     }
 
     @GetMapping

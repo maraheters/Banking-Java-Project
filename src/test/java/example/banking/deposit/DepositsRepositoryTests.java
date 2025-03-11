@@ -51,7 +51,7 @@ public class DepositsRepositoryTests {
                 List.of(ClientRole.BASIC));
 
         Long userId = clientsRepository.create(user);
-        var account = Account.create(userId, AccountType.PERSONAL);
+        var account = Account.create(userId, null, AccountType.PERSONAL);
         Long accountId = accountsRepository.create(account);
 
         deposit1 = Deposit.create(accountId, 1.5, 6, BigDecimal.valueOf(2000));

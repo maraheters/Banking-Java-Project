@@ -16,6 +16,5 @@ public class SupervisorDto {
     protected String email;
     protected String passwordHash;
     private Long userId;
-    private Long companyId;
     private List<SupervisorRole> roles;
 }

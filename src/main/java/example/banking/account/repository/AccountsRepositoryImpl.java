@@ -29,7 +29,7 @@ public class AccountsRepositoryImpl extends AbstractRepository<Account, AccountD
     @Override
     public List<Account> findByUserId(Long userId) {
         String sql = """
-            SELECT a.* 
+            SELECT a.*
             FROM account a
             LEFT JOIN client c ON a.holder_id = c.id
             WHERE c.user_id = :user_id
@@ -43,8 +43,8 @@ public class AccountsRepositoryImpl extends AbstractRepository<Account, AccountD
     @Override
     protected String getCreateSql() {
         return """
-            INSERT INTO account (iban, status, type, balance, date_created, holder_id)
-            VALUES (:iban, :status, :type, :balance, :date_created, :holder_id)
+            INSERT INTO account (iban, status, type, balance, date_created, holder_id, bank_id)
+            VALUES (:iban, :status, :type, :balance, :date_created, :holder_id, :bank_id)
             RETURNING id
         """;
     }
@@ -79,7 +79,11 @@ public class AccountsRepositoryImpl extends AbstractRepository<Account, AccountD
 
     @Override
     protected String getDeleteSql() {
-        return null;
+        return """
+            DELETE *
+            FROM account
+            WHERE account.id = :id
+        """;
     }
 
     @Override
@@ -98,6 +102,7 @@ public class AccountsRepositoryImpl extends AbstractRepository<Account, AccountD
         map.addValue("balance", accountDto.getBalance());
         map.addValue("date_created", accountDto.getDateCreated());
         map.addValue("holder_id", accountDto.getHolderId());
+        map.addValue("bank_id", accountDto.getBankId());
 
         return map;
     }

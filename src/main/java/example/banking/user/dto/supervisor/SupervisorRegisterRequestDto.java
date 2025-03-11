@@ -9,6 +9,5 @@ public class SupervisorRegisterRequestDto {
     private String name;
     private String email;
     private String password;
-    private Long companyId;
     private List<String> roles;
 }

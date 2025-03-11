@@ -17,14 +17,43 @@ public class R__Insert_sample_data extends BaseJavaMigration {
     @Override
     public void migrate(Context context) throws Exception {
         var clientIds = insertClients(context, 100);
-        var managerIds = insertSupervisors(context, 3, null, new String[]{"MANAGER"});
-        var accountIds = insertAccounts(context, clientIds);
+        var managerIds = insertSupervisors(context, 3, new String[]{"MANAGER"});
+        var bankIds = insertBanks(context, 3);
+        var accountIds = insertAccounts(context, clientIds, bankIds);
     }
 
-    private List<Integer> insertAccounts(Context context, List<Integer> clientIds) throws SQLException {
+    private List<Integer> insertBanks(Context context, int amount) throws SQLException {
         String sql = """
-            INSERT INTO account (iban, status, type, balance, date_created, holder_id)
-            VALUES (?, ?, ?, ?, ?, ?)
+            INSERT INTO public.bank(name, bic, address)
+            VALUES (?, ?, ?)
+            RETURNING id
+        """;
+
+        List<Integer> ids = new ArrayList<>();
+        Connection connection = context.getConnection();
+
+        try (PreparedStatement statement = context.getConnection().prepareStatement(sql)) {
+
+            for (int i = 1; i <= amount; i++) {
+                statement.setString(1, "Bank " + i);        // name
+                statement.setString(2, "ABCDBYCC" + i);      // bic
+                statement.setString(3, "Street " + i);         // address
+
+                try (ResultSet rs = statement.executeQuery()) {
+                    while (rs.next()) {
+                        ids.add(rs.getInt(1));
+                    }
+                }
+            }
+        }
+
+        return ids;
+    }
+
+    private List<Integer> insertAccounts(Context context, List<Integer> clientIds, List<Integer> bankIds) throws SQLException {
+        String sql = """
+            INSERT INTO account (iban, status, type, balance, date_created, holder_id, bank_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
             RETURNING id
         """;
 
@@ -38,8 +67,9 @@ public class R__Insert_sample_data extends BaseJavaMigration {
                 statement.setString(2, "ACTIVE");           // status
                 statement.setString(3, "PERSONAL");         // type
                 statement.setBigDecimal(4, BigDecimal.ZERO);   // balance
-                statement.setObject(5, LocalDate.now());
-                statement.setLong(6, clientIds.get(i - 1));
+                statement.setObject(5, LocalDate.now());       // date_created
+                statement.setLong(6, clientIds.get(i - 1));    // holder_id
+                statement.setLong(7, bankIds.get((i - 1) % bankIds.size()));    // bank_id
 
                 try (ResultSet rs = statement.executeQuery()) {
                     while (rs.next()) {
@@ -52,7 +82,7 @@ public class R__Insert_sample_data extends BaseJavaMigration {
         return ids;
     }
 
-    private List<Integer> insertSupervisors(Context context, int amount, Integer companyId, String[] roleNames) throws SQLException {
+    private List<Integer> insertSupervisors(Context context, int amount, String[] roleNames) throws SQLException {
         String sql = """
             WITH inserted_user AS (
                 INSERT INTO public.user(name, email, password_hash)
@@ -60,8 +90,8 @@ public class R__Insert_sample_data extends BaseJavaMigration {
                 RETURNING id
             ),
             inserted_supervisor AS (
-                INSERT INTO public.supervisor(user_id, company_id)
-                VALUES ((SELECT id FROM inserted_user), ?)
+                INSERT INTO public.supervisor(user_id)
+                VALUES ((SELECT id FROM inserted_user))
                 RETURNING id
             ),
             role_ids AS (
@@ -86,11 +116,10 @@ public class R__Insert_sample_data extends BaseJavaMigration {
             for (int i = 1; i <= amount; i++) {
                 statement.setString(1, "Supervisor " + i);  // name
                 statement.setString(2, "supervisor" + i + "@example.com");  // email
-                statement.setString(3, "hashed_password_" + i);  // password_hash
-                statement.setObject(4, companyId);  // company_id
+                statement.setString(3, "password" + i);  // password_hash
 
                 // Convert roles to an SQL array (PostgreSQL specific)
-                statement.setArray(5, connection.createArrayOf("VARCHAR", roleNames));
+                statement.setArray(4, connection.createArrayOf("VARCHAR", roleNames));
 
                 try (ResultSet rs = statement.executeQuery()) {
                     while (rs.next()) {
@@ -137,7 +166,7 @@ public class R__Insert_sample_data extends BaseJavaMigration {
             for (int i = 1; i <= amount; i++) {
                 statement.setString(1, "User " + i);  // name
                 statement.setString(2, "user" + i + "@example.com");  // email
-                statement.setString(3, "hashed_password_" + i);  // password_hash
+                statement.setString(3, "password" + i);  // password_hash
                 statement.setString(4, "123456789" + i);  // phone_number
                 statement.setString(5, "AB" + i);  // passport_number
                 statement.setString(6, "ID" + i);  // identification_number

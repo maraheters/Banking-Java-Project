@@ -53,7 +53,7 @@ public class PendingLoansRepositoryTests {
                 List.of(ClientRole.BASIC));
 
         clientId = clientsRepository.create(user);
-        var account = Account.create(clientId, AccountType.PERSONAL);
+        var account = Account.create(clientId, null, AccountType.PERSONAL);
         Long accountId = accountsRepository.create(account);
 
         loan1 = PendingLoan.create(accountId, BigDecimal.TEN, BigDecimal.valueOf(0.08), 12);

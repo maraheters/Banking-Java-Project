@@ -50,12 +50,12 @@ public class LoansPaymentService {
     public void payFromAccount(BigDecimal amount, Long loanId) {
 
         Loan loan = loansRepository.findById(loanId)
-                .orElseThrow(() -> new ResourceNotFoundException(""));
+                .orElseThrow(() -> new ResourceNotFoundException("Loan with id '" + loanId + "' not found."));
 
         var accountId = loan.getAccountId();
 
         Account account = accountsRepository.findById(accountId)
-                .orElseThrow(() -> new ResourceNotFoundException(""));
+                .orElseThrow(() -> new ResourceNotFoundException("Account with id '" + accountId + "' not found."));
 
         var transaction = Transaction.create(
                 accountId, TransactionType.ACCOUNT, loanId, TransactionType.LOAN, amount

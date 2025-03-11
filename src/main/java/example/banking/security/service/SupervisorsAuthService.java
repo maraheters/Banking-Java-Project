@@ -45,8 +45,7 @@ public class SupervisorsAuthService {
                 passwordHash,
                 requestDto.getRoles().stream()
                         .map(SupervisorRole::valueOf)
-                        .toList(),
-                requestDto.getCompanyId()
+                        .toList()
         );
 
         var id = supervisorsRepository.create(supervisor);

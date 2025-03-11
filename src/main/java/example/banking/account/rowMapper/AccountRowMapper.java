@@ -21,6 +21,7 @@ public class AccountRowMapper implements RowMapper<AccountDto> {
                 AccountStatus.valueOf(rs.getString("status")),
                 AccountType.valueOf(rs.getString("type")),
                 rs.getLong("holder_id"),
+                rs.getLong("bank_id"),
                 rs.getDate("date_created").toLocalDate().atStartOfDay());
     }
 }

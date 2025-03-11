@@ -14,6 +14,5 @@ public class SupervisorResponseDto {
     protected String name;
     protected String email;
     private Long userId;
-    private Long companyId;
     private List<String> roles;
 }

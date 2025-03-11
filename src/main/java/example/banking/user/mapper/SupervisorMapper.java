@@ -17,7 +17,6 @@ public class SupervisorMapper {
                 s.getName(),
                 s.getEmail(),
                 s.getUserId(),
-                s.getCompanyId(),
                 s.getRoles().stream()
                         .map(Enum::toString)
                         .toList()

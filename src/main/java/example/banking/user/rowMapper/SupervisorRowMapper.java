@@ -18,7 +18,6 @@ public class SupervisorRowMapper implements RowMapper<SupervisorDto> {
         supervisor.setName(rs.getString("name"));
         supervisor.setEmail(rs.getString("email"));
         supervisor.setPasswordHash(rs.getString("password_hash"));
-        supervisor.setCompanyId(rs.getLong("company_id"));
         supervisor.setRoles(
                 Arrays.stream(rs.getString("roles").split(","))
                         .map(SupervisorRole::valueOf)

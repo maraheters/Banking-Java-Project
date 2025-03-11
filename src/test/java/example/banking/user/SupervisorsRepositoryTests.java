@@ -35,16 +35,14 @@ public class SupervisorsRepositoryTests {
                 "John Doe",
                 "john@doe",
                 "password",
-                supervisorRoles1,
-                null
+                supervisorRoles1
         );
 
         supervisor2 = Supervisor.register(
                 "Bim Bam",
                 "bim@bam",
                 "password",
-                supervisorRoles2,
-                null
+                supervisorRoles2
         );
     }
 

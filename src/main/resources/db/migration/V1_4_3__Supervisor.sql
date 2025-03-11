@@ -1,7 +1,6 @@
 CREATE TABLE public.supervisor (
     id              SERIAL          PRIMARY KEY,
     user_id         BIGINT          NOT NULL,
-    company_id      BIGINT,         -- intentionally nullable
 
     CONSTRAINT fk_user
         FOREIGN KEY (user_id) REFERENCES public.user(id)

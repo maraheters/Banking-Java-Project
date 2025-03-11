@@ -4,7 +4,6 @@ import example.banking.account.dto.AccountDto;
 import example.banking.account.types.AccountStatus;
 import example.banking.account.types.AccountType;
 import example.banking.exception.BadRequestException;
-import example.banking.exception.UnauthorizedException;
 import example.banking.utils.IbanGenerator;
 import jakarta.validation.constraints.Positive;
 import lombok.AccessLevel;
@@ -24,6 +23,7 @@ public class Account {
     private AccountStatus status;
     private AccountType type;
     private Long holderId;
+    private Long bankId;
     private LocalDateTime dateCreated;
 
     private Account(AccountDto dto) {
@@ -33,10 +33,11 @@ public class Account {
         status      = dto.getStatus();
         type        = dto.getType();
         holderId    = dto.getHolderId();
+        bankId      = dto.getBankId();
         dateCreated = dto.getDateCreated();
     }
 
-    public static Account create(Long clientId, AccountType type) {
+    public static Account create(Long clientId, Long bankId, AccountType type) {
         var account = new Account();
         account.IBAN = IbanGenerator.Generate("BY");
         account.balance = BigDecimal.ZERO;
@@ -54,7 +55,7 @@ public class Account {
 
     public AccountDto toDto() {
         return new AccountDto(
-                id, IBAN, balance, status, type, holderId, dateCreated);
+                id, IBAN, balance, status, type, holderId, bankId, dateCreated);
     }
 
     @Transactional

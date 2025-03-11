@@ -43,8 +43,8 @@ public class AccountsRepositoryTests {
         clientId = clientsRepository.create(client);
         userId = clientsRepository.findById(clientId).get().getUserId();
 
-        account1 = Account.create(clientId, AccountType.PERSONAL);
-        account2 = Account.create(clientId, AccountType.PERSONAL);
+        account1 = Account.create(clientId, null, AccountType.PERSONAL);
+        account2 = Account.create(clientId, null, AccountType.PERSONAL);
     }
 
     @Test

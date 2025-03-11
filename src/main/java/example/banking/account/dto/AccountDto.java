@@ -19,5 +19,6 @@ public class AccountDto {
     private AccountStatus status;
     private AccountType type;
     private Long holderId;
+    private Long bankId;
     private LocalDateTime dateCreated;
 }

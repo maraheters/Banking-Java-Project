@@ -26,7 +26,6 @@ public class SupervisorsRepositoryImpl
                 SELECT
                     s.id AS supervisor_id,
                     s.user_id,
-                    s.company_id,
                     u.id AS user_id,
                     u.name,
                     u.email,
@@ -46,7 +45,6 @@ public class SupervisorsRepositoryImpl
                 SELECT
                     s.id AS supervisor_id,
                     s.user_id,
-                    s.company_id,
                     u.id AS user_id,
                     u.name,
                     u.email,
@@ -75,8 +73,8 @@ public class SupervisorsRepositoryImpl
                 RETURNING id
             ),
             inserted_supervisor AS (
-                INSERT INTO public.supervisor(user_id, company_id)
-                VALUES ((SELECT id FROM inserted_user), :company_id)
+                INSERT INTO public.supervisor(user_id)
+                VALUES ((SELECT id FROM inserted_user))
                 RETURNING id
             ),
             role_ids AS (
@@ -112,7 +110,6 @@ public class SupervisorsRepositoryImpl
                 .addValue("name", d.getName())
                 .addValue("email", d.getEmail())
                 .addValue("password_hash", d.getPasswordHash())
-                .addValue("company_id", d.getCompanyId())
                 .addValue("role_names", d.getRoles().stream().map(Enum::toString).toList());
         return map;
     }

@@ -31,8 +31,8 @@ public class AccountsService {
         this.transactionsRepository = transactionsRepository;
     }
 
-    public Long createAccount(Long holderId) {
-        var account = Account.create(holderId, AccountType.PERSONAL);
+    public Long create(Long holderId, Long bankId) {
+        var account = Account.create(holderId, bankId, AccountType.PERSONAL);
 
         return accountsRepository.create(account);
     }
