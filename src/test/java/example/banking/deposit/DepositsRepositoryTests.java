@@ -1,22 +1,15 @@
 package example.banking.deposit;
 
 import example.banking.RepositoryTest;
-import example.banking.account.entity.Account;
-import example.banking.account.repository.AccountsRepository;
-import example.banking.account.repository.AccountsRepositoryImpl;
-import example.banking.account.types.AccountType;
 import example.banking.deposit.entity.Deposit;
 import example.banking.deposit.repository.DepositsRepository;
 import example.banking.deposit.repository.DepositsRepositoryImpl;
 import example.banking.deposit.types.DepositStatus;
-import example.banking.user.entity.Client;
-import example.banking.user.repository.ClientsRepository;
-import example.banking.user.repository.ClientsRepositoryImpl;
-import example.banking.user.roles.ClientRole;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.test.context.TestPropertySource;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -24,38 +17,27 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 @RepositoryTest
+@TestPropertySource(properties = """
+    spring.flyway.locations=classpath:db/migration,\
+                            classpath:db/seeders/client,\
+                            classpath:db/seeders/bank,\
+                            classpath:db/seeders/account
+""")
 public class DepositsRepositoryTests {
 
     private final DepositsRepository repository;
-    private final ClientsRepository clientsRepository;
-    private final AccountsRepository accountsRepository;
     private Deposit deposit1;
     private Deposit deposit2;
 
     @Autowired
     public DepositsRepositoryTests(NamedParameterJdbcTemplate template) {
         this.repository = new DepositsRepositoryImpl(template);
-        this.clientsRepository = new ClientsRepositoryImpl(template);
-        this.accountsRepository = new AccountsRepositoryImpl(template);
     }
 
     @BeforeEach
     public void setup() {
-        var user = Client.register(
-                "Joe",
-                "+375282828",
-                "12345",
-                "12345",
-                "email@email.com",
-                "password",
-                List.of(ClientRole.BASIC));
-
-        Long userId = clientsRepository.create(user);
-        var account = Account.create(userId, null, AccountType.PERSONAL);
-        Long accountId = accountsRepository.create(account);
-
-        deposit1 = Deposit.create(accountId, 1.5, 6, BigDecimal.valueOf(2000));
-        deposit2 = Deposit.create(accountId, 3, 12, BigDecimal.valueOf(5000));
+        deposit1 = Deposit.create(1L, 1.5, 6, BigDecimal.valueOf(2000));
+        deposit2 = Deposit.create(2L, 3, 12, BigDecimal.valueOf(5000));
     }
 
 

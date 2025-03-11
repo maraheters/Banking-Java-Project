@@ -5,46 +5,39 @@ import example.banking.account.entity.Account;
 import example.banking.account.repository.AccountsRepository;
 import example.banking.account.repository.AccountsRepositoryImpl;
 import example.banking.account.types.AccountType;
-import example.banking.user.entity.Client;
-import example.banking.user.repository.ClientsRepository;
-import example.banking.user.repository.ClientsRepositoryImpl;
-import example.banking.user.roles.ClientRole;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.test.context.TestPropertySource;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @RepositoryTest
+@TestPropertySource(properties = """
+    spring.flyway.locations=classpath:db/migration,\
+                            classpath:db/seeders/bank,\
+                            classpath:db/seeders/client
+""")
 public class AccountsRepositoryTests {
 
     private final AccountsRepository repository;
-    private final ClientsRepository clientsRepository;
+    private final Long clientId = 1L;
     private Account account1;
     private Account account2;
-    private Long clientId;
-    private Long userId;
 
     @Autowired
     public AccountsRepositoryTests(NamedParameterJdbcTemplate template) {
         repository = new AccountsRepositoryImpl(template);
-        clientsRepository = new ClientsRepositoryImpl(template);
     }
 
     @BeforeEach
     public void setUp() {
-        var client = Client.register("Name", "phone", "passport",
-                "identification", "email", "password", List.of(ClientRole.BASIC));
 
-        clientId = clientsRepository.create(client);
-        userId = clientsRepository.findById(clientId).get().getUserId();
-
-        account1 = Account.create(clientId, null, AccountType.PERSONAL);
-        account2 = Account.create(clientId, null, AccountType.PERSONAL);
+        account1 = Account.create(clientId, 1L, AccountType.PERSONAL);
+        account2 = Account.create(clientId, 1L, AccountType.PERSONAL);
     }
 
     @Test
@@ -104,6 +97,7 @@ public class AccountsRepositoryTests {
     public void findByUserId_whenFound_thenCorrect() {
         repository.create( account1 );
 
+        Long userId = 1L;
         var result = repository.findByUserId(userId);
 
         assertFalse(result.isEmpty());

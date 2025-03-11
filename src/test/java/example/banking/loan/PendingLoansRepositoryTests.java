@@ -1,63 +1,39 @@
 package example.banking.loan;
 
 import example.banking.RepositoryTest;
-import example.banking.account.entity.Account;
-import example.banking.account.repository.AccountsRepository;
-import example.banking.account.repository.AccountsRepositoryImpl;
-import example.banking.account.types.AccountType;
 import example.banking.contracts.PendingEntityStatus;
 import example.banking.loan.entity.PendingLoan;
 import example.banking.loan.repository.PendingLoansRepository;
 import example.banking.loan.repository.PendingLoansRepositoryImpl;
-import example.banking.user.entity.Client;
-import example.banking.user.repository.ClientsRepository;
-import example.banking.user.repository.ClientsRepositoryImpl;
-import example.banking.user.roles.ClientRole;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.test.context.TestPropertySource;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @RepositoryTest
+@TestPropertySource(properties = """
+    spring.flyway.locations=classpath:db/migration,\
+                            classpath:db/seeders/bank,\
+                            classpath:db/seeders/client,\
+                            classpath:db/seeders/account
+""")
 public class PendingLoansRepositoryTests {
 
-    final ClientsRepository clientsRepository;
-    final AccountsRepository accountsRepository;
     final PendingLoansRepository repository;
-    PendingLoan loan1;
-    PendingLoan loan2;
-    Long clientId;
+    final PendingLoan loan1;
+    final PendingLoan loan2;
 
     @Autowired
     public PendingLoansRepositoryTests(NamedParameterJdbcTemplate template) {
         this.repository = new PendingLoansRepositoryImpl(template);
-        this.clientsRepository = new ClientsRepositoryImpl(template);
-        this.accountsRepository = new AccountsRepositoryImpl(template);
-    }
 
-    @BeforeEach
-    public void setup() {
-        var user = Client.register(
-                "Joe",
-                "+375282828",
-                "12345",
-                "12345",
-                "email@email.com",
-                "password",
-                List.of(ClientRole.BASIC));
-
-        clientId = clientsRepository.create(user);
-        var account = Account.create(clientId, null, AccountType.PERSONAL);
-        Long accountId = accountsRepository.create(account);
-
-        loan1 = PendingLoan.create(accountId, BigDecimal.TEN, BigDecimal.valueOf(0.08), 12);
-        loan2 = PendingLoan.create(accountId, BigDecimal.TEN, BigDecimal.valueOf(0.08), 12);
+        loan1 = PendingLoan.create(1L, BigDecimal.TEN, BigDecimal.valueOf(0.08), 12);
+        loan2 = PendingLoan.create(1L, BigDecimal.TEN, BigDecimal.valueOf(0.08), 12);
     }
 
     @Test
@@ -109,9 +85,7 @@ public class PendingLoansRepositoryTests {
         repository.create(loan1);
         repository.create(loan2);
 
-        var client = clientsRepository.findById(clientId).get();
-
-        var allPendingLoans = repository.findAllByUserId(client.getUserId());
+        var allPendingLoans = repository.findAllByUserId(1L);
 
         assertEquals(2, allPendingLoans.size());
     }
