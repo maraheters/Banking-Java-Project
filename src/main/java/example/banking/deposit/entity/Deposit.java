@@ -30,7 +30,7 @@ public class Deposit {
     private LocalDate lastBonusDate;
     private Integer numberOfBonusesYet;  // Used to track how many bonuses have been applied
     private Integer lengthInMonths;
-    private Double interestRate;
+    private BigDecimal interestRate;
 
     private Deposit(DepositDto dto) {
         id                  = dto.getId();
@@ -46,7 +46,7 @@ public class Deposit {
     }
 
     public static Deposit create(
-            Long accountId, double interestRate, int lengthInMonths, BigDecimal initialBalance) {
+            Long accountId, BigDecimal interestRate, int lengthInMonths, BigDecimal initialBalance) {
 
         Deposit deposit = new Deposit();
         deposit.accountId = accountId;
@@ -147,7 +147,7 @@ public class Deposit {
 
     private BigDecimal calculateBonus() {
         return minimum
-                .multiply(BigDecimal.valueOf(interestRate))
+                .multiply(interestRate)
                 .divide(BigDecimal.valueOf(12), RoundingMode.HALF_UP);
     }
 }

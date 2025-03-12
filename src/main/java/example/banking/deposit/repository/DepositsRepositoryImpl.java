@@ -8,12 +8,28 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public class DepositsRepositoryImpl extends AbstractRepository<Deposit, DepositDto> implements DepositsRepository {
 
     public DepositsRepositoryImpl(NamedParameterJdbcTemplate template) {
         this.template = template;
         this.mapper = new DepositRowMapper();
+    }
+
+
+    @Override
+    public List<Deposit> findAllByClientId(Long id) {
+        String sql = """
+            SELECT d.* FROM public.deposit d
+            LEFT JOIN public.account a ON d.account_id = a.id
+            WHERE a.holder_id = :id
+        """;
+
+        var map = new MapSqlParameterSource("id", id);
+
+        return findAllByCriteria(sql, map);
     }
 
     @Override

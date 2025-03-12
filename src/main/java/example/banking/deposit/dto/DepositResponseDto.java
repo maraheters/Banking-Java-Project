@@ -19,5 +19,5 @@ public class DepositResponseDto {
     private Integer numberOfBonusesYet;  // Used to track how many bonuses have been applied
     private Integer lengthInMonths;
     private Long accountId;
-    private Double interestRate;
+    private BigDecimal interestRate;
 }

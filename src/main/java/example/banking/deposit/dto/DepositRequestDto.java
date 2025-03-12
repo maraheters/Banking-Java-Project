@@ -7,7 +7,6 @@ import java.math.BigDecimal;
 @Data
 public class DepositRequestDto {
     private Long accountId;
-    private double interestRate;
-    private int lengthInMonths;
-    private BigDecimal initialBalance;
+    private String termName;
+    private BigDecimal amount;
 }

@@ -12,6 +12,8 @@ public interface DepositsRepository {
 
     Optional<Deposit> findById(Long id);
 
+    List<Deposit> findAllByClientId(Long id);
+
     @Transactional
     Long create(Deposit deposit);
 

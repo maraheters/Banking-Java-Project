@@ -6,7 +6,7 @@ CREATE TABLE public.deposit (
     date_created        timestamp           not null,
     length_in_months    int                 not null,
     account_id          bigint              not null,
-    interest_rate       double precision    not null,
+    interest_rate       numeric(19, 4)      not null,
     last_bonus_date     timestamp,
     number_of_bonuses   int
 );

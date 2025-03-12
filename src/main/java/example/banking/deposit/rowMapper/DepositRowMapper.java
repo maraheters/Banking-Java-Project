@@ -33,6 +33,6 @@ public class DepositRowMapper implements RowMapper<DepositDto> {
                 rs.getInt("number_of_bonuses"),
                 rs.getInt("length_in_months"),
                 rs.getLong("account_id"),
-                rs.getDouble("interest_rate"));
+                rs.getBigDecimal("interest_rate"));
     }
 }

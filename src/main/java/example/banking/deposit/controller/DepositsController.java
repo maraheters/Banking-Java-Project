@@ -2,14 +2,20 @@ package example.banking.deposit.controller;
 
 import example.banking.deposit.dto.DepositRequestDto;
 import example.banking.deposit.dto.DepositResponseDto;
+import example.banking.deposit.dto.DepositTermDto;
 import example.banking.deposit.mapper.DepositMapper;
 import example.banking.deposit.service.DepositsService;
+import example.banking.deposit.types.DepositTerm;
+import example.banking.security.BankingUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/deposits")
@@ -23,13 +29,28 @@ public class DepositsController {
         this.service = service;
     }
 
-    @PostMapping
-    @PreAuthorize("hasAuthority('BASIC')")
-    public ResponseEntity<Long> createDeposit(
-            @RequestBody DepositRequestDto requestDto) {
+    @GetMapping("/terms")
+    public ResponseEntity<List<DepositTermDto>> getAllTerms() {
+
+        var terms = service.getAllTerms();
 
         return ResponseEntity.ok(
-            service.create(requestDto));
+                terms.stream()
+                        .map(DepositMapper::toDepositTermDto)
+                        .toList()
+        );
+    }
+
+    @PostMapping
+    @PreAuthorize("""
+        hasAuthority('BASIC') &&
+        @accountsService.validateOwner(#dto.accountId, authentication.principal)""")
+    public ResponseEntity<Long> createDeposit(
+            @RequestBody DepositRequestDto dto) {
+
+        return ResponseEntity.ok(
+            service.create(dto.getAccountId(), DepositTerm.valueOf(dto.getTermName()), dto.getAmount())
+        );
     }
 
     @GetMapping
@@ -55,5 +76,17 @@ public class DepositsController {
         service.retrieveMoney(id);
 
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/user")
+    @PreAuthorize("hasAuthority('BASIC')")
+    public ResponseEntity<List<DepositResponseDto>> getAllByUser(
+            @AuthenticationPrincipal BankingUserDetails userDetails) {
+
+        return ResponseEntity.ok(
+                service.getAllByClient(userDetails).stream()
+                        .map(DepositMapper::toResponseDto)
+                        .toList()
+        );
     }
 }

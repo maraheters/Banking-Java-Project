@@ -1,10 +1,11 @@
 package example.banking.deposit.service;
 
 import example.banking.account.repository.AccountsRepository;
-import example.banking.deposit.dto.DepositRequestDto;
 import example.banking.deposit.entity.Deposit;
 import example.banking.deposit.repository.DepositsRepository;
 import example.banking.deposit.types.DepositStatus;
+import example.banking.deposit.types.DepositTerm;
+import example.banking.exception.BadRequestException;
 import example.banking.exception.ResourceNotFoundException;
 import example.banking.security.BankingUserDetails;
 import example.banking.transaction.entity.Transaction;
@@ -12,9 +13,13 @@ import example.banking.transaction.repository.TransactionsRepository;
 import example.banking.transaction.types.TransactionType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -44,17 +49,22 @@ public class DepositsService {
                 .orElseThrow(() -> new ResourceNotFoundException("Deposit with id '" + id + "' not found."));
     }
 
+    public List<DepositTerm> getAllTerms() {
+        var terms = new ArrayList<DepositTerm>();
+        Collections.addAll(terms, DepositTerm.values());
+
+        return terms;
+    }
+
     @Transactional
-    public Long create(DepositRequestDto requestDto) {
-        var amount = requestDto.getInitialBalance();
-        var accountId = requestDto.getAccountId();
+    public Long create(Long accountId, DepositTerm term, BigDecimal amount) {
         var account = accountsRepository.findById(accountId)
                 .orElseThrow(() -> new ResourceNotFoundException("Account with id '" + accountId + "' not found."));
 
         var deposit = Deposit.create(
                 accountId,
-                requestDto.getInterestRate(),
-                requestDto.getLengthInMonths(),
+                term.getInterestRate(),
+                term.getMonths(),
                 amount
         );
 
@@ -86,6 +96,17 @@ public class DepositsService {
 
         accountsRepository.update(account);
         depositsRepository.update(deposit);
+    }
+
+    public List<Deposit> getAllByClient(BankingUserDetails userDetails) {
+        var authorities = userDetails.getAuthorities();
+        if (!authorities.contains(new SimpleGrantedAuthority("BASIC"))) {
+            throw new BadRequestException("User is not a client");
+        }
+
+        var clientId = userDetails.getClientId();
+
+        return depositsRepository.findAllByClientId(clientId);
     }
 
     public void blockDeposit(Long id) {
