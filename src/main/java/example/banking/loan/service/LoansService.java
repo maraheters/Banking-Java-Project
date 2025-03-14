@@ -3,7 +3,6 @@ package example.banking.loan.service;
 import example.banking.account.repository.AccountsRepository;
 import example.banking.exception.BadRequestException;
 import example.banking.exception.ResourceNotFoundException;
-import example.banking.loan.dto.PendingLoanResponseDto;
 import example.banking.loan.entity.Loan;
 import example.banking.loan.entity.PendingLoan;
 import example.banking.loan.repository.LoansRepository;
@@ -13,14 +12,14 @@ import example.banking.security.BankingUserDetails;
 import example.banking.transaction.entity.Transaction;
 import example.banking.transaction.repository.TransactionsRepository;
 import example.banking.transaction.types.TransactionType;
-import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -52,6 +51,13 @@ public class LoansService {
                 .orElseThrow(() -> new ResourceNotFoundException("Loan with id '" + id + "' not found."));
     }
 
+    public List<LoanTerm> getAllTerms() {
+        var terms = new ArrayList<LoanTerm>();
+        Collections.addAll(terms, LoanTerm.values());
+
+        return terms;
+    }
+
     public List<PendingLoan> getAllPending() {
         return pendingLoansRepository.findAll();
     }
@@ -62,9 +68,7 @@ public class LoansService {
     }
 
     public Long createLoanRequest(
-            Long accountId, BigDecimal amount, String termName) {
-
-        var term = LoanTerm.valueOf(termName);
+            Long accountId, BigDecimal amount, LoanTerm term) {
 
         var loan = PendingLoan.create(accountId, amount, term.getInterestRate(), term.getMonths());
 

@@ -5,9 +5,8 @@ import example.banking.security.BankingUserDetails;
 import example.banking.security.dto.UserAuthResponseDto;
 import example.banking.security.repository.UserDetailsRepository;
 import example.banking.user.dto.client.ClientRegisterRequestDto;
-import example.banking.user.entity.Client;
+import example.banking.user.entity.PendingClient;
 import example.banking.user.repository.PendingClientsRepository;
-import example.banking.user.roles.ClientRole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -43,14 +42,14 @@ public class ClientsAuthService {
 
         var passwordHash = passwordEncoder.encode(requestDto.getPassword());
 
-        var client = Client.register(
+        var client = PendingClient.register(
                 requestDto.getName(),
                 requestDto.getPhoneNumber(),
                 requestDto.getPassportNumber(),
                 requestDto.getIdentificationNumber(),
                 email,
-                passwordHash,
-                List.of(ClientRole.BASIC));
+                passwordHash
+        );
 
         var id = pendingClientsRepository.create(client);
         var token = jwtService.generateToken(email);
@@ -67,7 +66,7 @@ public class ClientsAuthService {
             throw new BadRequestException("User with email '" + email + "' already exists.");
         }
 
-        Optional<Client> pendingClientOptional = pendingClientsRepository.findByEmail(email);
+        Optional<PendingClient> pendingClientOptional = pendingClientsRepository.findByEmail(email);
 
         if (pendingClientOptional.isPresent()) {
             throw new BadRequestException("User with email '" + email + "' is already pending for verification.");

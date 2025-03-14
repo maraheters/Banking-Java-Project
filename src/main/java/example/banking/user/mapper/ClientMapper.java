@@ -4,6 +4,7 @@ import example.banking.user.dto.client.ClientDto;
 import example.banking.user.dto.client.ClientResponseDto;
 import example.banking.user.dto.client.PendingClientResponseDto;
 import example.banking.user.entity.Client;
+import example.banking.user.entity.PendingClient;
 
 public class ClientMapper {
 
@@ -24,7 +25,7 @@ public class ClientMapper {
         );
     }
 
-    public static PendingClientResponseDto toPendingClientResponseDto(Client client) {
+    public static PendingClientResponseDto toPendingClientResponseDto(PendingClient client) {
         var d = client.toDto();
         return new PendingClientResponseDto(
                 d.getId(),
@@ -32,7 +33,9 @@ public class ClientMapper {
                 d.getEmail(),
                 d.getPhoneNumber(),
                 d.getPassportNumber(),
-                d.getIdentificationNumber()
+                d.getIdentificationNumber(),
+                d.getRequestedAt(),
+                d.getStatus()
         );
     }
 }

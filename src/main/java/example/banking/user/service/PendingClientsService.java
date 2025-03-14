@@ -2,6 +2,7 @@ package example.banking.user.service;
 
 import example.banking.exception.ResourceNotFoundException;
 import example.banking.user.entity.Client;
+import example.banking.user.entity.PendingClient;
 import example.banking.user.repository.ClientsRepository;
 import example.banking.user.repository.PendingClientsRepository;
 import example.banking.user.roles.ClientRole;
@@ -25,35 +26,47 @@ public class PendingClientsService {
         this.pendingClientsRepository = pendingClientsRepository;
     }
 
-    public Client findById(Long id) {
+    public PendingClient getById(Long id) {
         return pendingClientsRepository.findById(id)
                 .orElseThrow( () -> new ResourceNotFoundException("Pending client with id '" + id + "' not found"));
     }
 
-    public List<Client> findAll() {
+    public List<PendingClient> getAll() {
         return pendingClientsRepository.findAll();
     }
 
     @Transactional
     public Long approve(Long id) {
 
-        var client = pendingClientsRepository.findById(id)
+        var pendingClient = pendingClientsRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Pending client with id '" + id + "' not found."));
 
-        client.addRoles(List.of(ClientRole.BASIC));
+        var dto = pendingClient.toDto();
+
+        var client = Client.register(
+                dto.getName(),
+                dto.getPhoneNumber(),
+                dto.getPassportNumber(),
+                dto.getIdentificationNumber(),
+                dto.getEmail(),
+                dto.getPasswordHash(),
+                List.of(ClientRole.BASIC)
+        );
 
         var newId = clientsRepository.create(client);
 
-        pendingClientsRepository.delete(id);
+        pendingClient.setApproved();
+        pendingClientsRepository.update(pendingClient);
 
         return newId;
     }
 
     @Transactional
     public void reject(Long id) {
-        pendingClientsRepository.findById(id)
+        var client = pendingClientsRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Pending client with id '" + id + "' not found."));
 
-        pendingClientsRepository.delete(id);
+        client.setRejected();
+        pendingClientsRepository.update(client);
     }
 }

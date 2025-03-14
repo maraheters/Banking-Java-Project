@@ -5,6 +5,7 @@ import example.banking.deposit.dto.DepositResponseDto;
 import example.banking.deposit.dto.DepositTermDto;
 import example.banking.deposit.mapper.DepositMapper;
 import example.banking.deposit.service.DepositsService;
+import example.banking.deposit.types.DepositStatus;
 import example.banking.deposit.types.DepositTerm;
 import example.banking.security.BankingUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,9 +14,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/deposits")
@@ -64,14 +63,16 @@ public class DepositsController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyAuthority('ADMINISTRATOR', 'MANAGER')")
+    @PreAuthorize("""
+            hasAnyAuthority('ADMINISTRATOR', 'MANAGER') ||
+            @depositsService.validateOwner(#id, authentication.principal)""")
     public ResponseEntity<DepositResponseDto> getById(@PathVariable("id") Long id) {
         return ResponseEntity.ok(
                 DepositMapper.toResponseDto(service.getById(id)));
     }
 
     @PostMapping("/{id}/retrieve")
-    @PreAuthorize("hasAuthority('BASIC')")
+    @PreAuthorize("hasAuthority('BASIC') && @depositsService.validateOwner(#id, authentication.principal)")
     public ResponseEntity<Void> retrieve(@PathVariable("id") Long id) {
         service.retrieveMoney(id);
 
@@ -86,6 +87,7 @@ public class DepositsController {
         return ResponseEntity.ok(
                 service.getAllByClient(userDetails).stream()
                         .map(DepositMapper::toResponseDto)
+                        .filter(d -> d.getStatus().equals(DepositStatus.ACTIVE))
                         .toList()
         );
     }

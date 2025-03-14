@@ -36,8 +36,8 @@ public class DepositsRepositoryTests {
 
     @BeforeEach
     public void setup() {
-        deposit1 = Deposit.create(1L, 1.5, 6, BigDecimal.valueOf(2000));
-        deposit2 = Deposit.create(2L, 3, 12, BigDecimal.valueOf(5000));
+        deposit1 = Deposit.create(1L, BigDecimal.valueOf(1.5), 6, BigDecimal.valueOf(2000));
+        deposit2 = Deposit.create(2L, BigDecimal.valueOf(3), 12, BigDecimal.valueOf(5000));
     }
 
 
@@ -84,7 +84,7 @@ public class DepositsRepositoryTests {
         var deposit = repository.findById(id).get();
 
         var statusBefore = DepositStatus.COMPLETE;
-        double interestRateBefore = 7d;
+        var interestRateBefore = BigDecimal.valueOf(7);
 
         var depositDto = deposit.toDto();
         depositDto.setStatus(statusBefore);
@@ -94,7 +94,7 @@ public class DepositsRepositoryTests {
         var depositAfterUpdate = repository.findById(id).get();
 
         assertEquals(statusBefore, depositAfterUpdate.toDto().getStatus());
-        assertEquals(interestRateBefore, depositAfterUpdate.toDto().getInterestRate());
+        assertEquals(interestRateBefore.doubleValue(), depositAfterUpdate.toDto().getInterestRate().doubleValue(), 0.0001);
     }
 
     @Test
@@ -107,9 +107,9 @@ public class DepositsRepositoryTests {
 
         // Step 2: Prepare deposits for batch update
         depositDto1.setStatus(DepositStatus.COMPLETE);
-        depositDto1.setInterestRate(8d);
+        depositDto1.setInterestRate(BigDecimal.valueOf(8d));
         depositDto2.setStatus(DepositStatus.BLOCKED);
-        depositDto2.setInterestRate(5d);
+        depositDto2.setInterestRate(BigDecimal.valueOf(5d));
 
         List<Deposit> depositsToUpdate = List.of(Deposit.fromDto(depositDto1), Deposit.fromDto(depositDto2));
 
@@ -122,9 +122,9 @@ public class DepositsRepositoryTests {
 
         // Step 5: Assert the updates
         assertEquals(DepositStatus.COMPLETE, updatedDeposit1.getStatus());
-        assertEquals(8d, updatedDeposit1.getInterestRate(), 0.001);
+        assertEquals(BigDecimal.valueOf(8).doubleValue(), updatedDeposit1.getInterestRate().doubleValue(), 0.0001);
 
         assertEquals(DepositStatus.BLOCKED, updatedDeposit2.getStatus());
-        assertEquals(5d, updatedDeposit2.getInterestRate(), 0.001);
+        assertEquals(BigDecimal.valueOf(5).doubleValue(), updatedDeposit2.getInterestRate().doubleValue(), 0.0001);
     }
 }

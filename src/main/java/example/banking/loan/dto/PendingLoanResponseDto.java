@@ -17,6 +17,6 @@ public class PendingLoanResponseDto {
     private BigDecimal principalAmount;
     private BigDecimal interestRate;
     private Integer lengthInMonths;
-    private String status;
+    private PendingEntityStatus status;
     private LocalDate requestedAt;
 }

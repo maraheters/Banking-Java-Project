@@ -1,15 +1,14 @@
 package example.banking.user;
 
 import example.banking.RepositoryTest;
-import example.banking.user.entity.Client;
+import example.banking.contracts.PendingEntityStatus;
+import example.banking.user.entity.PendingClient;
 import example.banking.user.repository.PendingClientsRepository;
 import example.banking.user.repository.PendingClientsRepositoryImpl;
-import example.banking.user.roles.ClientRole;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -17,30 +16,30 @@ import static org.junit.jupiter.api.Assertions.*;
 public class PendingClientRepositoryTests {
 
     private final PendingClientsRepository repository;
-    private final Client client1;
-    private final Client client2;
+    private final PendingClient client1;
+    private final PendingClient client2;
 
     @Autowired
     public PendingClientRepositoryTests(NamedParameterJdbcTemplate template) {
         this.repository = new PendingClientsRepositoryImpl(template);
 
-        client1 = Client.register(
+        client1 = PendingClient.register(
                 "Joe",
                 "+375282828",
                 "12345",
                 "12345",
                 "email@email.com",
-                "password",
-                List.of(ClientRole.BASIC));
+                "password"
+        );
 
-        client2 = Client.register(
+        client2 = PendingClient.register(
                 "Joe",
                 "+3752828428",
                 "123435",
                 "124345",
                 "emaile@email.com",
-                "password",
-                List.of(ClientRole.BASIC));
+                "password"
+        );
     }
 
     @Test
@@ -93,5 +92,20 @@ public class PendingClientRepositoryTests {
         var results = repository.findAll();
         assertEquals(1, results.size());
         assertEquals(id2, results.getFirst().getId());
+    }
+
+    @Test
+    public void update_whenStatusChanged_thenCorrect() {
+        var id1 = repository.create(client1);
+
+        var client = repository.findById(id1).get();
+
+        client.setApproved();
+
+        repository.update(client);
+
+        var clientAfterUpdate = repository.findById(id1).get();
+
+        assertEquals(clientAfterUpdate.toDto().getStatus(), PendingEntityStatus.APPROVED);
     }
 }

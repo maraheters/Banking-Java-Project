@@ -27,11 +27,11 @@ public class AccountsController {
     @PostMapping
     @PreAuthorize("hasAnyAuthority('BASIC', 'MANAGER', 'ADMINISTRATOR')")
     public ResponseEntity<Long> createAccount(
-            @RequestParam("holder-id") Long holderId,
-            @RequestParam("bank-id") Long bankId) {
+            @RequestParam("bankId") Long bankId,
+            @AuthenticationPrincipal BankingUserDetails userDetails) {
 
         return ResponseEntity.ok(
-                service.create(holderId, bankId)
+                service.create(userDetails, bankId)
         );
     }
 
@@ -44,7 +44,10 @@ public class AccountsController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyAuthority('MANAGER', 'ADMINISTRATOR')")
+    @PreAuthorize("""
+            hasAnyAuthority('MANAGER', 'ADMINISTRATOR') ||
+            @accountsService.validateOwner(#id, authentication.principal)
+        """)
     public ResponseEntity<AccountResponseDto> getById(@PathVariable("id") Long id) {
         return ResponseEntity.ok(
                 AccountMapper.toResponseDto(service.getById(id)));
@@ -79,12 +82,12 @@ public class AccountsController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/top-up")
+    @PostMapping("/topUp")
     @PreAuthorize("""
             hasAuthority('BASIC') &&
             @accountsService.validateOwner(#id, authentication.principal)""")
     public ResponseEntity<Void> topUp(
-            @RequestParam("account-id") Long id,
+            @RequestParam("accountId") Long id,
             @RequestParam("amount") BigDecimal amount) {
 
         service.topUp(id, amount);
@@ -96,7 +99,7 @@ public class AccountsController {
             hasAuthority('BASIC') &&
             @accountsService.validateOwner(#id, authentication.principal)""")
     public ResponseEntity<BigDecimal> withdraw(
-            @RequestParam("account-id") Long id,
+            @RequestParam("accountId") Long id,
             @RequestParam("amount") BigDecimal amount) {
 
         return ResponseEntity.ok(
@@ -109,8 +112,8 @@ public class AccountsController {
             hasAuthority('BASIC') &&
             @accountsService.validateOwner(#fromAccountId, authentication.principal)""")
     public ResponseEntity<Void> transfer(
-            @RequestParam("from-account-id") Long fromAccountId,
-            @RequestParam("to-account-id") Long toAccountId,
+            @RequestParam("fromAccountId") Long fromAccountId,
+            @RequestParam("toAccountId") Long toAccountId,
             @RequestParam("amount") BigDecimal amount) {
 
         service.transfer(fromAccountId, toAccountId, amount);

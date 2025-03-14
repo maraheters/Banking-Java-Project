@@ -23,7 +23,6 @@ public class BanksController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     public ResponseEntity<List<BankDto>> getAll() {
         return ResponseEntity.ok(
                 service.getAll().stream()
@@ -33,7 +32,6 @@ public class BanksController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     public ResponseEntity<BankDto> getById(@PathVariable("id") Long id) {
         return ResponseEntity.ok(
                 service.getById(id).toDto()

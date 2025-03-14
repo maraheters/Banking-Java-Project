@@ -1,9 +1,13 @@
 package example.banking.loan.controller;
 
+import example.banking.contracts.PendingEntityStatus;
+import example.banking.loan.dto.LoanRequestDto;
 import example.banking.loan.dto.LoanResponseDto;
+import example.banking.loan.dto.LoanTermDto;
 import example.banking.loan.dto.PendingLoanResponseDto;
 import example.banking.loan.mapper.LoanMapper;
 import example.banking.loan.service.LoansService;
+import example.banking.loan.types.LoanTerm;
 import example.banking.security.BankingUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -11,7 +15,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -25,15 +28,25 @@ public class LoansController {
         this.service = service;
     }
 
+    @GetMapping("/terms")
+    public ResponseEntity<List<LoanTermDto>> getAllTerms() {
+        return ResponseEntity.ok(
+                service.getAllTerms().stream()
+                        .map(LoanMapper::toLoanTermDto)
+                        .toList()
+        );
+    }
+
     @PostMapping
-    @PreAuthorize("hasAuthority('BASIC')")
+    @PreAuthorize("""
+        hasAuthority('BASIC') &&
+        @accountsService.validateOwner(#dto.accountId, authentication.principal)""")
     public ResponseEntity<Long> createLoan(
-            @RequestParam Long accountId,
-            @RequestParam BigDecimal amount,
-            @RequestParam String name){
+            @RequestBody LoanRequestDto dto){
 
         return ResponseEntity.ok(
-                service.createLoanRequest(accountId, amount, name));
+                service.createLoanRequest(dto.getAccountId(), dto.getAmount(), LoanTerm.valueOf(dto.getTermName()))
+        );
     }
 
     @GetMapping
@@ -48,7 +61,9 @@ public class LoansController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyAuthority('MANAGER', 'ADMINISTRATOR')")
+    @PreAuthorize("""
+        hasAnyAuthority('MANAGER', 'ADMINISTRATOR') ||
+        @loansService.isOwner(#id, authentication.principal)""")
     public ResponseEntity<LoanResponseDto> getById(@PathVariable("id") Long id) {
 
         var loan = LoanMapper.toResponseDto(service.getById(id));
@@ -70,13 +85,17 @@ public class LoansController {
 
     @GetMapping("/pending")
     @PreAuthorize("hasAnyAuthority('MANAGER', 'ADMINISTRATOR')")
-    public ResponseEntity<List<PendingLoanResponseDto>> getAllPending() {
+    public ResponseEntity<List<PendingLoanResponseDto>> getAllPending(
+            @RequestParam(value = "status", required = false) PendingEntityStatus status
+    ) {
+        var loansStream = service.getAllPending().stream()
+                .map(LoanMapper::toPendingLoanResponseDto);
 
-        var loans = service.getAllPending().stream()
-                .map(LoanMapper::toPendingLoanResponseDto)
-                .toList();
+        if (status != null) {
+            loansStream = loansStream.filter(l -> l.getStatus().equals(status));
+        }
 
-        return ResponseEntity.ok(loans);
+        return ResponseEntity.ok(loansStream.toList());
     }
 
     @GetMapping("/pending/{id}")
@@ -111,6 +130,7 @@ public class LoansController {
         return ResponseEntity.ok(
                 service.getAllPendingByUser(userDetails).stream()
                         .map(LoanMapper::toPendingLoanResponseDto)
+                        .filter(l -> l.getStatus().equals(PendingEntityStatus.PENDING))
                         .toList()
         );
     }

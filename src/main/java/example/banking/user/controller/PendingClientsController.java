@@ -1,5 +1,6 @@
 package example.banking.user.controller;
 
+import example.banking.contracts.PendingEntityStatus;
 import example.banking.user.dto.client.PendingClientResponseDto;
 import example.banking.user.mapper.ClientMapper;
 import example.banking.user.service.PendingClientsService;
@@ -23,32 +24,37 @@ public class PendingClientsController {
 
     @GetMapping
     @PreAuthorize("hasAnyAuthority('MANAGER', 'ADMINISTRATOR')")
-    public ResponseEntity<List<PendingClientResponseDto>> getAll() {
-        return ResponseEntity.ok(
-                service.findAll().stream()
-                        .map(ClientMapper::toPendingClientResponseDto)
-                        .toList()
-        );
+    public ResponseEntity<List<PendingClientResponseDto>> getAll(
+            @RequestParam(value = "status", required = false) PendingEntityStatus status
+    ) {
+        var loansStream = service.getAll().stream()
+                .map(ClientMapper::toPendingClientResponseDto);
+
+        if (status != null) {
+            loansStream = loansStream.filter(c -> c.getStatus().equals(status));
+        }
+
+        return ResponseEntity.ok(loansStream.toList());
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyAuthority('MANAGER', 'ADMINISTRATOR')")
     public ResponseEntity<PendingClientResponseDto> getById(@PathVariable("id") Long id) {
         return ResponseEntity.ok(
-                ClientMapper.toPendingClientResponseDto(service.findById(id))
+                ClientMapper.toPendingClientResponseDto(service.getById(id))
         );
     }
 
-    @PostMapping("/approve")
+    @PostMapping("{id}/approve")
     @PreAuthorize("hasAuthority('MANAGER')")
-    public ResponseEntity<Long> approve(@RequestParam("id") Long id) {
+    public ResponseEntity<Long> approve(@PathVariable("id") Long id) {
 
         return ResponseEntity.ok(service.approve(id));
     }
 
-    @PostMapping("/reject")
+    @PostMapping("{id}/reject")
     @PreAuthorize("hasAuthority('MANAGER')")
-    public ResponseEntity<Void> reject(@RequestParam("id") Long id) {
+    public ResponseEntity<Void> reject(@PathVariable("id") Long id) {
 
         service.reject(id);
         return ResponseEntity.ok().build();

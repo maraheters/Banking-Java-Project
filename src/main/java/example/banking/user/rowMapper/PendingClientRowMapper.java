@@ -1,27 +1,26 @@
 package example.banking.user.rowMapper;
 
-import example.banking.user.dto.client.ClientDto;
+import example.banking.contracts.PendingEntityStatus;
+import example.banking.user.dto.client.PendingClientDto;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class PendingClientRowMapper implements RowMapper<ClientDto> {
+public class PendingClientRowMapper implements RowMapper<PendingClientDto> {
 
     @Override
-    public ClientDto mapRow(ResultSet rs, int rowNum) throws SQLException {
-        var client = new ClientDto();
-
-        client.setId(rs.getLong("id"));
-        client.setUserId(null);
-        client.setName(rs.getString("name"));
-        client.setEmail(rs.getString("email"));
-        client.setPasswordHash(rs.getString("password_hash"));
-        client.setPhoneNumber(rs.getString("phone_number"));
-        client.setPassportNumber(rs.getString("passport_number"));
-        client.setIdentificationNumber(rs.getString("identification_number"));
-        client.setRoles(null);
-
-        return client;
+    public PendingClientDto mapRow(ResultSet rs, int rowNum) throws SQLException {
+        return new PendingClientDto(
+            rs.getLong("id"),
+            rs.getString("name"),
+            rs.getString("email"),
+            rs.getString("password_hash"),
+            rs.getString("phone_number"),
+            rs.getString("passport_number"),
+            rs.getString("identification_number"),
+            rs.getDate("requested_at").toLocalDate(),
+            PendingEntityStatus.valueOf(rs.getString("status"))
+        );
     }
 }

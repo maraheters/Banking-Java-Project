@@ -1,9 +1,11 @@
 package example.banking.loan.mapper;
 
 import example.banking.loan.dto.LoanResponseDto;
+import example.banking.loan.dto.LoanTermDto;
 import example.banking.loan.dto.PendingLoanResponseDto;
 import example.banking.loan.entity.Loan;
 import example.banking.loan.entity.PendingLoan;
+import example.banking.loan.types.LoanTerm;
 
 public class LoanMapper {
 
@@ -20,7 +22,13 @@ public class LoanMapper {
 
         return new PendingLoanResponseDto(
                 d.getId(), d.getAccountId(), d.getPrincipalAmount(), d.getInterestRate(),
-                d.getLengthInMonths(), d.getStatus().toString(), d.getRequestedAt()
+                d.getLengthInMonths(), d.getStatus(), d.getRequestedAt()
+        );
+    }
+
+    public static LoanTermDto toLoanTermDto(LoanTerm term) {
+        return new LoanTermDto(
+                term.name(), term.getInterestRate(), term.getMonths()
         );
     }
 }

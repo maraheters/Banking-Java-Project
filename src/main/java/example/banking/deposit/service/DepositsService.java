@@ -94,8 +94,13 @@ public class DepositsService {
         var amount = deposit.retrieveMoney();
         account.topUp(amount);
 
+        var transaction = Transaction.create(
+                id, TransactionType.DEPOSIT, accountId, TransactionType.ACCOUNT, amount
+        );
+
         accountsRepository.update(account);
         depositsRepository.update(deposit);
+        transactionsRepository.create(transaction);
     }
 
     public List<Deposit> getAllByClient(BankingUserDetails userDetails) {

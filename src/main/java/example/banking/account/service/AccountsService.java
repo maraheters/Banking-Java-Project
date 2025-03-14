@@ -31,8 +31,12 @@ public class AccountsService {
         this.transactionsRepository = transactionsRepository;
     }
 
-    public Long create(Long holderId, Long bankId) {
-        var account = Account.create(holderId, bankId, AccountType.PERSONAL);
+    public Long create(BankingUserDetails userDetails, Long bankId) {
+        if (!userDetails.getAuthorities().contains(new SimpleGrantedAuthority("BASIC"))) {
+            throw new BadRequestException("User is not a client");
+        }
+
+        var account = Account.create(userDetails.getClientId(), bankId, AccountType.PERSONAL);
 
         return accountsRepository.create(account);
     }

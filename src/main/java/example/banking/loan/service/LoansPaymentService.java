@@ -13,6 +13,7 @@ import example.banking.transaction.types.TransactionType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -34,6 +35,7 @@ public class LoansPaymentService {
         this.transactionsRepository = transactionsRepository;
     }
 
+    @Transactional
     public void payFromThinAir(BigDecimal amount, Long loanId) {
         Loan loan = loansRepository.findById(loanId)
                 .orElseThrow(() -> new ResourceNotFoundException("Loan with id '" + loanId + "' not found."));
@@ -47,6 +49,7 @@ public class LoansPaymentService {
         loansRepository.update(loan);
     }
 
+    @Transactional
     public void payFromAccount(BigDecimal amount, Long loanId) {
 
         Loan loan = loansRepository.findById(loanId)
@@ -70,7 +73,7 @@ public class LoansPaymentService {
     }
 
     @Scheduled(fixedDelay = 10000)
-    private void checkOverdueLoans() {
+    protected void checkOverdueLoans() {
         List<Loan> loans = loansRepository.findAll();
 
         List<Loan> overdueLoans = loans.stream()

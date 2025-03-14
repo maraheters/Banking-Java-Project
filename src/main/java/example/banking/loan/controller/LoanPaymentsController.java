@@ -19,7 +19,7 @@ public class LoanPaymentsController {
         this.paymentService = paymentService;
     }
 
-    @PostMapping("/{id}/from-account")
+    @PostMapping("/{id}/fromAccount")
     @PreAuthorize("""
         hasAuthority('BASIC') &&
         @loansService.isOwner(#loanId, authentication.principal)""")
@@ -33,7 +33,7 @@ public class LoanPaymentsController {
     }
 
     // Mimics some payment from other source
-    @PostMapping("/{id}/from-other")
+    @PostMapping("/{id}/fromOther")
     @PreAuthorize("""
         hasAuthority('BASIC') &&
         @loansService.isOwner(#loanId, authentication.principal)""")

@@ -1,19 +1,21 @@
 package example.banking.user.repository;
 
-import example.banking.user.entity.Client;
+import example.banking.user.entity.PendingClient;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface PendingClientsRepository {
 
-    Long create(Client client);
+    Long create(PendingClient client);
+
+    void update(PendingClient client);
 
     void delete(Long id);
 
-    Optional<Client> findById(Long id);
+    Optional<PendingClient> findById(Long id);
 
-    Optional<Client> findByEmail(String email);
+    Optional<PendingClient> findByEmail(String email);
 
-    List<Client> findAll();
+    List<PendingClient> findAll();
 }
