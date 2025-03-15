@@ -8,7 +8,7 @@ import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
+import java.time.LocalDateTime;
 
 public class AccountRowMapper implements RowMapper<AccountDto> {
 
@@ -22,6 +22,7 @@ public class AccountRowMapper implements RowMapper<AccountDto> {
                 AccountType.valueOf(rs.getString("type")),
                 rs.getLong("holder_id"),
                 rs.getLong("bank_id"),
-                rs.getDate("date_created").toLocalDate().atStartOfDay());
+                rs.getObject("date_created", LocalDateTime.class)
+        );
     }
 }

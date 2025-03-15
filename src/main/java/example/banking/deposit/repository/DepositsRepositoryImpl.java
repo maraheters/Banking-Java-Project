@@ -78,7 +78,7 @@ public class DepositsRepositoryImpl extends AbstractRepository<Deposit, DepositD
         map.addValue("minimum",         depositDto.getMinimum());
         map.addValue("bonus",           depositDto.getBonus());
         map.addValue("status",          depositDto.getStatus().toString());
-        map.addValue("dateCreated",     depositDto.getDateCreated());
+        map.addValue("dateCreated",     depositDto.getCreatedAt());
         map.addValue("lengthInMonths",  depositDto.getLengthInMonths());
         map.addValue("interestRate",    depositDto.getInterestRate());
         map.addValue("accountId",       depositDto.getAccountId());

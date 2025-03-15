@@ -100,7 +100,7 @@ public class AccountsRepositoryImpl extends AbstractRepository<Account, AccountD
         map.addValue("status", accountDto.getStatus().toString());
         map.addValue("type", accountDto.getType().toString());
         map.addValue("balance", accountDto.getBalance());
-        map.addValue("date_created", accountDto.getDateCreated());
+        map.addValue("date_created", accountDto.getCreatedAt());
         map.addValue("holder_id", accountDto.getHolderId());
         map.addValue("bank_id", accountDto.getBankId());
 

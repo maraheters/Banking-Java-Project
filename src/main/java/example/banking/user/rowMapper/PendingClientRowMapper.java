@@ -6,6 +6,7 @@ import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 
 public class PendingClientRowMapper implements RowMapper<PendingClientDto> {
 
@@ -19,7 +20,7 @@ public class PendingClientRowMapper implements RowMapper<PendingClientDto> {
             rs.getString("phone_number"),
             rs.getString("passport_number"),
             rs.getString("identification_number"),
-            rs.getDate("requested_at").toLocalDate(),
+            rs.getObject("requested_at", LocalDateTime.class),
             PendingEntityStatus.valueOf(rs.getString("status"))
         );
     }

@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
@@ -18,5 +18,5 @@ public class PendingLoanDto {
     private BigDecimal interestRate; //in decimal form, eg 0.08 = 8%
     private Integer lengthInMonths;
     private PendingEntityStatus status;
-    private LocalDate requestedAt;
+    private LocalDateTime requestedAt;
 }

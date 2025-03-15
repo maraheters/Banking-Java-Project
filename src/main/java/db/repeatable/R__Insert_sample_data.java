@@ -8,7 +8,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -67,7 +67,7 @@ public class R__Insert_sample_data extends BaseJavaMigration {
                 statement.setString(2, "ACTIVE");           // status
                 statement.setString(3, "PERSONAL");         // type
                 statement.setBigDecimal(4, BigDecimal.ZERO);   // balance
-                statement.setObject(5, LocalDate.now());       // date_created
+                statement.setObject(5, LocalDateTime.now());       // date_created
                 statement.setLong(6, clientIds.get(i - 1));    // holder_id
                 statement.setLong(7, bankIds.get((i - 1) % bankIds.size()));    // bank_id
 

@@ -20,5 +20,5 @@ public class AccountDto {
     private AccountType type;
     private Long holderId;
     private Long bankId;
-    private LocalDateTime dateCreated;
+    private LocalDateTime createdAt;
 }

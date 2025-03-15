@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Period;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -28,7 +29,7 @@ public class Deposit implements FinancialEntity {
     private BigDecimal minimum;
     private BigDecimal bonus;
     private DepositStatus status;
-    private LocalDate dateCreated;
+    private LocalDateTime createdAt;
     private LocalDate lastBonusDate;
     private Integer numberOfBonusesYet;  // Used to track how many bonuses have been applied
     private Integer lengthInMonths;
@@ -39,7 +40,7 @@ public class Deposit implements FinancialEntity {
         minimum             = dto.getMinimum();
         bonus               = dto.getBonus();
         status              = dto.getStatus();
-        dateCreated         = dto.getDateCreated();
+        createdAt           = dto.getCreatedAt();
         lastBonusDate       = dto.getLastBonusDate();
         numberOfBonusesYet  = dto.getNumberOfBonusesYet();
         lengthInMonths      = dto.getLengthInMonths();
@@ -58,7 +59,7 @@ public class Deposit implements FinancialEntity {
         deposit.lengthInMonths = lengthInMonths;
         deposit.minimum = initialBalance;
         deposit.bonus = BigDecimal.ZERO;
-        deposit.dateCreated = LocalDate.now();
+        deposit.createdAt = LocalDateTime.now();
         deposit.lastBonusDate = LocalDate.now();
 
         return deposit;
@@ -70,7 +71,7 @@ public class Deposit implements FinancialEntity {
 
     public DepositDto toDto() {
         return new DepositDto(
-            id, minimum, bonus, status, dateCreated, lastBonusDate, numberOfBonusesYet, lengthInMonths, accountId, interestRate);
+            id, minimum, bonus, status, createdAt, lastBonusDate, numberOfBonusesYet, lengthInMonths, accountId, interestRate);
     }
 
     public void setStatus(DepositStatus status) {

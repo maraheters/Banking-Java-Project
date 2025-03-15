@@ -18,7 +18,7 @@ public class DepositMapper {
     public static DepositResponseDto toResponseDto(DepositDto d) {
 
         return new DepositResponseDto(
-            d.getId(), d.getMinimum(), d.getBonus(), d.getStatus(), d.getDateCreated(), d.getLastBonusDate(),
+            d.getId(), d.getMinimum(), d.getBonus(), d.getStatus(), d.getCreatedAt(), d.getLastBonusDate(),
             d.getNumberOfBonusesYet(), d.getLengthInMonths(), d.getAccountId(), d.getInterestRate());
     }
 

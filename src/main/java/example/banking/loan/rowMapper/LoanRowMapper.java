@@ -6,6 +6,7 @@ import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 
 public class LoanRowMapper implements RowMapper<LoanDto> {
 
@@ -19,7 +20,7 @@ public class LoanRowMapper implements RowMapper<LoanDto> {
                 rs.getBigDecimal("interest_rate"),
                 rs.getInt("length_in_months"),
                 LoanStatus.valueOf(rs.getString("status")),
-                rs.getDate("created_at").toLocalDate(),
+                rs.getObject("created_at", LocalDateTime.class),
                 rs.getDate("last_payment").toLocalDate());
     }
 }

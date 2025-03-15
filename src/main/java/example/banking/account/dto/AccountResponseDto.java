@@ -19,5 +19,5 @@ public class AccountResponseDto {
     private AccountStatus status;
     private AccountType type;
     private Long holderId;
-    private LocalDateTime dateCreated;
+    private LocalDateTime createdAt;
 }

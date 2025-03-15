@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -28,7 +29,7 @@ public class Loan implements FinancialEntity {
     private BigDecimal interestRate; //in decimal form, eg 0.08 = 8%
     private Integer lengthInMonths;
     private LoanStatus status;
-    private LocalDate createdAt;
+    private LocalDateTime createdAt;
     private LocalDate lastPayment;
 
     public static Loan create(
@@ -41,7 +42,7 @@ public class Loan implements FinancialEntity {
         loan.interestRate = interestRate;
         loan.lengthInMonths = length;
         loan.status = LoanStatus.ACTIVE;
-        loan.createdAt = LocalDate.now();
+        loan.createdAt = LocalDateTime.now();
         loan.lastPayment = LocalDate.now();
 
         return loan;
@@ -95,7 +96,7 @@ public class Loan implements FinancialEntity {
     }
 
     public boolean applyOverdueIfNecessary() {
-        long monthsPassed = ChronoUnit.MONTHS.between(createdAt, LocalDate.now().plusDays(1));
+        long monthsPassed = ChronoUnit.MONTHS.between(createdAt, LocalDateTime.now().plusDays(1));
 
         BigDecimal monthlyPay = principalAmount
                 .divide(BigDecimal.valueOf(lengthInMonths), RoundingMode.HALF_UP)

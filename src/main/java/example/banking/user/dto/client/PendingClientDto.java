@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
@@ -18,6 +19,6 @@ public class PendingClientDto {
     private String phoneNumber;
     private String passportNumber;
     private String identificationNumber;
-    private LocalDate requestedAt;
+    private LocalDateTime requestedAt;
     private PendingEntityStatus status;
 }

@@ -25,7 +25,7 @@ public class Account implements FinancialEntity {
     private AccountType type;
     private Long holderId;
     private Long bankId;
-    private LocalDateTime dateCreated;
+    private LocalDateTime createdAt;
 
     private Account(AccountDto dto) {
         id          = dto.getId();
@@ -35,7 +35,7 @@ public class Account implements FinancialEntity {
         type        = dto.getType();
         holderId    = dto.getHolderId();
         bankId      = dto.getBankId();
-        dateCreated = dto.getDateCreated();
+        createdAt   = dto.getCreatedAt();
     }
 
     public static Account create(Long clientId, Long bankId, AccountType type) {
@@ -46,7 +46,7 @@ public class Account implements FinancialEntity {
         account.type = type;
         account.holderId = clientId;
         account.bankId = bankId;
-        account.dateCreated = LocalDateTime.now();
+        account.createdAt = LocalDateTime.now();
 
         return account;
     }
@@ -57,7 +57,7 @@ public class Account implements FinancialEntity {
 
     public AccountDto toDto() {
         return new AccountDto(
-                id, IBAN, balance, status, type, holderId, bankId, dateCreated);
+                id, IBAN, balance, status, type, holderId, bankId, createdAt);
     }
 
     @Transactional

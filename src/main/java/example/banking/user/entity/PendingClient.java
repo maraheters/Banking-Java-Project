@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -21,7 +22,7 @@ public class PendingClient {
     private String phoneNumber;
     private String passportNumber;
     private String identificationNumber;
-    private LocalDate requestedAt;
+    private LocalDateTime requestedAt;
     private PendingEntityStatus status;
 
 
@@ -40,7 +41,7 @@ public class PendingClient {
         client.phoneNumber = phoneNumber;
         client.passportNumber = passportNumber;
         client.identificationNumber = identificationNumber;
-        client.requestedAt = LocalDate.now();
+        client.requestedAt = LocalDateTime.now();
         client.status = PendingEntityStatus.PENDING;
 
         return client;

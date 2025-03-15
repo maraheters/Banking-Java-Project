@@ -9,7 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -22,7 +22,7 @@ public class PendingLoan {
     private BigDecimal interestRate; //in decimal form, eg 0.08 = 8%
     private Integer lengthInMonths;
     private PendingEntityStatus status;
-    private LocalDate requestedAt;
+    private LocalDateTime requestedAt;
 
     public static PendingLoan create(
             Long accountId, BigDecimal principalAmount, BigDecimal interestRate, Integer length) {
@@ -33,7 +33,7 @@ public class PendingLoan {
         loan.interestRate = interestRate;
         loan.lengthInMonths = length;
         loan.status = PendingEntityStatus.PENDING;
-        loan.requestedAt = LocalDate.now();
+        loan.requestedAt = LocalDateTime.now();
 
         return loan;
     }

@@ -6,6 +6,7 @@ import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 
 public class PendingLoanRowMapper implements RowMapper<PendingLoanDto> {
 
@@ -18,7 +19,7 @@ public class PendingLoanRowMapper implements RowMapper<PendingLoanDto> {
                 rs.getBigDecimal("interest_rate"),
                 rs.getInt("length_in_months"),
                 PendingEntityStatus.valueOf(rs.getString("status")),
-                rs.getDate("requested_at").toLocalDate()
+                rs.getObject("requested_at", LocalDateTime.class)
         );
 
     }

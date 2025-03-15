@@ -6,6 +6,7 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
@@ -14,7 +15,7 @@ public class DepositDto {
     private BigDecimal minimum;
     private BigDecimal bonus;
     private DepositStatus status;
-    private LocalDate dateCreated;
+    private LocalDateTime createdAt;
     private LocalDate lastBonusDate;
     private Integer numberOfBonusesYet;  // Used to track how many bonuses have been applied
     private Integer lengthInMonths;
