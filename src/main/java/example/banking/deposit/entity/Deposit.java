@@ -1,7 +1,9 @@
 package example.banking.deposit.entity;
 
+import example.banking.contracts.FinancialEntity;
 import example.banking.deposit.dto.DepositDto;
 import example.banking.deposit.types.DepositStatus;
+import example.banking.exception.BadRequestException;
 import jakarta.validation.constraints.Positive;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -18,7 +20,7 @@ import java.time.Period;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Slf4j
 @ToString
-public class Deposit {
+public class Deposit implements FinancialEntity {
     @Getter
     private Long id;
     @Getter
@@ -108,7 +110,7 @@ public class Deposit {
         checkStatus(DepositStatus.ACTIVE);
 
         if (bonus.compareTo(amount) < 0 ) {
-            throw new IllegalArgumentException("Balance insufficient");
+            throw new BadRequestException("Balance insufficient");
         }
 
         bonus = bonus.subtract(amount);
@@ -137,12 +139,12 @@ public class Deposit {
 
     private void checkStatus(DepositStatus status) {
         if (!this.status.equals(status))
-            throw new IllegalStateException("Deposit status must be " + status + ", actual status is: " + this.status);
+            throw new BadRequestException("Deposit status must be " + status + ", actual status is: " + this.status);
     }
 
     private void checkStatusNot(DepositStatus status) {
         if (this.status.equals(status))
-            throw new IllegalStateException("Deposit status must not be: " + status);
+            throw new BadRequestException("Deposit status must not be: " + status);
     }
 
     private BigDecimal calculateBonus() {

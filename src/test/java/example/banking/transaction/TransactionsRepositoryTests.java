@@ -93,4 +93,19 @@ public class TransactionsRepositoryTests {
 
         assertEquals(0, transactions.size());
     }
+
+    @Test
+    public void update_whenRevertIdUpdated_thenCorrect() {
+        var revertId = repository.create(transaction2);
+        var id = repository.create(transaction1);
+        var tr = repository.findById(id).get();
+
+        tr.setRevertTransactionId(revertId);
+
+        repository.update(tr);
+
+        var updated = repository.findById(id).get();
+
+        assertEquals(updated.getRevertTransactionId(), revertId);
+    }
 }

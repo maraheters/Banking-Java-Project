@@ -38,7 +38,7 @@ public class TransactionsRepositoryImpl
             SELECT *
             FROM transaction
             WHERE from_entity_id IN (
-                SELECT id FROM client_accounts
+                SELECT id FROM client_account
                 UNION
                 SELECT id FROM client_loans
                 UNION
@@ -91,15 +91,29 @@ public class TransactionsRepositoryImpl
     @Override
     protected String getCreateSql() {
         return """
-            INSERT INTO public.transaction(from_entity_id, from_type, to_entity_id, to_type, amount, timestamp)
-            VALUES (:from_entity_id, :from_type, :to_entity_id, :to_type, :amount, :timestamp)
+            INSERT INTO public.transaction
+                (from_entity_id, from_type, to_entity_id, to_type, amount, timestamp, revert_transaction_id)
+            VALUES
+                (:from_entity_id, :from_type, :to_entity_id, :to_type, :amount, :timestamp, :revert_transaction_id)
             RETURNING id;
         """;
     }
 
     @Override
     protected String getUpdateSql() {
-        return "";
+        return """
+            UPDATE public.transaction
+            SET
+                from_entity_id = :from_entity_id,
+                from_type = :from_type,
+                to_entity_id = :to_entity_id,
+                to_type = :to_type,
+                amount = :amount,
+                timestamp = :timestamp,
+                revert_transaction_id = :revert_transaction_id
+            WHERE
+                id = :id
+        """;
     }
 
     @Override
@@ -116,6 +130,7 @@ public class TransactionsRepositoryImpl
                 .addValue("from_entity_id", dto.getFromEntityId())
                 .addValue("from_type", dto.getFromType().toString())
                 .addValue("to_entity_id", dto.getToEntityId())
+                .addValue("revert_transaction_id", dto.getRevertTransactionId())
                 .addValue("to_type", dto.getToType().toString())
                 .addValue("amount", dto.getAmount())
                 .addValue("timestamp", dto.getTimestamp());

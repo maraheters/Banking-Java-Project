@@ -19,4 +19,6 @@ public interface TransactionsRepository {
     Long create(Transaction transaction);
 
     void delete(Long id);
+
+    void update(Transaction transaction);
 }

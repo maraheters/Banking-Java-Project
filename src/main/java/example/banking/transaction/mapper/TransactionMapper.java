@@ -12,7 +12,7 @@ public class TransactionMapper {
 
     public static TransactionResponseDto toResponseDto(TransactionDto d) {
         return new TransactionResponseDto(
-                d.getId(), d.getFromEntityId(), d.getToEntityId(), d.getFromType(), d.getToType(), d.getAmount(), d.getTimestamp()
+                d.getId(), d.getFromEntityId(), d.getToEntityId(), d.getRevertTransactionId(), d.getFromType(), d.getToType(), d.getAmount(), d.getTimestamp()
         );
     }
 }

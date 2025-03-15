@@ -40,7 +40,7 @@ public class LoansPaymentService {
         Loan loan = loansRepository.findById(loanId)
                 .orElseThrow(() -> new ResourceNotFoundException("Loan with id '" + loanId + "' not found."));
 
-        loan.makePayment(amount, new ThinAirPaymentStrategy());
+        loan.makePayment(amount);
         var transaction = Transaction.create(
                 null, TransactionType.EXTERNAL, loanId, TransactionType.LOAN, amount
         );
@@ -60,13 +60,15 @@ public class LoansPaymentService {
         Account account = accountsRepository.findById(accountId)
                 .orElseThrow(() -> new ResourceNotFoundException("Account with id '" + accountId + "' not found."));
 
+
         var transaction = Transaction.create(
                 accountId, TransactionType.ACCOUNT, loanId, TransactionType.LOAN, amount
         );
 
         transactionsRepository.create(transaction);
 
-        loan.makePayment(amount, new AccountLoanPaymentStrategy(account));
+        account.withdraw(amount);
+        loan.makePayment(amount);
 
         accountsRepository.update(account);
         loansRepository.update(loan);

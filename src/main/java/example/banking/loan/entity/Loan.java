@@ -1,8 +1,11 @@
 package example.banking.loan.entity;
 
+import example.banking.contracts.FinancialEntity;
+import example.banking.exception.BadRequestException;
 import example.banking.loan.strategies.LoanPaymentStrategy;
 import example.banking.loan.dto.LoanDto;
 import example.banking.loan.types.LoanStatus;
+import jakarta.validation.constraints.Positive;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,7 +18,7 @@ import java.time.temporal.ChronoUnit;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class Loan {
+public class Loan implements FinancialEntity {
     @Getter
     private Long id;
     @Getter
@@ -62,14 +65,28 @@ public class Loan {
             id, accountId, principalAmount, paidAmount, interestRate, lengthInMonths, status, createdAt, lastPayment);
     }
 
-    public void makePayment(BigDecimal amount, LoanPaymentStrategy strategy) {
+    @Override
+    public void withdraw(@Positive BigDecimal amount) {
+        if (!this.status.equals(LoanStatus.ACTIVE))
+            throw new BadRequestException("Account status must be ACTIVE, actual status is: " + this.status);
+
+        if (paidAmount.compareTo(amount) < 0)
+            throw new BadRequestException("Balance insufficient.");
+
+        paidAmount = paidAmount.subtract(amount);
+    }
+
+    @Override
+    public void topUp(@Positive BigDecimal amount) {
+        makePayment(amount);
+    }
+
+    public void makePayment(@Positive BigDecimal amount) {
         var remainingAmountToPay = principalAmount.subtract(paidAmount);
 
         if (remainingAmountToPay.compareTo(amount) < 0) {
             throw new IllegalArgumentException("Payment amount is greater than remaining amount left to pay.");
         }
-
-        strategy.pay(amount);
 
         paidAmount = paidAmount.add(amount);
         if (paidAmount.compareTo(principalAmount) >= 0) {
@@ -93,6 +110,5 @@ public class Loan {
 
         return false;
     }
-
 
 }

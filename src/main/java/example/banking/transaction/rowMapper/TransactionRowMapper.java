@@ -12,16 +12,25 @@ public class TransactionRowMapper implements RowMapper<TransactionDto> {
 
     @Override
     public TransactionDto mapRow(ResultSet rs, int rowNum) throws SQLException {
+        var fromEntityId = rs.getLong("from_entity_id");
+        var fromEntityIdIsNull = rs.wasNull();
+
+        var toEntityId = rs.getLong("to_entity_id");
+        var toEntityIdIsNull = rs.wasNull();
+
+        var revertTransactionId = rs.getLong("revert_transaction_id");
+        var revertTransactionIdIsNull = rs.wasNull();
+
 
         return new TransactionDto(
                 rs.getLong("id"),
-                rs.getLong("from_entity_id"),
-                rs.getLong("to_entity_id"),
+                fromEntityIdIsNull ? null : fromEntityId,
+                toEntityIdIsNull ? null : toEntityId,
+                revertTransactionIdIsNull ? null : revertTransactionId,
                 TransactionType.valueOf(rs.getString("from_type")),
                 TransactionType.valueOf(rs.getString("to_type")),
                 rs.getBigDecimal("amount"),
                 rs.getObject("timestamp", LocalDateTime.class)
         );
-
     }
 }

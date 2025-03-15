@@ -15,6 +15,7 @@ public class TransactionResponseDto {
     private Long id;
     private Long fromEntityId;
     private Long toEntityId;
+    private Long revertTransactionId;
     private TransactionType fromType;
     private TransactionType toType;
     private BigDecimal amount;
