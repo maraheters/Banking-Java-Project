@@ -15,8 +15,7 @@ public class ClientRowMapper implements RowMapper<ClientDto> {
     public ClientDto mapRow(ResultSet rs, int rowNum) throws SQLException {
         var client = new ClientDto();
 
-        client.setId(rs.getLong("client_id"));
-        client.setUserId(rs.getLong("user_id"));
+        client.setId(rs.getLong("id"));
         client.setName(rs.getString("name"));
         client.setEmail(rs.getString("email"));
         client.setPasswordHash(rs.getString("password_hash"));

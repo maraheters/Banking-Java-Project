@@ -2,7 +2,6 @@ package example.banking.loan.entity;
 
 import example.banking.contracts.FinancialEntity;
 import example.banking.exception.BadRequestException;
-import example.banking.loan.strategies.LoanPaymentStrategy;
 import example.banking.loan.dto.LoanDto;
 import example.banking.loan.types.LoanStatus;
 import jakarta.validation.constraints.Positive;

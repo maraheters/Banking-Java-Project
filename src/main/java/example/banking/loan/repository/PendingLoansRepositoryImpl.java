@@ -33,11 +33,12 @@ public class PendingLoansRepositoryImpl
             SELECT pl.*
             FROM public.pending_loan pl
             JOIN account a ON pl.account_id = a.id
-            JOIN client c ON a.holder_id = c.id
-            WHERE c.user_id = :user_id;
+            JOIN personal_account pa ON a.id = pa.id
+            JOIN client c ON pa.holder_id = c.id
+            WHERE c.id = :id;
         """ ;
 
-        var map = new MapSqlParameterSource("user_id", id);
+        var map = new MapSqlParameterSource("id", id);
 
         return findAllByCriteria(sql, map);
     }

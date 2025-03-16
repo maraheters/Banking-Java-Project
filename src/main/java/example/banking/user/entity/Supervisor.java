@@ -9,7 +9,7 @@ import java.util.List;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Supervisor extends User {
-    private Long userId;
+
     private List<SupervisorRole> roles;
 
     public static Supervisor register(
@@ -28,13 +28,12 @@ public class Supervisor extends User {
         s.name = dto.getName();
         s.email = dto.getEmail();
         s.passwordHash = dto.getPasswordHash();
-        s.userId = dto.getUserId();
         s.roles = dto.getRoles();
         return s;
     }
 
     public SupervisorDto toDto() {
         return new SupervisorDto(
-                id, name, email, passwordHash, userId, roles);
+                id, name, email, passwordHash, roles);
     }
 }

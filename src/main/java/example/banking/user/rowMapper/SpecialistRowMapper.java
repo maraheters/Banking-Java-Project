@@ -11,7 +11,6 @@ public class SpecialistRowMapper implements RowMapper<SpecialistDto> {
     public SpecialistDto mapRow(ResultSet rs, int rowNum) throws SQLException {
         return new SpecialistDto(
                 rs.getLong("id"),
-                rs.getLong("user_id"),
                 rs.getLong("enterprise_id"),
                 rs.getString("name"),
                 rs.getString("email"),

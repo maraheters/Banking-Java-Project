@@ -43,7 +43,7 @@ public class DepositsController {
     @PostMapping
     @PreAuthorize("""
         hasAuthority('BASIC') &&
-        @accountsService.validateOwner(#dto.accountId, authentication.principal)""")
+        @personalAccountsService.validateOwner(#dto.accountId, authentication.principal)""")
     public ResponseEntity<Long> createDeposit(
             @RequestBody DepositRequestDto dto) {
 

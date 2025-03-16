@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class SpecialistDto {
     private Long id;
-    private Long userId;
     private Long enterpriseId;
     private String name;
     private String email;

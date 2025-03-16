@@ -1,6 +1,6 @@
 package example.banking.loan.service;
 
-import example.banking.account.repository.AccountsRepository;
+import example.banking.account.repository.PersonalAccountsRepository;
 import example.banking.exception.BadRequestException;
 import example.banking.exception.ResourceNotFoundException;
 import example.banking.loan.entity.Loan;
@@ -27,18 +27,18 @@ public class LoansService {
 
     private final LoansRepository loansRepository;
     private final PendingLoansRepository pendingLoansRepository;
-    private final AccountsRepository accountsRepository;
+    private final PersonalAccountsRepository personalAccountsRepository;
     private final TransactionsRepository transactionsRepository;
 
     @Autowired
     public LoansService(
             LoansRepository loansRepository,
             PendingLoansRepository pendingLoansRepository,
-            AccountsRepository accountsRepository,
+            PersonalAccountsRepository personalAccountsRepository,
             TransactionsRepository transactionsRepository) {
         this.loansRepository = loansRepository;
         this.pendingLoansRepository = pendingLoansRepository;
-        this.accountsRepository = accountsRepository;
+        this.personalAccountsRepository = personalAccountsRepository;
         this.transactionsRepository = transactionsRepository;
     }
 
@@ -84,7 +84,7 @@ public class LoansService {
 
         var accountId = dto.getAccountId();
         var principalAmount = dto.getPrincipalAmount();
-        var account = accountsRepository.findById(accountId)
+        var account = personalAccountsRepository.findById(accountId)
                         .orElseThrow( () -> new RuntimeException("Account with id '" + accountId + "' not found."));
 
         var newLoan = Loan.create(accountId, principalAmount, dto.getInterestRate(), dto.getLengthInMonths());
@@ -98,7 +98,7 @@ public class LoansService {
 
         pendingLoan.setApproved();
         pendingLoansRepository.update(pendingLoan);
-        accountsRepository.update(account);
+        personalAccountsRepository.update(account);
         transactionsRepository.create(transaction);
 
         return loanId;
@@ -133,10 +133,10 @@ public class LoansService {
         var loan = loansRepository.findById(loanId)
                 .orElseThrow(() -> new ResourceNotFoundException("Loan with id '" + loanId + "' not found."));
         var accountId = loan.getAccountId();
-        var account = accountsRepository.findById(accountId)
+        var account = personalAccountsRepository.findById(accountId)
                 .orElseThrow(() -> new ResourceNotFoundException("Account with id '" + accountId + "' not found."));
 
-        var clientId = userDetails.getClientId();
+        var clientId = userDetails.getId();
         return account.isOwner(clientId);
     }
 }

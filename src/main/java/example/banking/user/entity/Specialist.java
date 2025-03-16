@@ -9,8 +9,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Specialist extends User {
 
-    private Long userId;
-
     private Long enterpriseId;
 
     public static Specialist register(
@@ -24,21 +22,19 @@ public class Specialist extends User {
         specialist.email = email;
         specialist.passwordHash = passwordHash;
         specialist.enterpriseId = enterpriseId;
-        specialist.userId = null;
 
         return specialist;
     }
 
     public SpecialistDto toDto() {
         return new SpecialistDto(
-                id, userId, enterpriseId, name, email, passwordHash
+                id, enterpriseId, name, email, passwordHash
         );
     }
 
     public static Specialist fromDto(SpecialistDto dto) {
         var specialist = new Specialist();
         specialist.id = dto.getId();
-        specialist.userId = dto.getUserId();
         specialist.name = dto.getName();
         specialist.email = dto.getEmail();
         specialist.enterpriseId = dto.getEnterpriseId();

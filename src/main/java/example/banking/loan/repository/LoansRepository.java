@@ -1,7 +1,6 @@
 package example.banking.loan.repository;
 
 import example.banking.loan.entity.Loan;
-import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;

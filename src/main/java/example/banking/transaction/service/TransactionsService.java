@@ -1,7 +1,7 @@
 package example.banking.transaction.service;
 
-import example.banking.account.entity.Account;
-import example.banking.account.repository.AccountsRepository;
+import example.banking.account.entity.PersonalAccount;
+import example.banking.account.repository.PersonalAccountsRepository;
 import example.banking.contracts.FinancialEntity;
 import example.banking.deposit.entity.Deposit;
 import example.banking.deposit.repository.DepositsRepository;
@@ -23,18 +23,18 @@ public class TransactionsService {
 
     private final TransactionsRepository transactionsRepository;
     private final DepositsRepository depositsRepository;
-    private final AccountsRepository accountsRepository;
+    private final PersonalAccountsRepository personalAccountsRepository;
     private final LoansRepository loansRepository;
 
     @Autowired
     public TransactionsService(
             TransactionsRepository transactionsRepository,
             DepositsRepository depositsRepository,
-            AccountsRepository accountsRepository,
+            PersonalAccountsRepository personalAccountsRepository,
             LoansRepository loansRepository) {
         this.transactionsRepository = transactionsRepository;
         this.depositsRepository = depositsRepository;
-        this.accountsRepository = accountsRepository;
+        this.personalAccountsRepository = personalAccountsRepository;
         this.loansRepository = loansRepository;
     }
 
@@ -95,7 +95,7 @@ public class TransactionsService {
 
     private FinancialEntity findEntity(Long id, TransactionType type) {
         return switch (type) {
-            case ACCOUNT -> accountsRepository.findById(id)
+            case ACCOUNT -> personalAccountsRepository.findById(id)
                     .orElseThrow(() -> new ResourceNotFoundException("Account not found"));
             case LOAN -> loansRepository.findById(id)
                     .orElseThrow(() -> new ResourceNotFoundException("Loan not found"));
@@ -107,10 +107,10 @@ public class TransactionsService {
 
     private void updateEntity(FinancialEntity entity, TransactionType type) {
         switch (type) {
-            case ACCOUNT -> accountsRepository.update( (Account) entity);
+            case ACCOUNT -> personalAccountsRepository.update( (PersonalAccount) entity);
             case LOAN -> loansRepository.update( (Loan) entity);
             case DEPOSIT -> depositsRepository.update( (Deposit) entity);
             default -> throw new IllegalArgumentException("Unsupported entity type");
-        };
+        }
     }
 }

@@ -5,7 +5,7 @@ WITH
             RETURNING id
     ),
     inserted_client AS (
-        INSERT INTO public.client (user_id, phone_number, passport_number, identification_number)
+        INSERT INTO public.client (id, phone_number, passport_number, identification_number)
             VALUES ((SELECT id FROM inserted_user), 'phone_number1', 'passport_number1', 'identification_number1')
             RETURNING id
     ),
@@ -29,7 +29,7 @@ WITH
             RETURNING id
     ),
     inserted_client AS (
-        INSERT INTO public.client (user_id, phone_number, passport_number, identification_number)
+        INSERT INTO public.client (id, phone_number, passport_number, identification_number)
             VALUES ((SELECT id FROM inserted_user), 'phone_number2', 'passport_number2', 'identification_number2')
             RETURNING id
     ),

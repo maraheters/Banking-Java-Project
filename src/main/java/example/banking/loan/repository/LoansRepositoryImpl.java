@@ -34,11 +34,12 @@ public class LoansRepositoryImpl
             SELECT l.*
             FROM public.loan l
             LEFT JOIN public.account a ON a.id = l.account_id
-            LEFT JOIN public.client c ON c.id = a.holder_id
-            WHERE c.user_id = :user_id
+            LEFT JOIN public.personal_account pa ON pa.id = a.id
+            LEFT JOIN public.client c ON c.id = pa.holder_id
+            WHERE c.id = :id
         """;
 
-        var map = new MapSqlParameterSource("user_id", userId);
+        var map = new MapSqlParameterSource("id", userId);
 
         return findAllByCriteria(sql, map);
     }

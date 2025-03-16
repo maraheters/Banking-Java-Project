@@ -35,10 +35,10 @@ public class UserDetailsRepositoryImpl implements UserDetailsRepository {
             user_roles AS (
                  -- Roles from the client table
                  SELECT
-                         c.user_id,
+                         c.id,
                          cr.name AS role_name
                  FROM client c
-                     JOIN target_user tu ON c.user_id = tu.id
+                     JOIN target_user tu ON c.id = tu.id
                      LEFT JOIN public.client_role_client crc ON c.id = crc.client_id
                      LEFT JOIN public.client_role cr ON cr.id = crc.role_id
         
@@ -46,36 +46,36 @@ public class UserDetailsRepositoryImpl implements UserDetailsRepository {
 
                  -- Roles from the supervisor table
                  SELECT
-                     sup.user_id,
+                     sup.id,
                      sr.name AS role_name
                  FROM supervisor sup
-                      JOIN target_user tu ON sup.user_id = tu.id
+                      JOIN target_user tu ON sup.id = tu.id
                       LEFT JOIN public.supervisor_role_supervisor srs ON sup.id = srs.supervisor_id
                       LEFT JOIN public.supervisor_role sr ON sr.id = srs.role_id
-         
-                UNION      
-         
+
+                UNION
+
                 -- Roles from the specialist table
-                SELECT 
-                    spec.user_id,
+                SELECT
+                    spec.id,
                     'SPECIALIST' AS role_name
                 FROM specialist spec
-                    JOIN target_user tu ON spec.user_id = tu.id
+                    JOIN target_user tu ON spec.id = tu.id
         
             ),
              client_id AS (
                  SELECT c.id
                  FROM public.client c
-                          JOIN target_user tu ON c.user_id = tu.id
+                          JOIN target_user tu ON c.id = tu.id
              )
             SELECT
-                tu.id AS user_id,
+                tu.id AS id,
                 (SELECT id FROM client_id) AS client_id,
                 tu.email,
                 tu.password_hash,
                 STRING_AGG(ur.role_name, ',') AS roles
             FROM target_user tu
-                     LEFT JOIN user_roles ur ON ur.user_id = tu.id
+                     LEFT JOIN user_roles ur ON ur.id = tu.id
             GROUP BY tu.id, tu.email, tu.password_hash;
         """;
 

@@ -79,6 +79,15 @@ public class DepositsRepositoryTests {
     }
 
     @Test
+    public void findAllByClientId_whenSavedAndRetrieved_thenCorrect() {
+        repository.create(deposit1);
+        repository.create(deposit1);
+
+        var results = repository.findAllByClientId(1L);
+        assertEquals(2, results.size());
+    }
+
+    @Test
     public void update_whenUpdated_thenCorrect() {
         var id = repository.create(deposit1);
         var deposit = repository.findById(id).get();

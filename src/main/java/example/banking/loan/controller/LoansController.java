@@ -40,7 +40,7 @@ public class LoansController {
     @PostMapping
     @PreAuthorize("""
         hasAuthority('BASIC') &&
-        @accountsService.validateOwner(#dto.accountId, authentication.principal)""")
+        @personalAccountsService.validateOwner(#dto.accountId, authentication.principal)""")
     public ResponseEntity<Long> createLoan(
             @RequestBody LoanRequestDto dto){
 

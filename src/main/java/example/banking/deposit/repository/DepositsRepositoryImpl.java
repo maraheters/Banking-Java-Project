@@ -27,7 +27,8 @@ public class DepositsRepositoryImpl
         String sql = """
             SELECT d.* FROM public.deposit d
             LEFT JOIN public.account a ON d.account_id = a.id
-            WHERE a.holder_id = :id
+            LEFT JOIN public.personal_account pa ON a.id = pa.id
+            WHERE pa.holder_id = :id
         """;
 
         var map = new MapSqlParameterSource("id", id);
@@ -38,8 +39,8 @@ public class DepositsRepositoryImpl
     @Override
     protected String getCreateSql() {
         return "INSERT INTO " +
-                "deposit(minimum, bonus, status, date_created, length_in_months, interest_rate, account_id, number_of_bonuses, last_bonus_date ) " +
-                "VALUES (:minimum, :bonus, :status, :dateCreated, :lengthInMonths, :interestRate, :accountId, :numberOfBonuses, :lastBonusDate) " +
+                "deposit(minimum, bonus, status, created_at, length_in_months, interest_rate, account_id, number_of_bonuses, last_bonus_date ) " +
+                "VALUES (:minimum, :bonus, :status, :created_at, :length_in_months, :interest_rate, :account_id, :number_of_bonuses, :last_bonus_date) " +
                 "RETURNING id";
     }
 
@@ -64,12 +65,12 @@ public class DepositsRepositoryImpl
                 "minimum = :minimum, " +
                 "bonus = :bonus, " +
                 "status = :status, " +
-                "date_created = :dateCreated, " +
-                "length_in_months = :lengthInMonths, " +
-                "interest_rate = :interestRate, " +
-                "account_id = :accountId, " +
-                "number_of_bonuses = :numberOfBonuses, " +
-                "last_bonus_date = :lastBonusDate " +
+                "created_at = :created_at, " +
+                "length_in_months = :length_in_months, " +
+                "interest_rate = :interest_rate, " +
+                "account_id = :account_id, " +
+                "number_of_bonuses = :number_of_bonuses, " +
+                "last_bonus_date = :last_bonus_date " +
                 "WHERE id = :id";
     }
 
@@ -86,12 +87,12 @@ public class DepositsRepositoryImpl
         map.addValue("minimum",         depositDto.getMinimum());
         map.addValue("bonus",           depositDto.getBonus());
         map.addValue("status",          depositDto.getStatus().toString());
-        map.addValue("dateCreated",     depositDto.getCreatedAt());
-        map.addValue("lengthInMonths",  depositDto.getLengthInMonths());
-        map.addValue("interestRate",    depositDto.getInterestRate());
-        map.addValue("accountId",       depositDto.getAccountId());
-        map.addValue("numberOfBonuses", depositDto.getNumberOfBonusesYet());
-        map.addValue("lastBonusDate",   depositDto.getLastBonusDate());
+        map.addValue("created_at",     depositDto.getCreatedAt());
+        map.addValue("length_in_months",  depositDto.getLengthInMonths());
+        map.addValue("interest_rate",    depositDto.getInterestRate());
+        map.addValue("account_id",       depositDto.getAccountId());
+        map.addValue("number_of_bonuses", depositDto.getNumberOfBonusesYet());
+        map.addValue("last_bonus_date",   depositDto.getLastBonusDate());
 
         return map;
     }

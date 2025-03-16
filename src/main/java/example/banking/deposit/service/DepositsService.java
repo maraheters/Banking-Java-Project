@@ -1,6 +1,6 @@
 package example.banking.deposit.service;
 
-import example.banking.account.repository.AccountsRepository;
+import example.banking.account.repository.PersonalAccountsRepository;
 import example.banking.deposit.entity.Deposit;
 import example.banking.deposit.repository.DepositsRepository;
 import example.banking.deposit.types.DepositStatus;
@@ -26,16 +26,16 @@ import java.util.List;
 public class DepositsService {
 
     private final DepositsRepository depositsRepository;
-    private final AccountsRepository accountsRepository;
+    private final PersonalAccountsRepository personalAccountsRepository;
     private final TransactionsRepository transactionsRepository;
 
     @Autowired
     public DepositsService(
             DepositsRepository depositsRepository,
-            AccountsRepository accountsRepository,
+            PersonalAccountsRepository personalAccountsRepository,
             TransactionsRepository transactionsRepository) {
         this.depositsRepository = depositsRepository;
-        this.accountsRepository = accountsRepository;
+        this.personalAccountsRepository = personalAccountsRepository;
         this.transactionsRepository = transactionsRepository;
     }
 
@@ -58,7 +58,7 @@ public class DepositsService {
 
     @Transactional
     public Long create(Long accountId, DepositTerm term, BigDecimal amount) {
-        var account = accountsRepository.findById(accountId)
+        var account = personalAccountsRepository.findById(accountId)
                 .orElseThrow(() -> new ResourceNotFoundException("Account with id '" + accountId + "' not found."));
 
         var deposit = Deposit.create(
@@ -75,7 +75,7 @@ public class DepositsService {
         );
 
         account.withdraw(amount);
-        accountsRepository.update(account);
+        personalAccountsRepository.update(account);
         transactionsRepository.create(transaction);
 
         return depositId;
@@ -88,7 +88,7 @@ public class DepositsService {
 
         var accountId = deposit.getAccountId();
 
-        var account = accountsRepository.findById(accountId)
+        var account = personalAccountsRepository.findById(accountId)
                 .orElseThrow( () -> new RuntimeException("Account with id '" + id + "' not found."));
 
         var amount = deposit.retrieveMoney();
@@ -98,7 +98,7 @@ public class DepositsService {
                 id, TransactionType.DEPOSIT, accountId, TransactionType.ACCOUNT, amount
         );
 
-        accountsRepository.update(account);
+        personalAccountsRepository.update(account);
         depositsRepository.update(deposit);
         transactionsRepository.create(transaction);
     }
@@ -109,7 +109,7 @@ public class DepositsService {
             throw new BadRequestException("User is not a client");
         }
 
-        var clientId = userDetails.getClientId();
+        var clientId = userDetails.getId();
 
         return depositsRepository.findAllByClientId(clientId);
     }
@@ -152,10 +152,10 @@ public class DepositsService {
         var deposit = depositsRepository.findById(depositId)
                 .orElseThrow(() -> new ResourceNotFoundException("Deposit with id '" + depositId + "' not found."));
         var accountId = deposit.getAccountId();
-        var account = accountsRepository.findById(accountId)
+        var account = personalAccountsRepository.findById(accountId)
                 .orElseThrow(() -> new ResourceNotFoundException("Account with id '" + accountId + "' not found."));
 
-        var clientId = userDetails.getClientId();
+        var clientId = userDetails.getId();
         return account.isOwner(clientId);
     }
 }

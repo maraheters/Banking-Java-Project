@@ -7,9 +7,8 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class SpecialistResposneDto {
+public class SpecialistResponseDto {
     private Long id;
-    private Long userId;
     private Long enterpriseId;
     private String name;
     private String email;

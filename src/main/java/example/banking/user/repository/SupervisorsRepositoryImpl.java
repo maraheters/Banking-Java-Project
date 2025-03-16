@@ -29,14 +29,13 @@ public class SupervisorsRepositoryImpl
     protected String getFindAllSql() {
         return """
                 SELECT
-                    s.id AS supervisor_id,
-                    u.id AS user_id,
+                    s.id,
                     u.name,
                     u.email,
                     u.password_hash,
                     STRING_AGG(sr.name, ',') AS roles
                 FROM supervisor s
-                    JOIN public.user u ON u.id = s.user_id
+                    JOIN public.user u ON u.id = s.id
                     LEFT JOIN public.supervisor_role_supervisor srs ON s.id = srs.supervisor_id
                     LEFT JOIN public.supervisor_role sr ON sr.id = srs.role_id
                 GROUP BY s.id, u.id
@@ -47,16 +46,15 @@ public class SupervisorsRepositoryImpl
     protected String getFindByIdSql() {
         return """
                 SELECT
-                    s.id AS supervisor_id,
-                    u.id AS user_id,
+                    s.id,
                     u.name,
                     u.email,
                     u.password_hash,
                     STRING_AGG(sr.name, ',') AS roles
                 FROM supervisor s
-                     JOIN public.user u ON u.id = s.user_id
-                     LEFT JOIN public.supervisor_role_supervisor srs ON s.id = srs.supervisor_id
-                     LEFT JOIN public.supervisor_role sr ON sr.id = srs.role_id
+                         JOIN public.user u ON u.id = s.id
+                         LEFT JOIN public.supervisor_role_supervisor srs ON s.id = srs.supervisor_id
+                         LEFT JOIN public.supervisor_role sr ON sr.id = srs.role_id
                 WHERE s.id = :id
                 GROUP BY s.id, u.id
         """;
@@ -76,7 +74,7 @@ public class SupervisorsRepositoryImpl
                 RETURNING id
             ),
             inserted_supervisor AS (
-                INSERT INTO public.supervisor(user_id)
+                INSERT INTO public.supervisor(id)
                 VALUES ((SELECT id FROM inserted_user))
                 RETURNING id
             ),

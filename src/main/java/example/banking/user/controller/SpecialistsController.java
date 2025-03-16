@@ -1,6 +1,6 @@
 package example.banking.user.controller;
 
-import example.banking.user.dto.specialist.SpecialistResposneDto;
+import example.banking.user.dto.specialist.SpecialistResponseDto;
 import example.banking.user.mapper.SpecialistMapper;
 import example.banking.user.service.SpecialistsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +24,7 @@ public class SpecialistsController {
     }
 
     @GetMapping
-    public ResponseEntity<List<SpecialistResposneDto>> getAll() {
+    public ResponseEntity<List<SpecialistResponseDto>> getAll() {
         return ResponseEntity.ok(
                 service.getAll().stream()
                         .map(SpecialistMapper::toResponseDto)
@@ -33,7 +33,7 @@ public class SpecialistsController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<SpecialistResposneDto> getById(@PathVariable("id") Long id) {
+    public ResponseEntity<SpecialistResponseDto> getById(@PathVariable("id") Long id) {
         return ResponseEntity.ok(
                 SpecialistMapper.toResponseDto(service.getById(id))
         );

@@ -29,14 +29,13 @@ public class SpecialistsRepositoryImpl
     public Optional<Specialist> findByEmail(String email) {
         String sql = """
                 SELECT
-                    s.id AS id,
+                    s.id,
                     s.enterprise_id,
-                    u.id AS user_id,
                     u.name,
                     u.email,
                     u.password_hash
                 FROM specialist s
-                JOIN public.user u ON u.id = s.user_id
+                JOIN public.user u ON u.id = s.id
                 WHERE u.email = :email
         """;
 
@@ -49,14 +48,13 @@ public class SpecialistsRepositoryImpl
     protected String getFindAllSql() {
         return """
                 SELECT
-                    s.id AS id,
+                    s.id,
                     s.enterprise_id,
-                    u.id AS user_id,
                     u.name,
                     u.email,
                     u.password_hash
                 FROM specialist s
-                JOIN public.user u ON u.id = s.user_id
+                JOIN public.user u ON u.id = s.id
         """;
     }
 
@@ -64,14 +62,13 @@ public class SpecialistsRepositoryImpl
     protected String getFindByIdSql() {
         return """
                 SELECT
-                    s.id AS id,
+                    s.id,
                     s.enterprise_id,
-                    u.id AS user_id,
                     u.name,
                     u.email,
                     u.password_hash
                 FROM specialist s
-                JOIN public.user u ON u.id = s.user_id
+                JOIN public.user u ON u.id = s.id
                 WHERE s.id = :id
         """;
     }
@@ -84,7 +81,7 @@ public class SpecialistsRepositoryImpl
                 VALUES (:name, :email, :password_hash)
                 RETURNING id
             )
-            INSERT INTO public.specialist (user_id, enterprise_id)
+            INSERT INTO public.specialist (id, enterprise_id)
             VALUES ( (SELECT id FROM inserted_user), :enterprise_id )
             RETURNING id
         """;
@@ -97,7 +94,7 @@ public class SpecialistsRepositoryImpl
 
     @Override
     protected String getDeleteSql() {
-        return "DELETE * FROM specialist WHERE id = :id";
+        return "";
     }
 
     @Override
@@ -109,7 +106,6 @@ public class SpecialistsRepositoryImpl
                 .addValue("name", dto.getName())
                 .addValue("email", dto.getEmail())
                 .addValue("password_hash", dto.getPasswordHash())
-                .addValue("user_id", dto.getUserId())
                 .addValue("enterprise_id", dto.getEnterpriseId());
 
         return map;

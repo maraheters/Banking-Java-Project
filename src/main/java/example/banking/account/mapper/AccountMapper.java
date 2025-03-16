@@ -1,21 +1,21 @@
 package example.banking.account.mapper;
 
-import example.banking.account.dto.AccountDto;
-import example.banking.account.dto.AccountResponseDto;
-import example.banking.account.entity.Account;
+import example.banking.account.dto.PersonalAccountResponseDto;
+import example.banking.account.dto.PersonalAccountDto;
+import example.banking.account.entity.PersonalAccount;
 
 public class AccountMapper {
 
-    public static AccountResponseDto toResponseDto(Account a) {
+    public static PersonalAccountResponseDto toResponseDto(PersonalAccount a) {
         return toResponseDto(a.toDto());
     }
 
-    public static AccountResponseDto toResponseDto(AccountDto a) {
-        return new AccountResponseDto(
+    public static PersonalAccountResponseDto toResponseDto(PersonalAccountDto a) {
+        return new PersonalAccountResponseDto(
                 a.getId(),
                 a.getIBAN(),
                 a.getBalance(),
-                a.getStatus(), a.getType(),
+                a.getStatus(),
                 a.getHolderId(),
                 a.getCreatedAt()
         );

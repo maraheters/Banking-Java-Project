@@ -12,7 +12,6 @@ import java.util.List;
 @AllArgsConstructor
 public class ClientDto {
     private Long id;
-    private Long userId;
     private String name;
     private String email;
     private String passwordHash;

@@ -1,12 +1,9 @@
 package example.banking.loan.service;
 
-import example.banking.account.entity.Account;
-import example.banking.account.repository.AccountsRepository;
+import example.banking.account.repository.PersonalAccountsRepository;
 import example.banking.exception.ResourceNotFoundException;
 import example.banking.loan.entity.Loan;
 import example.banking.loan.repository.LoansRepository;
-import example.banking.loan.strategies.AccountLoanPaymentStrategy;
-import example.banking.loan.strategies.ThinAirPaymentStrategy;
 import example.banking.transaction.entity.Transaction;
 import example.banking.transaction.repository.TransactionsRepository;
 import example.banking.transaction.types.TransactionType;
@@ -22,16 +19,16 @@ import java.util.List;
 public class LoansPaymentService {
 
     private final LoansRepository loansRepository;
-    private final AccountsRepository accountsRepository;
+    private final PersonalAccountsRepository personalAccountsRepository;
     private final TransactionsRepository transactionsRepository;
 
     @Autowired
     public LoansPaymentService(
             LoansRepository loansRepository,
-            AccountsRepository accountsRepository,
+            PersonalAccountsRepository personalAccountsRepository,
             TransactionsRepository transactionsRepository) {
         this.loansRepository = loansRepository;
-        this.accountsRepository = accountsRepository;
+        this.personalAccountsRepository = personalAccountsRepository;
         this.transactionsRepository = transactionsRepository;
     }
 
@@ -57,7 +54,7 @@ public class LoansPaymentService {
 
         var accountId = loan.getAccountId();
 
-        Account account = accountsRepository.findById(accountId)
+        var account = personalAccountsRepository.findById(accountId)
                 .orElseThrow(() -> new ResourceNotFoundException("Account with id '" + accountId + "' not found."));
 
 
@@ -70,7 +67,7 @@ public class LoansPaymentService {
         account.withdraw(amount);
         loan.makePayment(amount);
 
-        accountsRepository.update(account);
+        personalAccountsRepository.update(account);
         loansRepository.update(loan);
     }
 

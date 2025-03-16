@@ -13,8 +13,7 @@ public class SupervisorRowMapper implements RowMapper<SupervisorDto> {
     @Override
     public SupervisorDto mapRow(ResultSet rs, int rowNum) throws SQLException {
         var supervisor = new SupervisorDto();
-        supervisor.setId(rs.getLong("supervisor_id"));
-        supervisor.setUserId(rs.getLong("user_id"));
+        supervisor.setId(rs.getLong("id"));
         supervisor.setName(rs.getString("name"));
         supervisor.setEmail(rs.getString("email"));
         supervisor.setPasswordHash(rs.getString("password_hash"));

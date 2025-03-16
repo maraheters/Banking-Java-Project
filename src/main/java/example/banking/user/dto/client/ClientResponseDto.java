@@ -11,7 +11,6 @@ import java.util.List;
 @AllArgsConstructor
 public class ClientResponseDto {
     private Long id;
-    private Long userId;
     private String name;
     private String email;
     private String phoneNumber;

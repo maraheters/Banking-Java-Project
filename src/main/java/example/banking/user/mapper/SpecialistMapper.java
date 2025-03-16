@@ -1,16 +1,15 @@
 package example.banking.user.mapper;
 
-import example.banking.user.dto.specialist.SpecialistResposneDto;
+import example.banking.user.dto.specialist.SpecialistResponseDto;
 import example.banking.user.entity.Specialist;
 
 public class SpecialistMapper {
 
-    public static SpecialistResposneDto toResponseDto(Specialist specialist) {
+    public static SpecialistResponseDto toResponseDto(Specialist specialist) {
         var dto = specialist.toDto();
 
-        return new SpecialistResposneDto(
+        return new SpecialistResponseDto(
                 dto.getId(),
-                dto.getUserId(),
                 dto.getEnterpriseId(),
                 dto.getName(),
                 dto.getEmail()

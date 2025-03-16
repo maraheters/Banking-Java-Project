@@ -31,18 +31,16 @@ public class ClientsRepositoryImpl
     public Optional<Client> findByEmail(String email) {
         String sql = """
                 SELECT
-                    c.id AS client_id,
-                    c.user_id,
+                    c.id,
                     c.identification_number,
                     c.phone_number,
                     c.passport_number,
-                    u.id AS user_id,
                     u.name,
                     u.email,
                     u.password_hash,
                     STRING_AGG(cr.name, ',') AS roles
                 FROM client c
-                         JOIN public.user u ON u.id = c.user_id
+                         JOIN public.user u ON u.id = c.id
                          LEFT JOIN public.client_role_client crc ON c.id = crc.client_id
                          LEFT JOIN public.client_role cr ON cr.id = crc.role_id
                 WHERE u.email = :email
@@ -68,7 +66,7 @@ public class ClientsRepositoryImpl
                         RETURNING id
                     ),
                     inserted_client AS (
-                        INSERT INTO public.client (user_id, phone_number, passport_number, identification_number)
+                        INSERT INTO public.client (id, phone_number, passport_number, identification_number)
                         VALUES ((SELECT id FROM inserted_user), :phone_number, :passport_number, :identification_number)
                         RETURNING id
                     ),
@@ -90,42 +88,36 @@ public class ClientsRepositoryImpl
     @Override
     protected String getUpdateSql() {
         return """
-                WITH
-                updated_user AS (
-                    UPDATE public.user
-                    SET name = :name,
-                        email = :email,
-                        password_hash = :password_hash
-                    WHERE id = (
-                        SELECT user_id FROM public.client WHERE id = :id
-                    )
-                    RETURNING id
-                ),
-                updated_client AS (
-                    UPDATE public.client
-                    SET phone_number = :phone_number,
-                        passport_number = :passport_number,
-                        identification_number = :identification_number
-                    WHERE id = :id
-                    RETURNING id
-                ),
-                role_ids AS (
-                    SELECT id
-                    FROM public.client_role
-                    WHERE name IN (:role_names)
-                ),
-                delete_unused AS (
-                    -- Remove role associations that are no longer desired.
-                    DELETE FROM public.client_role_client
-                    WHERE client_id = :id
-                      AND role_id NOT IN (SELECT id FROM role_ids)
-                    RETURNING client_id
-                )
-                -- Insert new role associations if they don't already exist.
-                INSERT INTO public.client_role_client (client_id, role_id)
-                SELECT :id, id
-                FROM role_ids
-                ON CONFLICT (client_id, role_id) DO NOTHING;
+            WITH
+                 role_ids AS (
+                     SELECT id
+                     FROM public.client_role
+                     WHERE name IN (:role_names)
+                 ),
+                 delete_unused AS (
+                     -- Remove role associations that are no longer desired.
+                     DELETE FROM public.client_role_client
+                         WHERE client_id = :id
+                             AND role_id NOT IN (SELECT id FROM role_ids)
+                         RETURNING client_id
+                 )
+            -- Insert new role associations if they don't already exist.
+            INSERT INTO public.client_role_client (client_id, role_id)
+            SELECT :id, id
+            FROM role_ids
+            ON CONFLICT (client_id, role_id) DO NOTHING;
+
+            UPDATE public.user
+            SET name = :name,
+                email = :email,
+                password_hash = :password_hash
+            WHERE id = :id;
+
+            UPDATE public.client
+            SET phone_number = :phone_number,
+                passport_number = :passport_number,
+                identification_number = :identification_number
+            WHERE id = :id;
         """;
     }
 
@@ -138,18 +130,16 @@ public class ClientsRepositoryImpl
     protected String getFindByIdSql() {
         return """
                 SELECT
-                    c.id AS client_id,
-                    c.user_id,
+                    c.id,
                     c.identification_number,
                     c.phone_number,
                     c.passport_number,
-                    u.id AS user_id,
                     u.name,
                     u.email,
                     u.password_hash,
                     STRING_AGG(cr.name, ',') AS roles
                 FROM client c
-                         JOIN public.user u ON u.id = c.user_id
+                         JOIN public.user u ON u.id = c.id
                          LEFT JOIN public.client_role_client crc ON c.id = crc.client_id
                          LEFT JOIN public.client_role cr ON cr.id = crc.role_id
                 WHERE c.id = :id
@@ -161,18 +151,16 @@ public class ClientsRepositoryImpl
     protected String getFindAllSql() {
         return """
                 SELECT
-                    c.id AS client_id,
-                    c.user_id,
+                    c.id,
                     c.identification_number,
                     c.phone_number,
                     c.passport_number,
-                    u.id AS user_id,
                     u.name,
                     u.email,
                     u.password_hash,
                     STRING_AGG(cr.name, ',') AS roles
                 FROM client c
-                         JOIN public.user u ON u.id = c.user_id
+                         JOIN public.user u ON u.id = c.id
                          LEFT JOIN public.client_role_client crc ON c.id = crc.client_id
                          LEFT JOIN public.client_role cr ON cr.id = crc.role_id
                 GROUP BY c.id, u.id

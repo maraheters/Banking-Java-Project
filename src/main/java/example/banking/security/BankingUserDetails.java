@@ -1,7 +1,6 @@
 package example.banking.security;
 
 import example.banking.user.entity.User;
-import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -12,21 +11,17 @@ import java.util.List;
 public class BankingUserDetails extends User implements UserDetails {
 
     private final List<String> authorities;
-    @Getter
-    private final Long clientId;
 
     public BankingUserDetails (
             Long id,
             String email,
             String passwordHash,
-            List<String> authorities,
-            Long clientId
+            List<String> authorities
     ) {
         this.id = id;
         this.email = email;
         this.passwordHash = passwordHash;
         this.authorities = authorities;
-        this.clientId = clientId;
     }
 
     @Override

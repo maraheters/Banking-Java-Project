@@ -15,7 +15,6 @@ public class ClientMapper {
     public static ClientResponseDto toResponseDto(ClientDto d) {
         return new ClientResponseDto(
                 d.getId(),
-                d.getUserId(),
                 d.getName(),
                 d.getEmail(),
                 d.getPhoneNumber(),
