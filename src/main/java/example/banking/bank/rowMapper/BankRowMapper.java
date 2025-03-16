@@ -6,7 +6,7 @@ import org.springframework.jdbc.core.RowMapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class BankMapper implements RowMapper<BankDto> {
+public class BankRowMapper implements RowMapper<BankDto> {
     @Override
     public BankDto mapRow(ResultSet rs, int rowNum) throws SQLException {
         return new BankDto(

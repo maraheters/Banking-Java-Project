@@ -4,6 +4,8 @@ import example.banking.account.dto.AccountDto;
 import example.banking.account.entity.Account;
 import example.banking.account.rowMapper.AccountRowMapper;
 import example.banking.contracts.AbstractRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -11,11 +13,13 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public class AccountsRepositoryImpl extends AbstractRepository<Account, AccountDto> implements AccountsRepository {
+public class AccountsRepositoryImpl
+        extends AbstractRepository<Account, AccountDto>
+        implements AccountsRepository {
 
+    @Autowired
     public AccountsRepositoryImpl(NamedParameterJdbcTemplate template) {
-        this.template = template;
-        this.mapper = new AccountRowMapper();
+        super(template);
     }
 
     @Override
@@ -112,5 +116,10 @@ public class AccountsRepositoryImpl extends AbstractRepository<Account, AccountD
         var map = getMapSqlParameterSource(account);
         map.addValue("id", account.getId());
         return map;
+    }
+
+    @Override
+    protected RowMapper<AccountDto> getRowMapper() {
+        return new AccountRowMapper();
     }
 }

@@ -4,6 +4,8 @@ import example.banking.contracts.AbstractRepository;
 import example.banking.user.dto.client.ClientDto;
 import example.banking.user.entity.Client;
 import example.banking.user.rowMapper.ClientRowMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -15,9 +17,14 @@ public class ClientsRepositoryImpl
         extends AbstractRepository<Client, ClientDto>
         implements ClientsRepository {
 
+    @Autowired
     public ClientsRepositoryImpl(NamedParameterJdbcTemplate template) {
-        this.template = template;
-        this.mapper = new ClientRowMapper();
+        super(template);
+    }
+
+    @Override
+    protected RowMapper<ClientDto> getRowMapper() {
+        return new ClientRowMapper();
     }
 
     @Override
@@ -149,6 +156,7 @@ public class ClientsRepositoryImpl
                 GROUP BY c.id, u.id
         """;
     }
+
     @Override
     protected String getFindAllSql() {
         return """

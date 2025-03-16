@@ -4,6 +4,8 @@ import example.banking.contracts.AbstractRepository;
 import example.banking.deposit.dto.DepositDto;
 import example.banking.deposit.entity.Deposit;
 import example.banking.deposit.rowMapper.DepositRowMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -11,13 +13,14 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public class DepositsRepositoryImpl extends AbstractRepository<Deposit, DepositDto> implements DepositsRepository {
+public class DepositsRepositoryImpl
+        extends AbstractRepository<Deposit, DepositDto>
+        implements DepositsRepository {
 
+    @Autowired
     public DepositsRepositoryImpl(NamedParameterJdbcTemplate template) {
-        this.template = template;
-        this.mapper = new DepositRowMapper();
+        super(template);
     }
-
 
     @Override
     public List<Deposit> findAllByClientId(Long id) {
@@ -38,6 +41,11 @@ public class DepositsRepositoryImpl extends AbstractRepository<Deposit, DepositD
                 "deposit(minimum, bonus, status, date_created, length_in_months, interest_rate, account_id, number_of_bonuses, last_bonus_date ) " +
                 "VALUES (:minimum, :bonus, :status, :dateCreated, :lengthInMonths, :interestRate, :accountId, :numberOfBonuses, :lastBonusDate) " +
                 "RETURNING id";
+    }
+
+    @Override
+    protected RowMapper<DepositDto> getRowMapper() {
+        return new DepositRowMapper();
     }
 
     @Override

@@ -5,6 +5,7 @@ import example.banking.user.dto.client.PendingClientDto;
 import example.banking.user.entity.PendingClient;
 import example.banking.user.rowMapper.PendingClientRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -18,8 +19,12 @@ public class PendingClientsRepositoryImpl
 
     @Autowired
     public PendingClientsRepositoryImpl(NamedParameterJdbcTemplate template) {
-        this.template = template;
-        this.mapper = new PendingClientRowMapper();
+        super(template);
+    }
+
+    @Override
+    protected RowMapper<PendingClientDto> getRowMapper() {
+        return new PendingClientRowMapper();
     }
 
     @Override

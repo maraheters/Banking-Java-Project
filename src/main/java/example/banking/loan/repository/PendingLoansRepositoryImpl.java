@@ -5,6 +5,7 @@ import example.banking.loan.dto.PendingLoanDto;
 import example.banking.loan.entity.PendingLoan;
 import example.banking.loan.rowMapper.PendingLoanRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -18,8 +19,12 @@ public class PendingLoansRepositoryImpl
 
     @Autowired
     public PendingLoansRepositoryImpl(NamedParameterJdbcTemplate template) {
-        this.template = template;
-        this.mapper = new PendingLoanRowMapper();
+        super(template);
+    }
+
+    @Override
+    protected RowMapper<PendingLoanDto> getRowMapper() {
+        return new PendingLoanRowMapper();
     }
 
     @Override

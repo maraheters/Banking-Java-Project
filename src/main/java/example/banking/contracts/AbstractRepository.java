@@ -1,5 +1,6 @@
 package example.banking.contracts;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
@@ -14,6 +15,11 @@ public abstract class AbstractRepository<E, D> {
 
     protected RowMapper<D> mapper;
     protected NamedParameterJdbcTemplate template;
+
+    public AbstractRepository(NamedParameterJdbcTemplate template) {
+        this.template = template;
+        this.mapper = getRowMapper();
+    }
 
     public Long create(E entity) {
         String sql = getCreateSql();
@@ -92,6 +98,8 @@ public abstract class AbstractRepository<E, D> {
             throw new RuntimeException("Error while trying to query: ", e);
         }
     }
+
+    protected abstract RowMapper<D> getRowMapper();
 
     protected abstract String getFindAllSql();
     protected abstract String getFindByIdSql();

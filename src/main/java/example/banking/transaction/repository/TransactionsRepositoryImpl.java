@@ -6,6 +6,7 @@ import example.banking.transaction.entity.Transaction;
 import example.banking.transaction.rowMapper.TransactionRowMapper;
 import example.banking.transaction.types.TransactionType;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -19,8 +20,12 @@ public class TransactionsRepositoryImpl
 
     @Autowired
     public TransactionsRepositoryImpl(NamedParameterJdbcTemplate template) {
-        this.template = template;
-        this.mapper = new TransactionRowMapper();
+        super(template);
+    }
+
+    @Override
+    protected RowMapper<TransactionDto> getRowMapper() {
+        return new TransactionRowMapper();
     }
 
     @Override

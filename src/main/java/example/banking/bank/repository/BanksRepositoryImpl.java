@@ -2,9 +2,10 @@ package example.banking.bank.repository;
 
 import example.banking.bank.dto.BankDto;
 import example.banking.bank.model.Bank;
-import example.banking.bank.rowMapper.BankMapper;
+import example.banking.bank.rowMapper.BankRowMapper;
 import example.banking.contracts.AbstractRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -16,8 +17,12 @@ public class BanksRepositoryImpl
 
     @Autowired
     public BanksRepositoryImpl(NamedParameterJdbcTemplate template) {
-        this.template = template;
-        this.mapper = new BankMapper();
+        super(template);
+    }
+
+    @Override
+    protected RowMapper<BankDto> getRowMapper() {
+        return new BankRowMapper();
     }
 
     @Override

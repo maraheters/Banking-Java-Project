@@ -5,6 +5,7 @@ import example.banking.loan.dto.LoanDto;
 import example.banking.loan.entity.Loan;
 import example.banking.loan.rowMapper.LoanRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -13,12 +14,18 @@ import java.util.List;
 
 
 @Repository
-public class LoansRepositoryImpl extends AbstractRepository<Loan, LoanDto> implements LoansRepository {
+public class LoansRepositoryImpl
+        extends AbstractRepository<Loan, LoanDto>
+        implements LoansRepository {
 
     @Autowired
     public LoansRepositoryImpl(NamedParameterJdbcTemplate template) {
-        this.template = template;
-        this.mapper = new LoanRowMapper();
+        super(template);
+    }
+
+    @Override
+    protected RowMapper<LoanDto> getRowMapper() {
+        return new LoanRowMapper();
     }
 
     @Override

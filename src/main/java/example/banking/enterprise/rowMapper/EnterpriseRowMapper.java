@@ -1,4 +1,4 @@
-package example.banking.enterprise.repository;
+package example.banking.enterprise.rowMapper;
 
 import example.banking.enterprise.dto.EnterpriseDto;
 import org.springframework.jdbc.core.RowMapper;
