@@ -33,25 +33,35 @@ public class UserDetailsRepositoryImpl implements UserDetailsRepository {
                 LIMIT 1
             ),
             user_roles AS (
-             -- Roles from the client table
-             SELECT
-                     c.user_id,
-                     cr.name AS role_name
+                 -- Roles from the client table
+                 SELECT
+                         c.user_id,
+                         cr.name AS role_name
                  FROM client c
-                          JOIN target_user tu ON c.user_id = tu.id
-                          LEFT JOIN public.client_role_client crc ON c.id = crc.client_id
-                          LEFT JOIN public.client_role cr ON cr.id = crc.role_id
+                     JOIN target_user tu ON c.user_id = tu.id
+                     LEFT JOIN public.client_role_client crc ON c.id = crc.client_id
+                     LEFT JOIN public.client_role cr ON cr.id = crc.role_id
         
                  UNION
 
                  -- Roles from the supervisor table
                  SELECT
-                     s.user_id,
+                     sup.user_id,
                      sr.name AS role_name
-                 FROM supervisor s
-                          JOIN target_user tu ON s.user_id = tu.id
-                          LEFT JOIN public.supervisor_role_supervisor srs ON s.id = srs.supervisor_id
-                          LEFT JOIN public.supervisor_role sr ON sr.id = srs.role_id
+                 FROM supervisor sup
+                      JOIN target_user tu ON sup.user_id = tu.id
+                      LEFT JOIN public.supervisor_role_supervisor srs ON sup.id = srs.supervisor_id
+                      LEFT JOIN public.supervisor_role sr ON sr.id = srs.role_id
+         
+                UNION      
+         
+                -- Roles from the specialist table
+                SELECT 
+                    spec.user_id,
+                    'SPECIALIST' AS role_name
+                FROM specialist spec
+                    JOIN target_user tu ON spec.user_id = tu.id
+        
             ),
              client_id AS (
                  SELECT c.id

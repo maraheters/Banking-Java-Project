@@ -3,9 +3,11 @@ package example.banking.security.controller;
 import example.banking.security.dto.LoginRequestDto;
 import example.banking.security.dto.UserAuthResponseDto;
 import example.banking.security.service.AuthService;
+import example.banking.security.service.SpecialistsAuthService;
 import example.banking.security.service.SupervisorsAuthService;
 import example.banking.user.dto.client.ClientRegisterRequestDto;
 import example.banking.security.service.ClientsAuthService;
+import example.banking.user.dto.specialist.SpecialistRegisterRequestDto;
 import example.banking.user.dto.supervisor.SupervisorRegisterRequestDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -20,16 +22,19 @@ public class AuthController {
 
     private final ClientsAuthService clientsAuthService;
     private final SupervisorsAuthService supervisorsAuthService;
+    private final SpecialistsAuthService specialistsAuthService;
     private final AuthService authService;
 
     @Autowired
     public AuthController(
             SupervisorsAuthService supervisorsAuthService,
             ClientsAuthService clientsAuthService,
+            SpecialistsAuthService specialistsAuthService,
             AuthService authService
     ) {
         this.supervisorsAuthService = supervisorsAuthService;
         this.clientsAuthService = clientsAuthService;
+        this.specialistsAuthService = specialistsAuthService;
         this.authService = authService;
     }
 
@@ -48,6 +53,15 @@ public class AuthController {
 
         return ResponseEntity.ok(
                 supervisorsAuthService.register(requestDto)
+        );
+    }
+
+    @PostMapping("/specialists/register")
+    public ResponseEntity<UserAuthResponseDto> registerSpecialist(
+            @RequestBody SpecialistRegisterRequestDto requestDto) {
+
+        return ResponseEntity.ok(
+                specialistsAuthService.register(requestDto)
         );
     }
 

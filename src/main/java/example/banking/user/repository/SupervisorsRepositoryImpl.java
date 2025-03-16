@@ -30,7 +30,6 @@ public class SupervisorsRepositoryImpl
         return """
                 SELECT
                     s.id AS supervisor_id,
-                    s.user_id,
                     u.id AS user_id,
                     u.name,
                     u.email,
@@ -49,7 +48,6 @@ public class SupervisorsRepositoryImpl
         return """
                 SELECT
                     s.id AS supervisor_id,
-                    s.user_id,
                     u.id AS user_id,
                     u.name,
                     u.email,

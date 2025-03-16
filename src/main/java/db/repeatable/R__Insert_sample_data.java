@@ -20,6 +20,42 @@ public class R__Insert_sample_data extends BaseJavaMigration {
         var managerIds = insertSupervisors(context, 3, new String[]{"MANAGER"});
         var bankIds = insertBanks(context, 3);
         var accountIds = insertAccounts(context, clientIds, bankIds);
+        var enterpriseIds = insertEnterprise(context, bankIds.getFirst(), 3);
+    }
+
+    private List<Integer> insertEnterprise(Context context, Integer bankId, int amount) throws SQLException {
+        String sql = """
+            INSERT INTO enterprise (type, legal_name, unp, bank_id, legal_address)
+            VALUES (?, ?, ?, ?, ?)
+            RETURNING id
+        """;
+
+        List<Integer> ids = new ArrayList<>();
+        Connection connection = context.getConnection();
+
+        try (PreparedStatement statement = context.getConnection().prepareStatement(sql)) {
+
+            for (int i = 1; i <= amount; i++) {
+                statement.setString(1, "Type " + i);        // type
+                statement.setString(2, "Enterprise " + i);  // legal_name
+                statement.setString(                              // unp
+                        3,
+                        new java.util.Random().ints(20, 0, 10)
+                                .mapToObj(Integer::toString)
+                                .collect(java.util.stream.Collectors.joining())
+                );
+                statement.setInt(4, bankId);                   // bank_id
+                statement.setString(5, "Street " + i);      // legal_address
+
+                try (ResultSet rs = statement.executeQuery()) {
+                    while (rs.next()) {
+                        ids.add(rs.getInt(1));
+                    }
+                }
+            }
+        }
+
+        return ids;
     }
 
     private List<Integer> insertBanks(Context context, int amount) throws SQLException {
