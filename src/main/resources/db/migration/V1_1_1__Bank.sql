@@ -4,9 +4,3 @@ CREATE TABLE public.bank (
     bic         VARCHAR(25)     NOT NULL UNIQUE ,
     address     TEXT
 );
-
-ALTER TABLE public.account
-    ADD COLUMN bank_id BIGINT;
-
-ALTER TABLE account
-    ADD CONSTRAINT fk_bank FOREIGN KEY (bank_id) REFERENCES bank(id);

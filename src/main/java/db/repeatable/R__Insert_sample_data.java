@@ -19,7 +19,7 @@ public class R__Insert_sample_data extends BaseJavaMigration {
         var clientIds = insertClients(context, 100);
         var managerIds = insertSupervisors(context, 3, new String[]{"MANAGER"});
         var bankIds = insertBanks(context, 3);
-        var accountIds = insertAccounts(context, clientIds, bankIds);
+        var accountIds = insertPersonalAccounts(context, clientIds, bankIds);
         var enterpriseIds = insertEnterprise(context, bankIds.getFirst(), 3);
     }
 
@@ -86,11 +86,16 @@ public class R__Insert_sample_data extends BaseJavaMigration {
         return ids;
     }
 
-    private List<Integer> insertAccounts(Context context, List<Integer> clientIds, List<Integer> bankIds) throws SQLException {
+    private List<Integer> insertPersonalAccounts(Context context, List<Integer> clientIds, List<Integer> bankIds) throws SQLException {
         String sql = """
-            INSERT INTO account (iban, status, type, balance, date_created, holder_id, bank_id)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-            RETURNING id
+            WITH inserted_account AS (
+                INSERT INTO account (iban, status, balance, created_at, bank_id)
+                VALUES (?, ?, ?, ?, ?)
+                RETURNING id
+            )
+            INSERT INTO personal_account(id, holder_id)
+            VALUES ( (SELECT id FROM inserted_account), ? )
+            RETURNING id;
         """;
 
         List<Integer> ids = new ArrayList<>();
@@ -101,11 +106,10 @@ public class R__Insert_sample_data extends BaseJavaMigration {
             for (int i = 1; i <= clientIds.size(); i++) {
                 statement.setString(1, "BY1234567" + i);    // iban
                 statement.setString(2, "ACTIVE");           // status
-                statement.setString(3, "PERSONAL");         // type
-                statement.setBigDecimal(4, BigDecimal.ZERO);   // balance
-                statement.setObject(5, LocalDateTime.now());       // date_created
-                statement.setLong(6, clientIds.get(i - 1));    // holder_id
-                statement.setLong(7, bankIds.get((i - 1) % bankIds.size()));    // bank_id
+                statement.setBigDecimal(3, BigDecimal.ZERO);   // balance
+                statement.setObject(4, LocalDateTime.now());       // created_at
+                statement.setLong(5, bankIds.get((i - 1) % bankIds.size()));    // bank_id
+                statement.setLong(6, clientIds.get(i - 1));
 
                 try (ResultSet rs = statement.executeQuery()) {
                     while (rs.next()) {
@@ -126,7 +130,7 @@ public class R__Insert_sample_data extends BaseJavaMigration {
                 RETURNING id
             ),
             inserted_supervisor AS (
-                INSERT INTO public.supervisor(user_id)
+                INSERT INTO public.supervisor(id)
                 VALUES ((SELECT id FROM inserted_user))
                 RETURNING id
             ),
@@ -176,13 +180,13 @@ public class R__Insert_sample_data extends BaseJavaMigration {
                 RETURNING id
             ),
             inserted_client AS (
-                INSERT INTO public.client (user_id, phone_number, passport_number, identification_number)
+                INSERT INTO public.client (id, phone_number, passport_number, identification_number)
                 VALUES ((SELECT id FROM inserted_user), ?, ?, ?)
                 RETURNING id
             ),
             role_ids AS (
-                SELECT id 
-                FROM public.client_role 
+                SELECT id
+                FROM public.client_role
                 WHERE name = ANY (?)
             ),
             id AS (
