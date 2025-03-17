@@ -1,5 +1,6 @@
 package example.banking.account.entity;
 
+import example.banking.account.dto.AccountDto;
 import example.banking.account.types.AccountStatus;
 import example.banking.contracts.FinancialEntity;
 import example.banking.exception.BadRequestException;
@@ -10,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-public abstract class Account implements FinancialEntity {
+public class Account implements FinancialEntity {
     @Getter
     protected Long id;
     protected String IBAN;
@@ -18,6 +19,32 @@ public abstract class Account implements FinancialEntity {
     protected AccountStatus status;
     protected Long bankId;
     protected LocalDateTime createdAt;
+
+    public AccountDto toGeneralDto() {
+        var dto = new AccountDto();
+
+        dto.setId(id);
+        dto.setIBAN(IBAN);
+        dto.setBankId(bankId);
+        dto.setStatus(status);
+        dto.setBalance(balance);
+        dto.setCreatedAt(createdAt);
+
+        return dto;
+    }
+
+    public static Account fromGeneralDto(AccountDto dto) {
+        var account = new Account();
+
+        account.id = dto.getId();
+        account.IBAN = dto.getIBAN();
+        account.bankId = dto.getBankId();
+        account.status = dto.getStatus();
+        account.balance = dto.getBalance();
+        account.createdAt = dto.getCreatedAt();
+
+        return account;
+    }
 
 
     @Transactional

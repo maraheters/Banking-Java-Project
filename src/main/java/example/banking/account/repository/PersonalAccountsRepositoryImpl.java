@@ -2,7 +2,7 @@ package example.banking.account.repository;
 
 import example.banking.account.dto.PersonalAccountDto;
 import example.banking.account.entity.PersonalAccount;
-import example.banking.account.rowMapper.AccountRowMapper;
+import example.banking.account.rowMapper.PersonalAccountRowMapper;
 import example.banking.contracts.AbstractRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.RowMapper;
@@ -25,8 +25,8 @@ public class PersonalAccountsRepositoryImpl
     @Override
     public List<PersonalAccount> findByHolderId(Long holderId) {
         String sql = """
-                SELECT a.*, pa.holder_id FROM account a
-                LEFT JOIN personal_account pa ON a.id = pa.id
+                SELECT a.*, pa.holder_id FROM personal_account pa
+                LEFT JOIN account a ON a.id = pa.id
                 WHERE pa.holder_id = :holder_id;
         """;
 
@@ -68,17 +68,17 @@ public class PersonalAccountsRepositoryImpl
     @Override
     protected String getFindAllSql() {
         return """
-                SELECT a.*, pa.holder_id FROM account a
-                LEFT JOIN personal_account pa ON a.id = pa.id
+                SELECT a.*, pa.holder_id FROM personal_account pa
+                LEFT JOIN account a ON a.id = pa.id
         """;
     }
 
     @Override
     protected String getFindByIdSql() {
         return """
-                SELECT a.*, pa.holder_id FROM account a
-                LEFT JOIN personal_account pa ON a.id = pa.id
-                WHERE a.id = :id
+                SELECT a.*, pa.holder_id FROM personal_account pa
+                LEFT JOIN account a ON a.id = pa.id
+                WHERE pa.id = :id
         """;
     }
 
@@ -120,6 +120,6 @@ public class PersonalAccountsRepositoryImpl
 
     @Override
     protected RowMapper<PersonalAccountDto> getRowMapper() {
-        return new AccountRowMapper();
+        return new PersonalAccountRowMapper();
     }
 }

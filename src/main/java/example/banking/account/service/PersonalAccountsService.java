@@ -49,67 +49,6 @@ public class PersonalAccountsService {
         return personalAccountsRepository.findAll();
     }
 
-    public BigDecimal withdraw(Long accountId, BigDecimal amount) {
-        var account = personalAccountsRepository.findById(accountId)
-                .orElseThrow(() -> new ResourceNotFoundException("Account with id '" + accountId + "' not found"));
-
-        var transaction = Transaction.create(
-                accountId, TransactionType.ACCOUNT, null, TransactionType.EXTERNAL, amount);
-
-        account.withdraw(amount);
-        personalAccountsRepository.update(account);
-        transactionsRepository.create(transaction);
-
-        return amount;
-    }
-
-    public void topUp(Long accountId, BigDecimal amount) {
-        var account = personalAccountsRepository.findById(accountId)
-                .orElseThrow(() -> new ResourceNotFoundException("Account with id '" + accountId + "' not found"));
-
-        var transaction = Transaction.create(
-                null, TransactionType.EXTERNAL, accountId, TransactionType.ACCOUNT, amount);
-
-        account.topUp(amount);
-        personalAccountsRepository.update(account);
-        transactionsRepository.create(transaction);
-    }
-
-    public void transfer(Long fromAccountId, Long toAccountId, BigDecimal amount) {
-        var fromAccount = personalAccountsRepository.findById(fromAccountId)
-                .orElseThrow(() -> new ResourceNotFoundException("Account with id '" + fromAccountId + "' not found"));
-
-        var toAccount = personalAccountsRepository.findById(toAccountId)
-                .orElseThrow(() -> new ResourceNotFoundException("Account with id '" + toAccountId + "' not found"));
-
-        var transaction = Transaction.create(
-                fromAccountId, TransactionType.ACCOUNT, toAccountId, TransactionType.ACCOUNT, amount);
-
-        fromAccount.withdraw(amount);
-        toAccount.topUp(amount);
-
-        personalAccountsRepository.update(fromAccount);
-        personalAccountsRepository.update(toAccount);
-        transactionsRepository.create(transaction);
-    }
-
-    public void activateAccount(Long id) {
-        setStatus(id, AccountStatus.ACTIVE);
-    }
-
-    public void freezeAccount(Long id) {
-        setStatus(id, AccountStatus.FROZEN);
-    }
-
-    private void setStatus(Long id, AccountStatus status) {
-        var account = personalAccountsRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Account with id '" + id + "' not found"));
-
-        account.setStatus(status);
-
-        personalAccountsRepository.update(account);
-    }
-
     public List<PersonalAccount> getAllByUser(BankingUserDetails userDetails) {
         if (!userDetails.getAuthorities().contains(new SimpleGrantedAuthority("BASIC"))) {
             throw new BadRequestException("User is not a client");

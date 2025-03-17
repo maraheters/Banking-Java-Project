@@ -1,5 +1,6 @@
 package db.repeatable;
 
+import example.banking.utils.IbanGenerator;
 import org.flywaydb.core.api.migration.BaseJavaMigration;
 import org.flywaydb.core.api.migration.Context;
 
@@ -19,8 +20,81 @@ public class R__Insert_sample_data extends BaseJavaMigration {
         var clientIds = insertClients(context, 100);
         var managerIds = insertSupervisors(context, 3, new String[]{"MANAGER"});
         var bankIds = insertBanks(context, 3);
-        var accountIds = insertPersonalAccounts(context, clientIds, bankIds);
+        var personalAccountIds = insertPersonalAccounts(context, clientIds, bankIds);
         var enterpriseIds = insertEnterprise(context, bankIds.getFirst(), 3);
+        var specialistIds = insertSpecialists(context, enterpriseIds);
+        var enterpriseAccountIds = insertEnterpriseAccounts(context, bankIds, enterpriseIds, specialistIds);
+    }
+
+    private List<Integer> insertEnterpriseAccounts(Context context, List<Integer> bankIds, List<Integer> enterpriseIds, List<Integer> specialistIds) throws SQLException {
+        String sql = """
+            WITH inserted_account AS (
+                INSERT INTO account (iban, status, balance, created_at, bank_id)
+                VALUES (?, ?, ?, ?, ?)
+                RETURNING id
+            )
+            INSERT INTO enterprise_account(id, enterprise_id, specialist_id)
+            VALUES ( (SELECT id FROM inserted_account), ?, ? )
+            RETURNING id;
+        """;
+
+        List<Integer> ids = new ArrayList<>();
+        Connection connection = context.getConnection();
+
+        try (PreparedStatement statement = context.getConnection().prepareStatement(sql)) {
+
+            for (int i = 1; i <= enterpriseIds.size(); i++) {
+                statement.setString(1, IbanGenerator.Generate("BY"));    // iban
+                statement.setString(2, "ACTIVE");           // status
+                statement.setBigDecimal(3, BigDecimal.ZERO);   // balance
+                statement.setObject(4, LocalDateTime.now());       // created_at
+                statement.setLong(5, bankIds.get((i - 1) % bankIds.size()));    // bank_id
+                statement.setLong(6, enterpriseIds.get(i - 1));
+                statement.setLong(7, specialistIds.get(i - 1));
+
+                try (ResultSet rs = statement.executeQuery()) {
+                    while (rs.next()) {
+                        ids.add(rs.getInt(1));
+                    }
+                }
+            }
+        }
+
+        return ids;
+    }
+
+    private List<Integer> insertSpecialists(Context context, List<Integer> enterpriseIds) throws SQLException {
+        String sql = """
+            WITH inserted_user AS (
+                INSERT INTO public.user(name, email, password_hash)
+                VALUES (?, ?, ?)
+                RETURNING id
+            )
+            INSERT INTO public.specialist (id, enterprise_id)
+            VALUES ( (SELECT id FROM inserted_user), ? )
+            RETURNING id
+        """;
+
+        List<Integer> ids = new ArrayList<>();
+        Connection connection = context.getConnection();
+
+        try (PreparedStatement statement = context.getConnection().prepareStatement(sql)) {
+
+            for (int i = 1; i <= enterpriseIds.size(); i++) {
+                statement.setString(1, "Specialist " + i);                  // name
+                statement.setString(2, "specialist" + i + "@example.com");  // email
+                statement.setString(3, "password" + i);                     // password_hash
+                statement.setInt(4, enterpriseIds.get(i - 1));                 // enterprise_id
+
+                try (ResultSet rs = statement.executeQuery()) {
+                    while (rs.next()) {
+                        ids.add(rs.getInt(1));
+                    }
+                }
+            }
+        }
+
+        return ids;
     }
 
     private List<Integer> insertEnterprise(Context context, Integer bankId, int amount) throws SQLException {
@@ -104,7 +178,7 @@ public class R__Insert_sample_data extends BaseJavaMigration {
         try (PreparedStatement statement = context.getConnection().prepareStatement(sql)) {
 
             for (int i = 1; i <= clientIds.size(); i++) {
-                statement.setString(1, "BY1234567" + i);    // iban
+                statement.setString(1, IbanGenerator.Generate("BY"));    // iban
                 statement.setString(2, "ACTIVE");           // status
                 statement.setBigDecimal(3, BigDecimal.ZERO);   // balance
                 statement.setObject(4, LocalDateTime.now());       // created_at

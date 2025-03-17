@@ -4,7 +4,7 @@ CREATE TABLE public.account (
     status          VARCHAR(50)     NOT NULL,
     balance         NUMERIC(19, 4)  NOT NULL,
     created_at      TIMESTAMP       NOT NULL,
-    bank_id         BIGINT,
+    bank_id         BIGINT          NOT NULL,
 
     CONSTRAINT fk_bank
         FOREIGN KEY (bank_id) REFERENCES public.bank(id)

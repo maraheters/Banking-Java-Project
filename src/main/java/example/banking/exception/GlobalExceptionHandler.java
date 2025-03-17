@@ -22,4 +22,11 @@ public class GlobalExceptionHandler {
     public ProblemDetail handleUnauthorizedException(RuntimeException e) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, e.getMessage());
     }
+
+    @ExceptionHandler({RuntimeException.class})
+    public ProblemDetail handleRuntimeException(RuntimeException e) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+    }
+
+
 }

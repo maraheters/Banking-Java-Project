@@ -1,6 +1,7 @@
 package example.banking.transaction.service;
 
 import example.banking.account.entity.PersonalAccount;
+import example.banking.account.repository.GeneralAccountsRepository;
 import example.banking.account.repository.PersonalAccountsRepository;
 import example.banking.contracts.FinancialEntity;
 import example.banking.deposit.entity.Deposit;
@@ -23,18 +24,18 @@ public class TransactionsService {
 
     private final TransactionsRepository transactionsRepository;
     private final DepositsRepository depositsRepository;
-    private final PersonalAccountsRepository personalAccountsRepository;
+    private final GeneralAccountsRepository accountsRepository;
     private final LoansRepository loansRepository;
 
     @Autowired
     public TransactionsService(
             TransactionsRepository transactionsRepository,
             DepositsRepository depositsRepository,
-            PersonalAccountsRepository personalAccountsRepository,
+            GeneralAccountsRepository accountsRepository,
             LoansRepository loansRepository) {
         this.transactionsRepository = transactionsRepository;
         this.depositsRepository = depositsRepository;
-        this.personalAccountsRepository = personalAccountsRepository;
+        this.accountsRepository = accountsRepository;
         this.loansRepository = loansRepository;
     }
 
@@ -95,7 +96,7 @@ public class TransactionsService {
 
     private FinancialEntity findEntity(Long id, TransactionType type) {
         return switch (type) {
-            case ACCOUNT -> personalAccountsRepository.findById(id)
+            case ACCOUNT -> accountsRepository.findById(id)
                     .orElseThrow(() -> new ResourceNotFoundException("Account not found"));
             case LOAN -> loansRepository.findById(id)
                     .orElseThrow(() -> new ResourceNotFoundException("Loan not found"));
@@ -107,7 +108,7 @@ public class TransactionsService {
 
     private void updateEntity(FinancialEntity entity, TransactionType type) {
         switch (type) {
-            case ACCOUNT -> personalAccountsRepository.update( (PersonalAccount) entity);
+            case ACCOUNT -> accountsRepository.update( (PersonalAccount) entity);
             case LOAN -> loansRepository.update( (Loan) entity);
             case DEPOSIT -> depositsRepository.update( (Deposit) entity);
             default -> throw new IllegalArgumentException("Unsupported entity type");
