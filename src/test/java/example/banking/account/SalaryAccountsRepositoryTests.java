@@ -1,9 +1,9 @@
 package example.banking.account;
 
 import example.banking.RepositoryTest;
-import example.banking.account.entity.EnterpriseAccount;
-import example.banking.account.repository.EnterpriseAccountsRepository;
-import example.banking.account.repository.EnterpriseAccountsRepositoryImpl;
+import example.banking.account.entity.SalaryAccount;
+import example.banking.account.repository.SalaryAccountRepositoryImpl;
+import example.banking.account.repository.SalaryAccountsRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -11,29 +11,31 @@ import org.springframework.test.context.TestPropertySource;
 
 import java.math.BigDecimal;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @RepositoryTest
 @TestPropertySource(properties = """
     spring.flyway.locations=classpath:db/migration,\
                             classpath:db/seeders/bank,\
+                            classpath:db/seeders/client,\
                             classpath:db/seeders/enterprise,\
-                            classpath:db/seeders/specialist
+                            classpath:db/seeders/specialist,\
+                            classpath:db/seeders/enterpriseAccount,\
+                            classpath:db/seeders/salary
 """)
-public class EnterpriseAccountsRepositoryTests {
+public class SalaryAccountsRepositoryTests {
 
-    private final EnterpriseAccountsRepository repository;
-    private final Long enterpriseId = 1L;
-    private final Long specialistId = 100L;
-    private final EnterpriseAccount account1;
-    private final EnterpriseAccount account2;
+    final SalaryAccountsRepository repository;
+    final SalaryAccount account1;
+    final SalaryAccount account2;
 
     @Autowired
-    public EnterpriseAccountsRepositoryTests(NamedParameterJdbcTemplate template) {
-        repository = new EnterpriseAccountsRepositoryImpl(template);
+    public SalaryAccountsRepositoryTests(NamedParameterJdbcTemplate template) {
+        repository = new SalaryAccountRepositoryImpl(template);
 
-        account1 = EnterpriseAccount.create(enterpriseId, specialistId, 1L);
-        account2 = EnterpriseAccount.create(enterpriseId, specialistId, 1L);
+        account1 = SalaryAccount.create(1L, 1L, 1L, BigDecimal.TEN);
+        account2 = SalaryAccount.create(1L, 1L, 1L, BigDecimal.TWO);
     }
 
     @Test
@@ -73,7 +75,7 @@ public class EnterpriseAccountsRepositoryTests {
         var expectedBalanceAfter = BigDecimal.valueOf(29321);
         accountDto.setBalance(expectedBalanceAfter);
 
-        repository.update(EnterpriseAccount.fromDto(accountDto));
+        repository.update(SalaryAccount.fromDto(accountDto));
 
         var balanceAfter = repository.findById(id).get().toDto().getBalance();
 
@@ -81,21 +83,13 @@ public class EnterpriseAccountsRepositoryTests {
     }
 
     @Test
-    public void findByEnterpriseId_whenFound_thenCorrect() {
+    public void findBySalaryProjectId_whenFound_thenCorrect() {
         repository.create( account1 );
         repository.create( account2 );
 
-        var result = repository.findAllByEnterpriseId(enterpriseId);
+        var result = repository.findAllBySalaryProjectId(1L);
 
-        assertEquals(2, result.size());
+        assertEquals(result.size(), 2);
     }
 
-    @Test
-    public void findBySpecialistId_whenFound_thenCorrect() {
-        repository.create( account1 );
-
-        var result = repository.findAllBySpecialistId(specialistId);
-
-        assertEquals(1, result.size());
-    }
 }

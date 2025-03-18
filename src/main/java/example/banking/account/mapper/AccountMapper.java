@@ -1,11 +1,9 @@
 package example.banking.account.mapper;
 
-import example.banking.account.dto.EnterpriseAccountDto;
-import example.banking.account.dto.EnterpriseAccountResponseDto;
-import example.banking.account.dto.PersonalAccountResponseDto;
-import example.banking.account.dto.PersonalAccountDto;
+import example.banking.account.dto.*;
 import example.banking.account.entity.EnterpriseAccount;
 import example.banking.account.entity.PersonalAccount;
+import example.banking.account.entity.SalaryAccount;
 
 public class AccountMapper {
 
@@ -37,6 +35,24 @@ public class AccountMapper {
                 a.getBalance(),
                 a.getStatus(),
                 a.getBankId(),
+                a.getCreatedAt()
+        );
+    }
+
+    public static SalaryAccountResponseDto toSalaryResponseDto(SalaryAccount a) {
+        return toSalaryResponseDto(a.toDto());
+    }
+
+    public static SalaryAccountResponseDto toSalaryResponseDto(SalaryAccountDto a) {
+        return new SalaryAccountResponseDto(
+                a.getId(),
+                a.getBankId(),
+                a.getHolderId(),
+                a.getSalaryProjectId(),
+                a.getIBAN(),
+                a.getBalance(),
+                a.getSalary(),
+                a.getStatus(),
                 a.getCreatedAt()
         );
     }

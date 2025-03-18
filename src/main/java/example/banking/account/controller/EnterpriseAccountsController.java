@@ -15,7 +15,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
-@RequestMapping("/enterpriseAccounts/")
+@RequestMapping("/enterprise-accounts/")
 public class EnterpriseAccountsController {
 
     private final EnterpriseAccountsService enterpriseAccountsService;
@@ -89,7 +89,7 @@ public class EnterpriseAccountsController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/topUp")
+    @PostMapping("/top-up")
     @PreAuthorize("""
             hasAuthority('SPECIALIST') &&
             @enterpriseAccountsService.validateOwner(#id, authentication.principal)""")

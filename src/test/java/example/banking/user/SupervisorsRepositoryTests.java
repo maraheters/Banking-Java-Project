@@ -76,7 +76,7 @@ public class SupervisorsRepositoryTests {
     }
 
     @Test
-    public void create_findBy_id_whenSavedAndRetrieved_thenRolesCorrect() {
+    public void create_findById_whenSavedAndRetrieved_thenRolesCorrect() {
         var id = repository.create(supervisor1);
 
         var supervisor = repository.findById(id).get();

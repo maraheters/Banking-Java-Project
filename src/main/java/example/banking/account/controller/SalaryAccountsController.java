@@ -1,9 +1,10 @@
 package example.banking.account.controller;
 
-import example.banking.account.dto.PersonalAccountResponseDto;
+import example.banking.account.dto.SalaryAccountRequestDto;
+import example.banking.account.dto.SalaryAccountResponseDto;
 import example.banking.account.mapper.AccountMapper;
 import example.banking.account.service.GeneralAccountsService;
-import example.banking.account.service.PersonalAccountsService;
+import example.banking.account.service.SalaryAccountsService;
 import example.banking.security.BankingUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -15,35 +16,40 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
-@RequestMapping("/personal-accounts")
-public class PersonalAccountsController {
+@RequestMapping("/salary-accounts")
+public class SalaryAccountsController {
 
-    private final PersonalAccountsService personalAccountsService;
+    private final SalaryAccountsService salaryAccountsService;
     private final GeneralAccountsService generalAccountsService;
 
     @Autowired
-    public PersonalAccountsController(
-            PersonalAccountsService service,
+    public SalaryAccountsController(
+            SalaryAccountsService salaryAccountsService,
             GeneralAccountsService generalAccountsService) {
-        this.personalAccountsService = service;
+        this.salaryAccountsService = salaryAccountsService;
         this.generalAccountsService = generalAccountsService;
     }
 
     @PostMapping
-    @PreAuthorize("hasAuthority('BASIC')")
+    @PreAuthorize("""
+        hasAuthority('SPECIALIST') &&
+        @salaryProjectService.verifySpecialist(#dto.salaryProjectId, authentication.principal)
+    """)
     public ResponseEntity<Long> createAccount(
-            @RequestParam("bank-id") Long bankId,
+            @RequestBody SalaryAccountRequestDto dto,
             @AuthenticationPrincipal BankingUserDetails userDetails) {
 
         return ResponseEntity.ok(
-                personalAccountsService.create(userDetails, bankId)
+                salaryAccountsService.create(userDetails, dto)
         );
     }
 
     @GetMapping
     @PreAuthorize("hasAnyAuthority('MANAGER', 'ADMINISTRATOR')")
-    public ResponseEntity<List<PersonalAccountResponseDto>> getAll() {
-        var dtos = personalAccountsService.getAll().stream().map(AccountMapper::toPersonalResponseDto).toList();
+    public ResponseEntity<List<SalaryAccountResponseDto>> getAll() {
+        var dtos = salaryAccountsService.getAll().stream()
+                .map(AccountMapper::toSalaryResponseDto)
+                .toList();
 
         return ResponseEntity.ok(dtos);
     }
@@ -51,24 +57,11 @@ public class PersonalAccountsController {
     @GetMapping("/{id}")
     @PreAuthorize("""
             hasAnyAuthority('MANAGER', 'ADMINISTRATOR') ||
-            @personalAccountsService.validateOwner(#id, authentication.principal)
+            @salaryAccountsService.validateOwner(#id, authentication.principal)
         """)
-    public ResponseEntity<PersonalAccountResponseDto> getById(@PathVariable("id") Long id) {
+    public ResponseEntity<SalaryAccountResponseDto> getById(@PathVariable("id") Long id) {
         return ResponseEntity.ok(
-                AccountMapper.toPersonalResponseDto(personalAccountsService.getById(id)));
-    }
-
-    @GetMapping("/user")
-    @PreAuthorize("hasAuthority('BASIC')")
-    public ResponseEntity<List<PersonalAccountResponseDto>> getAccountsByUser (
-            @AuthenticationPrincipal BankingUserDetails userDetails) {
-        var accounts = personalAccountsService.getAllByUser(userDetails);
-
-        return ResponseEntity.ok(
-                accounts.stream()
-                        .map(AccountMapper::toPersonalResponseDto)
-                        .toList()
-        );
+                AccountMapper.toSalaryResponseDto(salaryAccountsService.getById(id)));
     }
 
     @PostMapping("/{id}/activate")
@@ -80,17 +73,17 @@ public class PersonalAccountsController {
 
     @PostMapping("/{id}/freeze")
     @PreAuthorize("""
-            hasAnyAuthority('BASIC', 'MANAGER', 'ADMINISTRATOR') &&
-            @personalAccountsService.validateOwner(#id, authentication.principal)""")
+            hasAnyAuthority('BASIC', 'MANAGER', 'ADMINISTRATOR', 'SPECIALIST') &&
+            @salaryAccountsService.validateOwner(#id, authentication.principal)""")
     public ResponseEntity<Void> freezeAccount(@PathVariable("id") Long id) {
         generalAccountsService.freezeAccount(id);
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/top-up")
+    @PostMapping("/topUp")
     @PreAuthorize("""
-            hasAuthority('BASIC') &&
-            @personalAccountsService.validateOwner(#id, authentication.principal)""")
+            hasAuthority('SPECIALIST') &&
+            @salaryAccountsService.validateOwner(#id, authentication.principal)""")
     public ResponseEntity<Void> topUp(
             @RequestParam("accountId") Long id,
             @RequestParam("amount") BigDecimal amount) {
@@ -102,7 +95,7 @@ public class PersonalAccountsController {
     @PostMapping("/withdraw")
     @PreAuthorize("""
             hasAuthority('BASIC') &&
-            @personalAccountsService.validateOwner(#id, authentication.principal)""")
+            @salaryAccountsService.validateOwner(#id, authentication.principal)""")
     public ResponseEntity<BigDecimal> withdraw(
             @RequestParam("accountId") Long id,
             @RequestParam("amount") BigDecimal amount) {
@@ -115,7 +108,7 @@ public class PersonalAccountsController {
     @PostMapping("/transfer")
     @PreAuthorize("""
             hasAuthority('BASIC') &&
-            @personalAccountsService.validateOwner(#fromAccountId, authentication.principal)""")
+            @salaryAccountsService.validateOwner(#fromAccountId, authentication.principal)""")
     public ResponseEntity<Void> transfer(
             @RequestParam("fromAccountId") Long fromAccountId,
             @RequestParam("toAccountId") Long toAccountId,

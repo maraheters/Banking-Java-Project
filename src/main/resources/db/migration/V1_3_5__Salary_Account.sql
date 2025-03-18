@@ -8,5 +8,5 @@ CREATE TABLE public.salary_account (
         FOREIGN KEY (holder_id) REFERENCES public.client(id),
 
     CONSTRAINT fk_salary_project
-        FOREIGN KEY (salary_project_id) REFERENCES public.salary_project(id)
+        FOREIGN KEY (salary_project_id) REFERENCES public.salary_project(id) ON DELETE CASCADE
 )
