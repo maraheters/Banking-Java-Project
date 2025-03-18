@@ -13,12 +13,12 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public class SalaryAccountRepositoryImpl
+public class SalaryAccountsRepositoryImpl
     extends AbstractRepository<SalaryAccount, SalaryAccountDto>
     implements SalaryAccountsRepository {
 
     @Autowired
-    public SalaryAccountRepositoryImpl(NamedParameterJdbcTemplate template) {
+    public SalaryAccountsRepositoryImpl(NamedParameterJdbcTemplate template) {
         super(template);
     }
 

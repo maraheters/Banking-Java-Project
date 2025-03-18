@@ -1,5 +1,6 @@
 package example.banking.salary.controller;
 
+import example.banking.salary.dto.SalaryProjectCreatedResponseDto;
 import example.banking.salary.dto.SalaryProjectRequestDto;
 import example.banking.salary.dto.SalaryProjectResponseDto;
 import example.banking.salary.mapper.SalaryProjectMapper;
@@ -28,9 +29,9 @@ public class SalaryProjectController {
     @PostMapping
     @PreAuthorize("""
         hasAuthority('SPECIALIST') &&
-        @enterpriseAccountsService.validateOwner(#dto.accountId, authentication.principal)
+        @enterpriseAccountsService.validateOwner(#dto.enterpriseAccountId, authentication.principal)
     """)
-    public ResponseEntity<Long> create(
+    public ResponseEntity<SalaryProjectCreatedResponseDto> create(
             @RequestBody SalaryProjectRequestDto dto,
             @AuthenticationPrincipal BankingUserDetails userDetails) {
 
@@ -58,22 +59,33 @@ public class SalaryProjectController {
         );
     }
 
-//    @GetMapping
-//    @PreAuthorize("hasAuthority('SPECIALIST')")
-//    public ResponseEntity<List<SalaryProjectResponseDto>> getAllBySpecialist(
-//
-//    ) {
-//
-//        var projectsStream = salaryProjectService.getAll().stream();
-//
-//        if (status != null) {
-//            projectsStream = projectsStream.filter(p -> p.getStatus().equals(status));
-//        }
-//
-//        return ResponseEntity.ok(
-//                projectsStream
-//                        .map(SalaryProjectMapper::toResponseDto)
-//                        .toList()
-//        );
-//    }
+    @GetMapping("/user")
+    @PreAuthorize("hasAuthority('SPECIALIST')")
+    public ResponseEntity<List<SalaryProjectResponseDto>> getAllBySpecialist(
+            @AuthenticationPrincipal BankingUserDetails userDetails) {
+
+        return ResponseEntity.ok(
+                salaryProjectService.getAllBySpecialistId(userDetails.getId()).stream()
+                        .map(SalaryProjectMapper::toResponseDto)
+                        .toList()
+        );
+    }
+
+    @PostMapping("/{id}/approve")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'ADMINISTRATOR')")
+    public ResponseEntity<Void> approve(@PathVariable("id") Long id) {
+
+        salaryProjectService.approve(id);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/{id}/reject")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'ADMINISTRATOR')")
+    public ResponseEntity<Void> reject(@PathVariable("id") Long id) {
+
+        salaryProjectService.reject(id);
+
+        return ResponseEntity.ok().build();
+    }
 }

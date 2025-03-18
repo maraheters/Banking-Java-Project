@@ -43,7 +43,7 @@ public class SalaryProject {
 
     public static SalaryProject fromDto(SalaryProjectDto dto) {
         return new SalaryProject(
-                dto.getId(), dto.getAccountId(), dto.getEnterpriseId(), dto.getSpecialistId(), dto.getCreatedAt(), dto.getTotalSalary(), dto.getStatus()
+                dto.getId(), dto.getEnterpriseId(), dto.getAccountId(), dto.getSpecialistId(), dto.getCreatedAt(), dto.getTotalSalary(), dto.getStatus()
         );
     }
 

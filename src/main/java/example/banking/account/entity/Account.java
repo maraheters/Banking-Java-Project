@@ -17,6 +17,7 @@ public class Account implements FinancialEntity {
     protected String IBAN;
     protected BigDecimal balance;
     protected AccountStatus status;
+    @Getter
     protected Long bankId;
     protected LocalDateTime createdAt;
 

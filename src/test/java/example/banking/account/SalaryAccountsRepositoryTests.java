@@ -2,7 +2,7 @@ package example.banking.account;
 
 import example.banking.RepositoryTest;
 import example.banking.account.entity.SalaryAccount;
-import example.banking.account.repository.SalaryAccountRepositoryImpl;
+import example.banking.account.repository.SalaryAccountsRepositoryImpl;
 import example.banking.account.repository.SalaryAccountsRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +10,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.test.context.TestPropertySource;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -32,7 +33,7 @@ public class SalaryAccountsRepositoryTests {
 
     @Autowired
     public SalaryAccountsRepositoryTests(NamedParameterJdbcTemplate template) {
-        repository = new SalaryAccountRepositoryImpl(template);
+        repository = new SalaryAccountsRepositoryImpl(template);
 
         account1 = SalaryAccount.create(1L, 1L, 1L, BigDecimal.TEN);
         account2 = SalaryAccount.create(1L, 1L, 1L, BigDecimal.TWO);
@@ -90,6 +91,13 @@ public class SalaryAccountsRepositoryTests {
         var result = repository.findAllBySalaryProjectId(1L);
 
         assertEquals(result.size(), 2);
+    }
+
+    @Test
+    public void batchCreate_whenSaved_thenCorrect() {
+        var results = repository.batchCreate(List.of(account1, account2));
+
+        assertEquals(2, results.size());
     }
 
 }

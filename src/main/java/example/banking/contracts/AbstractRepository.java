@@ -5,8 +5,11 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,6 +29,26 @@ public abstract class AbstractRepository<E, D> {
 
         return template.queryForObject(sql, map, Long.class);
     }
+
+    public List<Long> batchCreate(List<E> entities) {
+        if (entities.isEmpty())
+            return Collections.emptyList();
+
+        String sql = getCreateSql();
+
+        List<MapSqlParameterSource> batchValues = entities.stream()
+                .map(this::getMapSqlParameterSource)
+                .toList();
+
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+
+        template.batchUpdate(sql, batchValues.toArray(new MapSqlParameterSource[0]), keyHolder);
+
+        return keyHolder.getKeyList().stream()
+                .map(map -> (Long) map.get("id"))
+                .toList();
+    }
+
 
     public void update(E entity) {
         String sql = getUpdateSql();
