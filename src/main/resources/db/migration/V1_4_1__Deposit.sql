@@ -1,14 +1,14 @@
 CREATE TABLE public.deposit (
-    id                  serial              primary key,
-    minimum             numeric(19, 4)      not null,
-    bonus               numeric(19, 4),
-    status              varchar(50)         not null,
-    created_at          timestamp           not null,
-    length_in_months    int                 not null,
-    account_id          bigint              not null,
-    interest_rate       numeric(19, 4)      not null,
-    last_bonus_date     timestamp,
-    number_of_bonuses   int,
+    id                  SERIAL              PRIMARY KEY ,
+    minimum             NUMERIC(19, 4)      NOT NULL,
+    bonus               NUMERIC(19, 4),
+    status              VARCHAR(50)         NOT NULL,
+    created_at          TIMESTAMP           NOT NULL,
+    length_in_months    INTEGER             NOT NULL,
+    account_id          INTEGER             NOT NULL,
+    interest_rate       NUMERIC(19, 4)      NOT NULL,
+    last_bonus_date     TIMESTAMP,
+    number_of_bonuses   INTEGER,
 
     CONSTRAINT fk_account
         FOREIGN KEY (account_id) REFERENCES public.personal_account(id)

@@ -1,7 +1,7 @@
 CREATE TABLE public.salary_project (
     id              SERIAL          PRIMARY KEY,
-    enterprise_id   BIGINT          NOT NULL,
-    account_id      BIGINT          UNIQUE NOT NULL,
+    enterprise_id   INTEGER         NOT NULL,
+    account_id      INTEGER         UNIQUE NOT NULL,
     created_at      TIMESTAMP       NOT NULL,
     status          VARCHAR(50)     NOT NULL,
 

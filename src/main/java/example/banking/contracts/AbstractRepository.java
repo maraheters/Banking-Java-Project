@@ -15,8 +15,8 @@ import java.util.Optional;
 
 public abstract class AbstractRepository<E, D> {
 
-    protected RowMapper<D> mapper;
-    protected NamedParameterJdbcTemplate template;
+    protected final RowMapper<D> mapper;
+    protected final NamedParameterJdbcTemplate template;
 
     public AbstractRepository(NamedParameterJdbcTemplate template) {
         this.template = template;
@@ -45,7 +45,7 @@ public abstract class AbstractRepository<E, D> {
         template.batchUpdate(sql, batchValues.toArray(new MapSqlParameterSource[0]), keyHolder);
 
         return keyHolder.getKeyList().stream()
-                .map(map -> (Long) map.get("id"))
+                .map(map -> Long.valueOf((Integer) map.get("id")))
                 .toList();
     }
 

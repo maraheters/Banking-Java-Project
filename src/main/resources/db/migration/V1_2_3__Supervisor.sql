@@ -1,5 +1,5 @@
 CREATE TABLE public.supervisor (
-    id              BIGINT          PRIMARY KEY REFERENCES public.user(id) ON DELETE CASCADE
+    id          INTEGER         PRIMARY KEY REFERENCES public.user(id) ON DELETE CASCADE
 );
 
 CREATE TABLE public.supervisor_role (
@@ -8,8 +8,8 @@ CREATE TABLE public.supervisor_role (
 );
 
 CREATE TABLE public.supervisor_role_supervisor (
-    role_id                         BIGINT NOT NULL,
-    supervisor_id                   BIGINT NOT NULL,
+    role_id                     INTEGER NOT NULL,
+    supervisor_id               INTEGER NOT NULL,
 
     PRIMARY KEY (role_id, supervisor_id),
     FOREIGN KEY (role_id)           REFERENCES public.supervisor_role(id),
