@@ -13,10 +13,11 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
-@RequestMapping("/salary-projects")
+@RequestMapping("/salaryProjects")
 public class SalaryProjectController {
 
     private final SalaryProjectService salaryProjectService;
@@ -40,8 +41,29 @@ public class SalaryProjectController {
         );
     }
 
+    @GetMapping("/{id}")
+    @PreAuthorize("""
+        hasAnyAuthority('MANAGER', 'ADMINISTRATOR', 'OPERATOR') ||
+        @salaryProjectService.verifySpecialist(#id, authentication.principal)
+    """)
+    public ResponseEntity<SalaryProjectResponseDto> getById(@PathVariable("id") Long id){
+
+        return ResponseEntity.ok(
+                SalaryProjectMapper.toResponseDto(salaryProjectService.getById(id))
+        );
+    }
+
+    @PostMapping("/{id}/payments")
+    @PreAuthorize("@salaryProjectService.verifySpecialist(#id, authentication.principal)")
+    public ResponseEntity<BigDecimal> paySalary(@PathVariable("id") Long id) {
+
+        return ResponseEntity.ok(
+                salaryProjectService.paySalary(id)
+        );
+    }
+
     @GetMapping
-    @PreAuthorize("hasAnyAuthority('MANAGER', 'ADMINISTRATOR')")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'ADMINISTRATOR', 'OPERATOR')")
     public ResponseEntity<List<SalaryProjectResponseDto>> getAll(
             @RequestParam(value = "status", required = false) SalaryProjectStatus status
     ) {
@@ -72,7 +94,7 @@ public class SalaryProjectController {
     }
 
     @PostMapping("/{id}/approve")
-    @PreAuthorize("hasAnyAuthority('MANAGER', 'ADMINISTRATOR')")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'ADMINISTRATOR', 'OPERATOR')")
     public ResponseEntity<Void> approve(@PathVariable("id") Long id) {
 
         salaryProjectService.approve(id);
@@ -81,7 +103,7 @@ public class SalaryProjectController {
     }
 
     @PostMapping("/{id}/reject")
-    @PreAuthorize("hasAnyAuthority('MANAGER', 'ADMINISTRATOR')")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'ADMINISTRATOR', 'OPERATOR')")
     public ResponseEntity<Void> reject(@PathVariable("id") Long id) {
 
         salaryProjectService.reject(id);

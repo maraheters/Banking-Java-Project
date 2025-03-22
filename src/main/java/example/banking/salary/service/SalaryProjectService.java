@@ -1,20 +1,26 @@
 package example.banking.salary.service;
 
+import example.banking.account.entity.EnterpriseAccount;
 import example.banking.account.entity.SalaryAccount;
 import example.banking.account.repository.EnterpriseAccountsRepository;
 import example.banking.account.repository.SalaryAccountsRepository;
+import example.banking.exception.BadRequestException;
 import example.banking.exception.ResourceNotFoundException;
 import example.banking.salary.dto.SalaryProjectCreatedResponseDto;
 import example.banking.salary.dto.SalaryProjectRequestDto;
 import example.banking.salary.model.SalaryProject;
 import example.banking.salary.repository.SalaryProjectRepository;
+import example.banking.salary.types.SalaryProjectStatus;
 import example.banking.security.BankingUserDetails;
-import example.banking.user.repository.ClientsRepository;
+import example.banking.transaction.entity.Transaction;
+import example.banking.transaction.repository.TransactionsRepository;
+import example.banking.transaction.types.TransactionType;
 import example.banking.user.repository.SpecialistsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,7 +31,7 @@ public class SalaryProjectService {
     private final EnterpriseAccountsRepository enterpriseAccountsRepository;
     private final SalaryAccountsRepository salaryAccountsRepository;
     private final SpecialistsRepository specialistsRepository;
-    private final ClientsRepository clientsRepository;
+    private final TransactionsRepository transactionsRepository;
 
     @Autowired
     public SalaryProjectService(
@@ -33,13 +39,13 @@ public class SalaryProjectService {
             EnterpriseAccountsRepository enterpriseAccountsRepository,
             SalaryAccountsRepository salaryAccountsRepository,
             SpecialistsRepository specialistsRepository,
-            ClientsRepository clientsRepository) {
+            TransactionsRepository transactionsRepository) {
 
         this.salaryProjectRepository = salaryProjectRepository;
         this.enterpriseAccountsRepository = enterpriseAccountsRepository;
         this.salaryAccountsRepository = salaryAccountsRepository;
         this.specialistsRepository = specialistsRepository;
-        this.clientsRepository = clientsRepository;
+        this.transactionsRepository = transactionsRepository;
     }
 
     public List<SalaryProject> getAll() {
@@ -71,7 +77,6 @@ public class SalaryProjectService {
 
         var salaryProjectId = salaryProjectRepository.create(project);
 
-
         var accountRequests = dto.getAccountRequestDtos();
         var createdAccounts = new ArrayList<SalaryAccount>();
 
@@ -89,6 +94,71 @@ public class SalaryProjectService {
         var createdAccountIds = salaryAccountsRepository.batchCreate(createdAccounts);
 
         return new SalaryProjectCreatedResponseDto(salaryProjectId, createdAccountIds);
+    }
+
+    @Transactional
+    public BigDecimal paySalary(Long projectId) {
+        var project = getById(projectId);
+
+        if (!project.isStatus(SalaryProjectStatus.ACTIVE)) {
+            throw new BadRequestException("Project status must be ACTIVE.");
+        }
+
+        var enterpriseAccount = enterpriseAccountsRepository.findById(project.getAccountId())
+                .orElseThrow(() -> new ResourceNotFoundException("Account with id '" + project.getAccountId() + "' not found."));
+
+        var totalSalaryToPay = project.getTotalSalary();
+        enterpriseAccount.withdraw(totalSalaryToPay);
+        enterpriseAccountsRepository.update(enterpriseAccount);
+
+        var salaryAccounts = salaryAccountsRepository.findAllBySalaryProjectId(projectId);
+        var salaryAccountsToUpdate = new ArrayList<SalaryAccount>();
+        var transactionsToCreate = new ArrayList<Transaction>();
+
+        for (var account : salaryAccounts) {
+            var salary = account.getSalary();
+            account.topUp(salary);
+            salaryAccountsToUpdate.add(account);
+
+            var transaction = Transaction.create(
+                    enterpriseAccount.getId(), TransactionType.ACCOUNT, account.getId(), TransactionType.ACCOUNT, salary
+            );
+            transactionsToCreate.add(transaction);
+        }
+        salaryAccountsRepository.batchUpdate(salaryAccountsToUpdate);
+        transactionsRepository.batchCreate(transactionsToCreate);
+
+        return totalSalaryToPay;
+    }
+
+    @Transactional
+//    @Scheduled(fixedDelay = 10000)
+    protected void applyMonthlySalary() {
+        var activeProjects = salaryProjectRepository.findAll()
+                .stream()
+                .filter(sp -> sp.isStatus(SalaryProjectStatus.ACTIVE))
+                .toList();
+
+        var salaryAccountsToUpdate = new ArrayList<SalaryAccount>();
+        var enterpriseAccountsToUpdate = new ArrayList<EnterpriseAccount>();
+        for (var project : activeProjects) {
+
+            var salaryAccounts = salaryAccountsRepository.findAllBySalaryProjectId(project.getId());
+            for (var account : salaryAccounts) {
+                account.topUp(account.getSalary());
+                salaryAccountsToUpdate.add(account);
+            }
+
+            var enterpriseAccount = enterpriseAccountsRepository.findById(project.getAccountId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Account with id '" + project.getAccountId() + "' not found."));
+
+            var totalSalaryToPay = project.getTotalSalary();
+            enterpriseAccount.withdraw(totalSalaryToPay);
+            enterpriseAccountsToUpdate.add(enterpriseAccount);
+        }
+
+        salaryAccountsRepository.batchUpdate(salaryAccountsToUpdate);
+        enterpriseAccountsRepository.batchUpdate(enterpriseAccountsToUpdate);
     }
 
     public void approve(Long id) {

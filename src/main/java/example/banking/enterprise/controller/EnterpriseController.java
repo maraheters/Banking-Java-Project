@@ -4,9 +4,11 @@ import example.banking.enterprise.dto.EnterpriseDto;
 import example.banking.enterprise.dto.EnterpriseRequestDto;
 import example.banking.enterprise.model.Enterprise;
 import example.banking.enterprise.service.EnterpriseService;
+import example.banking.security.BankingUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,6 +31,16 @@ public class EnterpriseController {
                 service.getAll().stream()
                         .map(Enterprise::toDto)
                         .toList()
+        );
+    }
+
+    @GetMapping("/user")
+    @PreAuthorize("hasAuthority('SPECIALIST')")
+    public ResponseEntity<EnterpriseDto> getBySpecialist(
+            @AuthenticationPrincipal BankingUserDetails userDetails) {
+        return ResponseEntity.ok(
+                service.getBySpecialistId(userDetails.getId())
+                        .toDto()
         );
     }
 

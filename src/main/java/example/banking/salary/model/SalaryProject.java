@@ -18,9 +18,12 @@ public class SalaryProject {
     private Long id;
     @Getter
     private Long enterpriseId;
+    @Getter
     private Long accountId;
+    @Getter
     private Long specialistId;
     private LocalDateTime createdAt;
+    @Getter
     private BigDecimal totalSalary;
     @Getter
     private SalaryProjectStatus status;
@@ -61,6 +64,10 @@ public class SalaryProject {
     public void setClosed() {
         checkStatus(SalaryProjectStatus.ACTIVE);
         status = SalaryProjectStatus.CLOSED;
+    }
+
+    public boolean isStatus(SalaryProjectStatus status) {
+        return this.status.equals(status);
     }
 
     private void checkStatus(SalaryProjectStatus status) {

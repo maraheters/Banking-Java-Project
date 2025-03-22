@@ -13,5 +13,7 @@ public interface EnterpriseRepository {
 
     Optional<Enterprise> findById(Long id);
 
+    Optional<Enterprise> findBySpecialistId(Long id);
+
     List<Enterprise> findAll();
 }

@@ -27,6 +27,11 @@ public class EnterpriseService {
                 .orElseThrow(() -> new ResourceNotFoundException("Enterprise with id '" + id + "' not found."));
     }
 
+    public Enterprise getBySpecialistId(Long id) {
+        return repository.findBySpecialistId(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Enterprise with specialist id '" + id + "' not found."));
+    }
+
     public Long create(
             String type, String legalName, String unp, Long bankId, String legalAddress) {
 

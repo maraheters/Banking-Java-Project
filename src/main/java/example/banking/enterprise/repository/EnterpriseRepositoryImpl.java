@@ -10,6 +10,8 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public class EnterpriseRepositoryImpl
     extends AbstractRepository<Enterprise, EnterpriseDto>
@@ -23,6 +25,19 @@ public class EnterpriseRepositoryImpl
     @Override
     protected RowMapper<EnterpriseDto> getRowMapper() {
         return new EnterpriseRowMapper();
+    }
+
+    @Override
+    public Optional<Enterprise> findBySpecialistId(Long id) {
+        var sql = """
+            SELECT e.* FROM specialist s
+            LEFT JOIN enterprise e ON s.enterprise_id = e.id
+            WHERE s.id = :id
+        """;
+
+        var map = new MapSqlParameterSource("id", id);
+
+        return findByCriteria(sql, map);
     }
 
     @Override
