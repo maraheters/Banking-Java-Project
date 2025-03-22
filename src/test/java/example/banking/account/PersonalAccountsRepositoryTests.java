@@ -79,10 +79,10 @@ public class PersonalAccountsRepositoryTests {
     }
 
     @Test
-    public void findByHolderId_whenFound_thenCorrect() {
+    public void findAllByHolderId_whenFound_thenCorrect() {
         repository.create( account1 );
 
-        var result = repository.findByHolderId(clientId);
+        var result = repository.findAllByHolderId(clientId);
 
         assertFalse(result.isEmpty());
     }

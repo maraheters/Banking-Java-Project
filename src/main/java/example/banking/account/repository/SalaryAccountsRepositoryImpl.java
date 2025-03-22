@@ -42,6 +42,20 @@ public class SalaryAccountsRepositoryImpl
     }
 
     @Override
+    public List<SalaryAccount> findAllByHolderId(Long id) {
+        var sql = """
+                SELECT a.*, sa.holder_id, sa.salary_project_id, sa.salary
+                FROM salary_account sa
+                LEFT JOIN account a ON a.id = sa.id
+                WHERE sa.holder_id = :holder_id
+        """;
+
+        var map = new MapSqlParameterSource("holder_id", id);
+
+        return findAllByCriteria(sql, map);
+    }
+
+    @Override
     protected String getFindAllSql() {
         return """
                 SELECT a.*, sa.holder_id, sa.salary_project_id, sa.salary
@@ -77,13 +91,15 @@ public class SalaryAccountsRepositoryImpl
     @Override
     protected String getUpdateSql() {
         return """
-                UPDATE account SET
-                    iban = :iban,
-                    status = :status,
-                    balance = :balance,
-                    created_at = :created_at
-                WHERE id = :id;
-
+                WITH updated_account AS (
+                    UPDATE account SET
+                        iban = :iban,
+                        status = :status,
+                        balance = :balance,
+                        created_at = :created_at
+                    WHERE id = :id
+                    RETURNING id
+                )
                 UPDATE salary_account SET
                     holder_id = :holder_id,
                     salary_project_id = :salary_project_id,

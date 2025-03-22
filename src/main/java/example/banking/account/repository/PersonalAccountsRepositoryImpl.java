@@ -23,7 +23,7 @@ public class PersonalAccountsRepositoryImpl
     }
 
     @Override
-    public List<PersonalAccount> findByHolderId(Long holderId) {
+    public List<PersonalAccount> findAllByHolderId(Long holderId) {
         String sql = """
                 SELECT a.*, pa.holder_id FROM personal_account pa
                 LEFT JOIN account a ON a.id = pa.id

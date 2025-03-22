@@ -11,6 +11,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class EnterpriseAccountsRepositoryImpl
@@ -25,6 +26,21 @@ public class EnterpriseAccountsRepositoryImpl
     @Override
     protected RowMapper<EnterpriseAccountDto> getRowMapper() {
         return new EnterpriseAccountRowMapper();
+    }
+
+    @Override
+    public Optional<EnterpriseAccount> findBySalaryProjectId(Long salaryProjectId) {
+        String sql = """
+            SELECT a.*, ea.specialist_id, ea.enterprise_id FROM enterprise_account ea
+            LEFT JOIN account a ON a.id = ea.id
+            LEFT JOIN enterprise e ON ea.enterprise_id = e.id
+            LEFT JOIN salary_project sp ON sp.account_id = a.id
+            WHERE  sp.id = :salary_project_id
+        """;
+
+        var map = new MapSqlParameterSource("salary_project_id", salaryProjectId);
+
+        return findByCriteria(sql, map);
     }
 
     @Override
@@ -89,13 +105,15 @@ public class EnterpriseAccountsRepositoryImpl
     @Override
     protected String getUpdateSql() {
         return """
-                UPDATE account SET
-                    iban = :iban,
-                    status = :status,
-                    balance = :balance,
-                    created_at = :created_at
-                WHERE id = :id;
-
+                WITH updated_account AS (
+                    UPDATE account SET
+                        iban = :iban,
+                        status = :status,
+                        balance = :balance,
+                        created_at = :created_at
+                    WHERE id = :id
+                    RETURNING id
+                )
                 UPDATE enterprise_account SET
                     specialist_id = :specialist_id
                 WHERE id = :id

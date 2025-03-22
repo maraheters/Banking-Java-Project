@@ -15,7 +15,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
-@RequestMapping("/personal-accounts")
+@RequestMapping("/personalAccounts")
 public class PersonalAccountsController {
 
     private final PersonalAccountsService personalAccountsService;
@@ -32,7 +32,7 @@ public class PersonalAccountsController {
     @PostMapping
     @PreAuthorize("hasAuthority('BASIC')")
     public ResponseEntity<Long> createAccount(
-            @RequestParam("bank-id") Long bankId,
+            @RequestParam("bankId") Long bankId,
             @AuthenticationPrincipal BankingUserDetails userDetails) {
 
         return ResponseEntity.ok(

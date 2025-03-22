@@ -16,7 +16,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
-@RequestMapping("/salary-accounts")
+@RequestMapping("/salaryAccounts")
 public class SalaryAccountsController {
 
     private final SalaryAccountsService salaryAccountsService;
@@ -44,6 +44,20 @@ public class SalaryAccountsController {
         );
     }
 
+    @GetMapping("/salaryProject/{id}")
+    @PreAuthorize("""
+        hasAuthority('SPECIALIST') &&
+        @salaryProjectService.verifySpecialist(#salaryProjectId, authentication.principal)
+    """)
+    public ResponseEntity<List<SalaryAccountResponseDto>> getAllBySalaryProjectId(
+            @PathVariable("id") Long salaryProjectId) {
+
+        return ResponseEntity.ok(
+                salaryAccountsService.getAllBySalaryProjectId(salaryProjectId).stream()
+                        .map(AccountMapper::toSalaryResponseDto)
+                        .toList()
+        );
+    }
     @GetMapping
     @PreAuthorize("hasAnyAuthority('MANAGER', 'ADMINISTRATOR')")
     public ResponseEntity<List<SalaryAccountResponseDto>> getAll() {

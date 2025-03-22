@@ -2,11 +2,9 @@ package example.banking.account.service;
 
 import example.banking.account.entity.EnterpriseAccount;
 import example.banking.account.repository.EnterpriseAccountsRepository;
-import example.banking.enterprise.repository.EnterpriseRepository;
 import example.banking.exception.BadRequestException;
 import example.banking.exception.ResourceNotFoundException;
 import example.banking.security.BankingUserDetails;
-import example.banking.transaction.repository.TransactionsRepository;
 import example.banking.user.repository.SpecialistsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -18,21 +16,15 @@ import java.util.List;
 public class EnterpriseAccountsService {
 
     private final EnterpriseAccountsRepository accountsRepository;
-    private final EnterpriseRepository enterpriseRepository;
     private final SpecialistsRepository specialistsRepository;
-    private final TransactionsRepository transactionsRepository;
 
     @Autowired
     public EnterpriseAccountsService(
             EnterpriseAccountsRepository accountsRepository,
-            EnterpriseRepository enterpriseRepository,
-            SpecialistsRepository specialistsRepository,
-            TransactionsRepository transactionsRepository) {
+            SpecialistsRepository specialistsRepository) {
 
         this.accountsRepository = accountsRepository;
-        this.enterpriseRepository = enterpriseRepository;
         this.specialistsRepository = specialistsRepository;
-        this.transactionsRepository = transactionsRepository;
     }
 
     public List<EnterpriseAccount> getAll() {
@@ -43,6 +35,11 @@ public class EnterpriseAccountsService {
         checkAuthority(userDetails);
 
         return accountsRepository.findAllBySpecialistId(userDetails.getId());
+    }
+
+    public EnterpriseAccount getBySalaryProjectId(Long salaryProjectId) {
+        return accountsRepository.findBySalaryProjectId(salaryProjectId)
+                .orElseThrow(() -> new ResourceNotFoundException("Account with salary project id '" + salaryProjectId + "' not found"));
     }
 
     public List<EnterpriseAccount> getAllByEnterpriseId(Long enterpriseId) {

@@ -1,5 +1,6 @@
 package example.banking.transaction.service;
 
+import example.banking.account.entity.Account;
 import example.banking.account.entity.PersonalAccount;
 import example.banking.account.repository.GeneralAccountsRepository;
 import example.banking.account.repository.PersonalAccountsRepository;
@@ -72,8 +73,6 @@ public class TransactionsService {
         if (originalTransaction.getRevertTransactionId() != null)
             throw new BadRequestException("Transaction has already been reversed");
 
-
-
         var fromEntity = findEntity(fromId, fromType);
         var toEntity = findEntity(toId, toType);
 
@@ -108,7 +107,7 @@ public class TransactionsService {
 
     private void updateEntity(FinancialEntity entity, TransactionType type) {
         switch (type) {
-            case ACCOUNT -> accountsRepository.update( (PersonalAccount) entity);
+            case ACCOUNT -> accountsRepository.update( (Account) entity);
             case LOAN -> loansRepository.update( (Loan) entity);
             case DEPOSIT -> depositsRepository.update( (Deposit) entity);
             default -> throw new IllegalArgumentException("Unsupported entity type");

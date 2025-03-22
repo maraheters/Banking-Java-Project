@@ -2,32 +2,25 @@ package example.banking.account.service;
 
 import example.banking.account.entity.PersonalAccount;
 import example.banking.account.repository.PersonalAccountsRepository;
-import example.banking.account.types.AccountStatus;
 import example.banking.exception.BadRequestException;
 import example.banking.exception.ResourceNotFoundException;
 import example.banking.security.BankingUserDetails;
-import example.banking.transaction.entity.Transaction;
 import example.banking.transaction.repository.TransactionsRepository;
-import example.banking.transaction.types.TransactionType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 @Service
 public class PersonalAccountsService {
 
     private final PersonalAccountsRepository personalAccountsRepository;
-    private final TransactionsRepository transactionsRepository;
 
     @Autowired
     public PersonalAccountsService(
-            PersonalAccountsRepository personalAccountsRepository,
-            TransactionsRepository transactionsRepository) {
+            PersonalAccountsRepository personalAccountsRepository) {
         this.personalAccountsRepository = personalAccountsRepository;
-        this.transactionsRepository = transactionsRepository;
     }
 
     public Long create(BankingUserDetails userDetails, Long bankId) {
@@ -54,7 +47,7 @@ public class PersonalAccountsService {
             throw new BadRequestException("User is not a client");
         }
 
-        return personalAccountsRepository.findByHolderId(userDetails.getId());
+        return personalAccountsRepository.findAllByHolderId(userDetails.getId());
     }
 
     public boolean validateOwner(Long accountId, BankingUserDetails userDetails) {

@@ -18,5 +18,5 @@ public interface PersonalAccountsRepository {
 
     List<PersonalAccount> findAll();
 
-    List<PersonalAccount> findByHolderId(Long holderId);
+    List<PersonalAccount> findAllByHolderId(Long holderId);
 }

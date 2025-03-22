@@ -10,6 +10,8 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public class GeneralAccountsRepositoryImpl
     extends AbstractRepository<Account, AccountDto>
@@ -23,6 +25,27 @@ public class GeneralAccountsRepositoryImpl
     @Override
     protected RowMapper<AccountDto> getRowMapper() {
         return new GeneralAccountRowMapper();
+    }
+
+    @Override
+    public List<Account> findAllByUserId(Long id) {
+        var sql = """
+            SELECT a.* FROM account a
+            LEFT JOIN public.personal_account pa ON a.id = pa.id
+            LEFT JOIN public.salary_account sa ON a.id = sa.id
+            LEFT JOIN public.enterprise_account ea ON a.id = ea.id
+        
+            LEFT JOIN public.client c ON c.id = pa.holder_id OR sa.holder_id = c.id
+            LEFT JOIN public.specialist s ON s.id = ea.specialist_id
+        
+            LEFT JOIN public.user u ON c.id = u.id OR u.id = s.id
+        
+            WHERE u.id = :id
+        """;
+
+        var map = new MapSqlParameterSource("id", id);
+
+        return findAllByCriteria(sql, map);
     }
 
     @Override

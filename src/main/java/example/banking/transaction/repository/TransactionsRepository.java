@@ -18,6 +18,8 @@ public interface TransactionsRepository {
 
     Long create(Transaction transaction);
 
+    List<Long> batchCreate(List<Transaction> transactions);
+
     void delete(Long id);
 
     void update(Transaction transaction);

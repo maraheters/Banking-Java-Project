@@ -13,7 +13,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/transactions")
-@PreAuthorize("hasAuthority('MANAGER')")
+@PreAuthorize("hasAnyAuthority('MANAGER', 'ADMINISTRATOR', 'OPERATOR')")
 public class TransactionsController {
 
     private final TransactionsService service;

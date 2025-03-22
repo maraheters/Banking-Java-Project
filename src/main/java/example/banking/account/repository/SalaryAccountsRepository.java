@@ -13,10 +13,14 @@ public interface SalaryAccountsRepository {
 
     void update(SalaryAccount account);
 
+    void batchUpdate(List<SalaryAccount> accounts);
+
     Optional<SalaryAccount> findById(Long id);
 
     List<SalaryAccount> findAll();
 
     List<SalaryAccount> findAllBySalaryProjectId(Long id);
+
+    List<SalaryAccount> findAllByHolderId(Long id);
 
 }

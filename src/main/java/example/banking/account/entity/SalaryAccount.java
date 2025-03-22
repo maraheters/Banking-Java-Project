@@ -3,6 +3,7 @@ package example.banking.account.entity;
 import example.banking.account.dto.SalaryAccountDto;
 import example.banking.account.types.AccountStatus;
 import example.banking.utils.IbanGenerator;
+import lombok.Getter;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -11,8 +12,8 @@ public class SalaryAccount extends Account {
 
     private Long holderId;
     private Long salaryProjectId;
+    @Getter
     private BigDecimal salary;
-
 
     public static SalaryAccount create(Long clientId, Long bankId, Long salaryProjectId, BigDecimal salary) {
         var account = new SalaryAccount();

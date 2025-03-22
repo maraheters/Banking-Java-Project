@@ -11,6 +11,10 @@ public interface EnterpriseAccountsRepository {
 
     void update(EnterpriseAccount enterpriseAccount);
 
+    void batchUpdate(List<EnterpriseAccount> enterpriseAccounts);
+
+    Optional<EnterpriseAccount> findBySalaryProjectId(Long salaryProjectId);
+
     List<EnterpriseAccount> findAll();
 
     List<EnterpriseAccount> findAllByEnterpriseId(Long enterpriseId);

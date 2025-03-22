@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -107,5 +108,12 @@ public class TransactionsRepositoryTests {
         var updated = repository.findById(id).get();
 
         assertEquals(updated.getRevertTransactionId(), revertId);
+    }
+
+    @Test
+    public void batchCreate_whenCreated_thenCorrect() {
+        var ids = repository.batchCreate(List.of(transaction1, transaction2));
+
+        assertEquals(2, ids.size());
     }
 }
