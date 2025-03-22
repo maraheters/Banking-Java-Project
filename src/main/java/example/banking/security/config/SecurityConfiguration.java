@@ -1,5 +1,6 @@
 package example.banking.security.config;
 
+import example.banking.security.filter.ExceptionHandlerFilter;
 import example.banking.security.filter.JwtFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -18,6 +19,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
@@ -30,15 +32,18 @@ import java.util.List;
 public class SecurityConfiguration {
 
     private final JwtFilter jwtFilter;
+    private final ExceptionHandlerFilter exceptionHandlerFilter;
     private final UserDetailsService userDetailsService;
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
     public SecurityConfiguration(
             JwtFilter jwtFilter,
+            ExceptionHandlerFilter exceptionHandlerFilter,
             UserDetailsService userDetailsService,
             PasswordEncoder passwordEncoder) {
         this.jwtFilter = jwtFilter;
+        this.exceptionHandlerFilter = exceptionHandlerFilter;
         this.userDetailsService = userDetailsService;
         this.passwordEncoder = passwordEncoder;
     }
@@ -70,7 +75,7 @@ public class SecurityConfiguration {
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-//                .addFilterBefore(exceptionHandlerFilter, LogoutFilter.class)
+                .addFilterBefore(exceptionHandlerFilter, LogoutFilter.class)
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .cors(c -> c.configurationSource(corsConfigurationSource()));
 
